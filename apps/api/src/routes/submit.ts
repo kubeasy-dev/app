@@ -10,6 +10,8 @@ import {
   userXp,
   userXpTransaction,
 } from "../db/schema/index.js";
+import { redis } from "../lib/redis.js";
+import { slidingWindowRateLimit } from "../middleware/rate-limit.js";
 import { requireAuth } from "../middleware/session.js";
 import {
   calculateLevel,
@@ -19,8 +21,14 @@ import {
 
 const submit = new Hono();
 
+const submitRateLimit = slidingWindowRateLimit(redis, {
+  windowMs: 10_000, // 10 seconds
+  max: 10, // 10 requests per 10-second window
+  keyFn: (c) => `submit:${c.get("user").id}`,
+});
+
 // POST /challenges/:slug/submit -- validate objectives, enrich results, store submission, distribute XP on success
-submit.post("/:slug/submit", requireAuth, async (c) => {
+submit.post("/:slug/submit", requireAuth, submitRateLimit, async (c) => {
   const user = c.get("user");
   const userId = user.id;
   const challengeSlug = c.req.param("slug");
