@@ -103,13 +103,12 @@ Plans:
   2. Redis `CLIENT LIST` returns to baseline subscriber count after 10 SSE clients connect and disconnect — no subscriber instances are leaked
   3. Redis is configured with `maxmemory-policy noeviction` in docker-compose and the Railway Redis plugin — BullMQ queue keys cannot be silently evicted
   4. `@kubeasy/jobs` has populated BullMQ queue definitions and `JobPayload` types — the `apps/api` SIGTERM handler awaits `worker.close()` before process exit, verified by sending `SIGTERM` mid-job and confirming clean shutdown
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 05-01: SSE endpoint on Hono (`GET /api/sse/validation/:challengeSlug` with `streamSSE`, dedicated ioredis subscriber per connection, abort signal cleanup, 30s heartbeat)
-- [ ] 05-02: Redis pub/sub integration in submission endpoint (`PUBLISH validation:{userId}:{slug}` after enrichment and DB write)
-- [ ] 05-03: `EventSource` consumer in `apps/web` + `queryClient.invalidateQueries` on `validation-update` event
-- [ ] 05-04: BullMQ job definitions in `@kubeasy/jobs` + SIGTERM handler in `apps/api` + Redis `noeviction` config
+- [ ] 05-01-PLAN.md — SSE endpoint on Hono + Redis PUBLISH in submit route
+- [ ] 05-02-PLAN.md — BullMQ workers for all queues + SIGTERM graceful shutdown
+- [ ] 05-03-PLAN.md — useValidationSSE hook in apps/web + ChallengeMission integration
 
 ### Phase 6: Observability
 **Goal**: All HTTP requests, database spans, and structured logs from `apps/api` and `apps/web` (SSR) flow through the OTel Collector — with PostHog OTLP export removed and a DB span smoke test confirming correct SDK initialization order
@@ -156,6 +155,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 2. Hono API Migration | 5/5 | Complete   | 2026-03-18 |
 | 3. Authentication | 3/3 | Complete   | 2026-03-18 |
 | 4. Web Migration | 4/4 | Complete   | 2026-03-18 |
-| 5. Realtime SSE | 0/4 | Not started | - |
+| 5. Realtime SSE | 0/3 | Not started | - |
 | 6. Observability | 0/4 | Not started | - |
 | 7. Railway Deployment | 0/4 | Not started | - |
