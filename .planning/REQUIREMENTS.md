@@ -27,9 +27,9 @@ Scope : migration feature-parity complète vers le monorepo. Aucune nouvelle fon
 
 - [x] **API-01**: L'app `apps/api` tourne avec Hono 4.x + `@hono/node-server` (Node.js long-lived, pas serverless) et démarre avec une seule commande en local via docker-compose
 - [ ] **API-02**: Tous les endpoints challenges sont portés depuis tRPC vers REST : liste avec filtres (difficulté, thème, type), détail par slug, liste des thèmes
-- [ ] **API-03**: Tous les endpoints user progress sont portés : statut de progression, historique des soumissions, dernier statut de validation par challenge
-- [ ] **API-04**: Tous les endpoints XP sont portés : solde XP utilisateur, historique des transactions XP
-- [ ] **API-05**: L'endpoint de soumission CLI (`POST /api/challenges/:slug/submit`) valide que tous les objectifs enregistrés sont présents (ni manquants, ni inconnus), enrichit les résultats avec les métadonnées de `challengeObjective`, stocke en DB, distribue XP si tous passés
+- [x] **API-03**: Tous les endpoints user progress sont portés : statut de progression, historique des soumissions, dernier statut de validation par challenge
+- [x] **API-04**: Tous les endpoints XP sont portés : solde XP utilisateur, historique des transactions XP
+- [x] **API-05**: L'endpoint de soumission CLI (`POST /api/challenges/:slug/submit`) valide que tous les objectifs enregistrés sont présents (ni manquants, ni inconnus), enrichit les résultats avec les métadonnées de `challengeObjective`, stocke en DB, distribue XP si tous passés
 - [x] **API-06**: Un middleware session Hono extrait la session Better Auth depuis les cookies sur les routes protégées et injecte `user` + `session` dans le contexte Hono (`c.var`)
 - [x] **API-07**: La connexion PostgreSQL utilise `postgres` (postgres.js) comme driver Drizzle — le driver Neon serverless (`@neondatabase/serverless`) est supprimé
 - [x] **API-08**: Le schéma Drizzle existant (`server/db/schema/`) est migré tel quel dans `apps/api` — aucun changement de schéma DB dans ce milestone
@@ -125,9 +125,9 @@ Deferred — architecture préparée mais hors scope v1.
 | PKG-04 | Phase 1 | Complete |
 | API-01 | Phase 2 | Complete |
 | API-02 | Phase 2 | Pending |
-| API-03 | Phase 2 | Pending |
-| API-04 | Phase 2 | Pending |
-| API-05 | Phase 2 | Pending |
+| API-03 | Phase 2 | Complete |
+| API-04 | Phase 2 | Complete |
+| API-05 | Phase 2 | Complete |
 | API-06 | Phase 2 | Complete |
 | API-07 | Phase 2 | Complete |
 | API-08 | Phase 2 | Complete |
