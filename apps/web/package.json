@@ -13,6 +13,7 @@
     "@better-auth/api-key": "^1.5.5",
     "@fontsource-variable/geist": "^5.2.8",
     "@kubeasy/api-schemas": "workspace:*",
+    "@notionhq/client": "5.12.0",
     "@tanstack/react-query": "^5.91.0",
     "@tanstack/react-router": "^1.167.4",
     "@tanstack/react-start": "^1.166.16",
