@@ -49,8 +49,8 @@ Scope : migration feature-parity complète vers le monorepo. Aucune nouvelle fon
 - [x] **WEB-02**: Tous les hooks tRPC sont remplacés par des wrappers `fetch` typés via `z.infer<>` sur les schémas `@kubeasy/api-schemas`, orchestrés avec Tanstack Query (`useQuery`, `useMutation`)
 - [x] **WEB-03**: Les routes loader Tanstack Start préfetchent les données serveur (challenge liste, détail) et hydratent le client via la déshydratation Tanstack Query
 - [ ] **WEB-04**: Les pages landing (homepage, pricing, about) et les articles de blog sont pré-rendus en SSG à build time via la config `prerender` de Tanstack Start
-- [ ] **WEB-05**: Les pages challenges utilisent un rendu hybride : données de base pré-rendues ou SSR via loader, statut de validation live via client uniquement
-- [ ] **WEB-06**: Le client Tanstack Start consomme les événements SSE via `EventSource` et appelle `queryClient.invalidateQueries` à réception — affichage temps réel du statut de validation sans polling
+- [x] **WEB-05**: Les pages challenges utilisent un rendu hybride : données de base pré-rendues ou SSR via loader, statut de validation live via client uniquement
+- [x] **WEB-06**: Le client Tanstack Start consomme les événements SSE via `EventSource` et appelle `queryClient.invalidateQueries` à réception — affichage temps réel du statut de validation sans polling
 - [x] **WEB-07**: Le frontend Tanstack Start envoie `credentials: "include"` sur tous les appels fetch vers l'API pour partager les cookies de session Better Auth
 
 ### Realtime SSE
@@ -141,8 +141,8 @@ Deferred — architecture préparée mais hors scope v1.
 | WEB-02 | Phase 4 | Complete |
 | WEB-03 | Phase 4 | Complete |
 | WEB-04 | Phase 4 | Pending |
-| WEB-05 | Phase 4 | Pending |
-| WEB-06 | Phase 4 | Pending |
+| WEB-05 | Phase 4 | Complete |
+| WEB-06 | Phase 4 | Complete |
 | WEB-07 | Phase 4 | Complete |
 | REAL-01 | Phase 5 | Pending |
 | REAL-02 | Phase 5 | Pending |

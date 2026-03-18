@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-03-PLAN.md — landing page, blog SSG routes, and login page migration
-last_updated: "2026-03-18T17:53:50.502Z"
-last_activity: "2026-03-18 — Completed plan 01-02: @kubeasy/api-schemas package with challenges, themes, and submissions schemas"
+stopped_at: Completed 04-04-PLAN.md — SSR routes for challenges, themes, types, dashboard, profile, admin, onboarding, get-started, and auth callback
+last_updated: "2026-03-18T18:13:49.605Z"
+last_activity: "2026-03-18 — Completed plan 04-03: landing page, blog SSG routes, and login page migration"
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 16
-  completed_plans: 14
+  completed_plans: 16
   percent: 8
 ---
 
@@ -63,6 +63,7 @@ Progress: [░░░░░░░░░░] 8%
 | Phase 04-web-migration P01 | 14 | 2 tasks | 36 files |
 | Phase 04-web-migration P02 | 167 | 2 tasks | 4 files |
 | Phase 04-web-migration P03 | 5 | 2 tasks | 21 files |
+| Phase 04-web-migration P04 | 35 | 2 tasks | 27 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,8 @@ Recent decisions affecting current work:
 - [Phase 04-web-migration]: Blog SSG uses crawlLinks: true — listing page Link tags discovered by vite-plugin-ssr at build time for article pages
 - [Phase 04-web-migration]: Button asChild not supported in @base-ui/react — all asChild patterns replaced with plain <a> elements with appropriate styles
 - [Phase 04-web-migration]: Progress routes use /:slug pattern (GET /progress/:slug, POST /progress/:slug/start, DELETE /progress/:slug/reset); latest validation at GET /submissions/:slug/latest; xp endpoint is /xp/history; user name update uses PATCH
+- [Phase 04-web-migration]: Hybrid rendering on challenge detail: loader prefetches base data for SSR; latestValidationOptions is client-only (useQuery) because it requires auth session unavailable at SSR time
+- [Phase 04-web-migration]: Admin role guard per-route via beforeLoad — TanStack Router pathless layout bug prevents shared admin layout; LucideIcon uses static icons map from lucide-react (no next/dynamic in TanStack Start)
 
 ### Pending Todos
 
@@ -117,6 +120,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T18:00:00.000Z
-Stopped at: Completed 04-03-PLAN.md — landing page, blog SSG routes, and login page migration
+Last session: 2026-03-18T18:13:49.602Z
+Stopped at: Completed 04-04-PLAN.md — SSR routes for challenges, themes, types, dashboard, profile, admin, onboarding, get-started, and auth callback
 Resume file: None
