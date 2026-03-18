@@ -50,13 +50,13 @@ Plans:
   3. `pnpm why @neondatabase/serverless` from the repo root returns empty — the Neon serverless driver is fully removed
   4. Rate limiting on the CLI submission endpoint returns HTTP 429 after threshold is exceeded — verified with a script sending 100 requests in 10 seconds
   5. The Go CLI can call `POST /api/challenges/:slug/submit` with its existing payload structure and receive a valid response — CLI contract is preserved
-**Plans**: TBD
+**Plans:** 4 plans
 
 Plans:
-- [ ] 02-01: `apps/api` scaffold (Hono + `@hono/node-server`, entry point, route module structure, Drizzle + postgres.js, DB schema migration from `server/db/`)
-- [ ] 02-02: Challenge and theme REST endpoints (`GET /api/challenges`, `GET /api/challenges/:slug`, `GET /api/themes`)
-- [ ] 02-03: User progress, XP, and submission endpoints (progress, XP balance/history, `POST /api/challenges/:slug/submit` with objective enrichment)
-- [ ] 02-04: Rate limiting middleware on CLI submission endpoint (ioredis sliding window, replaces Upstash rate limit)
+- [ ] 02-01-PLAN.md — apps/api scaffold (Hono + @hono/node-server, postgres.js + Drizzle, DB schema migration, Better Auth, session middleware)
+- [ ] 02-02-PLAN.md — Challenge, theme, and type REST endpoints (list with filters, detail, objectives)
+- [ ] 02-03-PLAN.md — User progress, XP, submission endpoints + XP service port + CLI alias
+- [ ] 02-04-PLAN.md — ioredis sliding window rate limiting on CLI submission endpoint
 
 ### Phase 3: Authentication
 **Goal**: Users can authenticate via OAuth on the new cross-origin API/web split, the CLI can authenticate via API keys, and session cookies work correctly across subdomains
@@ -148,7 +148,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
