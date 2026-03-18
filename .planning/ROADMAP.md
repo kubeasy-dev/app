@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Monorepo Scaffold** - Turborepo workspace, shared packages, docker-compose infra (completed 2026-03-18)
 - [x] **Phase 2: Hono API Migration** - All tRPC routes ported to REST, Drizzle switched to postgres.js (completed 2026-03-18)
-- [ ] **Phase 3: Authentication** - Better Auth on Hono, OAuth providers, API keys for CLI
+- [x] **Phase 3: Authentication** - Better Auth on Hono, OAuth providers, API keys for CLI (completed 2026-03-18)
 - [ ] **Phase 4: Web Migration** - TanStack Start replacing Next.js, all pages with TanStack Query
 - [ ] **Phase 5: Realtime SSE** - SSE endpoint on Hono, Redis pub/sub, BullMQ job definitions
 - [ ] **Phase 6: Observability** - OTel SDK in both apps, Collector config, PostHog OTLP removed
@@ -69,7 +69,7 @@ Plans:
   3. A CLI user can create an API key via the web interface, use it in `Authorization: Bearer <key>` on the submission endpoint, and have the associated user injected into the Hono context
   4. The Vercel wildcard `*.vercel.app` is removed from `trustedOrigins` — only `kubeasy.dev` and local dev origins are trusted
   5. CORS preflight for requests including the `User-Agent` header succeeds — no 403 from missing `allowHeaders` configuration
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] 03-00-PLAN.md — Wave 0 test stubs for auth, OAuth, cookie, and API key middleware
@@ -154,7 +154,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 |-------|----------------|--------|-----------|
 | 1. Monorepo Scaffold | 4/4 | Complete   | 2026-03-18 |
 | 2. Hono API Migration | 5/5 | Complete   | 2026-03-18 |
-| 3. Authentication | 1/3 | In Progress|  |
+| 3. Authentication | 3/3 | Complete   | 2026-03-18 |
 | 4. Web Migration | 0/4 | Not started | - |
 | 5. Realtime SSE | 0/4 | Not started | - |
 | 6. Observability | 0/4 | Not started | - |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-18T16:42:03.877Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-03-18T16:44:46.331Z"
 last_activity: "2026-03-18 — Completed plan 01-02: @kubeasy/api-schemas package with challenges, themes, and submissions schemas"
 progress:
   total_phases: 7
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 12
-  completed_plans: 11
+  completed_plans: 12
   percent: 8
 ---
 
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 8%
 | Phase 02-hono-api-migration P04 | 2 | 1 tasks | 2 files |
 | Phase 03-authentication P00 | 3 | 2 tasks | 4 files |
 | Phase 03-authentication P01 | 1 | 3 tasks | 6 files |
+| Phase 03-authentication P02 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,8 @@ Recent decisions affecting current work:
 - [Phase 03-authentication]: oAuthProxy plugin dropped — Railway deployment, not Vercel; no need for OAuth preview proxying
 - [Phase 03-authentication]: databaseHooks user.create.after fire-and-forget BullMQ dispatch; errors caught and logged, never thrown
 - [Phase 03-authentication]: trustedOrigins and CORS origin list kept in sync: localhost:3000/3001, kubeasy.dev, api.kubeasy.dev; no vercel.app wildcard
+- [Phase 03-authentication]: Use result.key.referenceId (not userId) for better-auth 1.5+ API key user lookup
+- [Phase 03-authentication]: AUTH-06 (apps/web Better Auth client) deferred to Phase 4 — apps/web does not exist yet
 
 ### Pending Todos
 
@@ -105,6 +108,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T16:42:03.874Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-03-18T16:44:46.329Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None

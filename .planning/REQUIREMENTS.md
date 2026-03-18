@@ -41,7 +41,7 @@ Scope : migration feature-parity complète vers le monorepo. Aucune nouvelle fon
 - [x] **AUTH-03**: `@hono/cors` est configuré avant le handler Better Auth avec `credentials: true` et les origines de confiance listées (localhost dev + domaines production)
 - [x] **AUTH-04**: Le plugin `apiKey()` Better Auth est activé — les utilisateurs peuvent créer, lister et révoquer des clés API depuis l'interface web
 - [x] **AUTH-05**: Un middleware Hono valide les clés API (`Authorization: Bearer <key>`) sur les routes CLI et injecte l'utilisateur associé dans `c.var`
-- [ ] **AUTH-06**: Le web `apps/web` utilise `createAuthClient` de Better Auth pointant vers l'URL de l'API — pas d'instance Better Auth dans le web
+- [x] **AUTH-06**: Le web `apps/web` utilise `createAuthClient` de Better Auth pointant vers l'URL de l'API — pas d'instance Better Auth dans le web
 
 ### Web Tanstack Start (`apps/web`)
 
@@ -136,7 +136,7 @@ Deferred — architecture préparée mais hors scope v1.
 | AUTH-03 | Phase 3 | Complete |
 | AUTH-04 | Phase 3 | Complete |
 | AUTH-05 | Phase 3 | Complete |
-| AUTH-06 | Phase 3 | Pending |
+| AUTH-06 | Phase 3 | Complete |
 | WEB-01 | Phase 4 | Pending |
 | WEB-02 | Phase 4 | Pending |
 | WEB-03 | Phase 4 | Pending |
