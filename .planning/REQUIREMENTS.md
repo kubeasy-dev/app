@@ -30,9 +30,9 @@ Scope : migration feature-parity complète vers le monorepo. Aucune nouvelle fon
 - [ ] **API-03**: Tous les endpoints user progress sont portés : statut de progression, historique des soumissions, dernier statut de validation par challenge
 - [ ] **API-04**: Tous les endpoints XP sont portés : solde XP utilisateur, historique des transactions XP
 - [ ] **API-05**: L'endpoint de soumission CLI (`POST /api/challenges/:slug/submit`) valide que tous les objectifs enregistrés sont présents (ni manquants, ni inconnus), enrichit les résultats avec les métadonnées de `challengeObjective`, stocke en DB, distribue XP si tous passés
-- [ ] **API-06**: Un middleware session Hono extrait la session Better Auth depuis les cookies sur les routes protégées et injecte `user` + `session` dans le contexte Hono (`c.var`)
-- [ ] **API-07**: La connexion PostgreSQL utilise `postgres` (postgres.js) comme driver Drizzle — le driver Neon serverless (`@neondatabase/serverless`) est supprimé
-- [ ] **API-08**: Le schéma Drizzle existant (`server/db/schema/`) est migré tel quel dans `apps/api` — aucun changement de schéma DB dans ce milestone
+- [x] **API-06**: Un middleware session Hono extrait la session Better Auth depuis les cookies sur les routes protégées et injecte `user` + `session` dans le contexte Hono (`c.var`)
+- [x] **API-07**: La connexion PostgreSQL utilise `postgres` (postgres.js) comme driver Drizzle — le driver Neon serverless (`@neondatabase/serverless`) est supprimé
+- [x] **API-08**: Le schéma Drizzle existant (`server/db/schema/`) est migré tel quel dans `apps/api` — aucun changement de schéma DB dans ce milestone
 
 ### Authentification
 
@@ -128,9 +128,9 @@ Deferred — architecture préparée mais hors scope v1.
 | API-03 | Phase 2 | Pending |
 | API-04 | Phase 2 | Pending |
 | API-05 | Phase 2 | Pending |
-| API-06 | Phase 2 | Pending |
-| API-07 | Phase 2 | Pending |
-| API-08 | Phase 2 | Pending |
+| API-06 | Phase 2 | Complete |
+| API-07 | Phase 2 | Complete |
+| API-08 | Phase 2 | Complete |
 | AUTH-01 | Phase 3 | Pending |
 | AUTH-02 | Phase 3 | Pending |
 | AUTH-03 | Phase 3 | Pending |

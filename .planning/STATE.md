@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-00-PLAN.md (vitest setup and test stubs)
-last_updated: "2026-03-18T14:59:31.139Z"
+stopped_at: Completed 02-hono-api-migration/02-01-PLAN.md
+last_updated: "2026-03-18T15:00:38.419Z"
 last_activity: "2026-03-18 — Completed plan 01-02: @kubeasy/api-schemas package with challenges, themes, and submissions schemas"
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 9
-  completed_plans: 5
+  completed_plans: 6
   percent: 8
 ---
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 8%
 | Phase 01-monorepo-scaffold P04 | 2 | 1 tasks | 2 files |
 | Phase 01-monorepo-scaffold P03 | 3 | 2 tasks | 14 files |
 | Phase 02-hono-api-migration P00 | 6 | 2 tasks | 8 files |
+| Phase 02-hono-api-migration P01 | 7 | 3 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,9 @@ Recent decisions affecting current work:
 - [Phase 01-monorepo-scaffold]: Use bullmq ConnectionOptions in factory.ts instead of IORedis import to avoid ioredis version conflict
 - [Phase 01-monorepo-scaffold]: api-schemas vitest.config.ts added as standalone package-level config to avoid root setup file dependency
 - [Phase 02-hono-api-migration]: vitest root set to src/ so test:run discovers __tests__/ relative to source root; todo tests exit 0 enabling CI-friendly test infrastructure setup
+- [Phase 02-hono-api-migration]: Use @better-auth/drizzle-adapter as separate package (not better-auth/adapters/drizzle subpath which doesn't exist in v1.5.5)
+- [Phase 02-hono-api-migration]: NodeNext .js extension rule: all relative imports in apps/api/src must use .js extension due to typescript-config/node.json moduleResolution
+- [Phase 02-hono-api-migration]: Inline objectiveCategoryValues in challenge.ts to eliminate @/schemas/challengeObjectives cross-dependency from Next.js app
 
 ### Pending Todos
 
@@ -86,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T14:59:31.136Z
-Stopped at: Completed 02-00-PLAN.md (vitest setup and test stubs)
+Last session: 2026-03-18T15:00:38.417Z
+Stopped at: Completed 02-hono-api-migration/02-01-PLAN.md
 Resume file: None
