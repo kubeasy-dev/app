@@ -27,6 +27,8 @@
     "openapi:generate": "tsx scripts/generate-openapi.ts"
   },
   "dependencies": {
+    "@kubeasy/api-schemas": "workspace:*",
+    "@kubeasy/jobs": "workspace:*",
     "@better-auth/api-key": "1.5.5",
     "@better-auth/drizzle-adapter": "1.5.5",
     "@neondatabase/serverless": "1.0.2",

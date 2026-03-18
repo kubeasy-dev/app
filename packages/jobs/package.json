@@ -1,0 +1,21 @@
+{
+  "name": "@kubeasy/jobs",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./queue-names": "./src/queue-names.ts",
+    "./payloads": "./src/payloads.ts",
+    "./factory": "./src/factory.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "bullmq": "^5.71.0"
+  },
+  "devDependencies": {
+    "@kubeasy/typescript-config": "workspace:*",
+    "typescript": "5.9.3"
+  }
+}
