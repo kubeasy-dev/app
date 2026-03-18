@@ -32,12 +32,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `docker compose up` starts PostgreSQL, Redis, and OTel Collector — all three services are reachable on their expected ports
   4. `@kubeasy/api-schemas` exports Zod schemas covering all existing tRPC procedure shapes (challenges, themes, progress, XP, submissions, auth) and `@kubeasy/jobs` exports queue names and `JobPayload` types without importing from any `apps/` package
   5. `turbo build --dry-run --summarize` shows declared env vars (`DATABASE_URL`, `REDIS_URL`, `BETTER_AUTH_SECRET`) in the cache key inputs
-**Plans:** 3 plans
+**Plans:** 4 plans
 
 Plans:
-- [ ] 01-01: Turborepo + pnpm workspace scaffold (root package.json, turbo.json, pnpm-workspace.yaml, biome.json)
-- [ ] 01-02: Shared packages (`packages/typescript-config`, `packages/api-schemas`, `packages/jobs`)
-- [ ] 01-03: docker-compose with PostgreSQL, Redis, OTel Collector
+- [ ] 01-01-PLAN.md — Turborepo + pnpm workspace scaffold and packages/typescript-config
+- [ ] 01-02-PLAN.md — @kubeasy/api-schemas core domains (challenges, themes, submissions)
+- [ ] 01-03-PLAN.md — @kubeasy/api-schemas remaining domains + tests + @kubeasy/jobs
+- [ ] 01-04-PLAN.md — docker-compose with PostgreSQL, Redis, OTel Collector
 
 ### Phase 2: Hono API Migration
 **Goal**: The Hono API runs as a long-lived Node.js process, all tRPC business logic is ported to REST endpoints validated by `@kubeasy/api-schemas`, and the Neon serverless driver is replaced by postgres.js
@@ -151,7 +152,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Monorepo Scaffold | 0/3 | Not started | - |
+| 1. Monorepo Scaffold | 0/4 | Not started | - |
 | 2. Hono API Migration | 0/4 | Not started | - |
 | 3. Authentication | 0/4 | Not started | - |
 | 4. Web Migration | 0/4 | Not started | - |
