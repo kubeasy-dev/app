@@ -1,3 +1,4 @@
+import { zValidator } from "@hono/zod-validator";
 import { and, eq, ilike, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../db/index.js";
@@ -8,35 +9,18 @@ import {
   challengeType,
   userProgress,
 } from "../db/schema/index.js";
-import type { auth } from "../lib/auth.js";
+import type { AppEnv } from "../middleware/session.js";
+import { challengeFiltersSchema } from "../schemas/index.js";
 
-type SessionUser = typeof auth.$Infer.Session.user;
-type SessionData = typeof auth.$Infer.Session.session;
-
-type ChallengesEnv = {
-  Variables: {
-    user: SessionUser | null;
-    session: SessionData | null;
-  };
-};
-
-const challenges = new Hono<ChallengesEnv>();
+const challenges = new Hono<AppEnv>();
 
 // GET /challenges -- list with filters
-challenges.get("/", async (c) => {
+challenges.get("/", zValidator("query", challengeFiltersSchema), async (c) => {
   const user = c.get("user");
   const userId = user?.id;
 
-  const difficulty = c.req.query("difficulty") as
-    | "easy"
-    | "medium"
-    | "hard"
-    | undefined;
-  const type = c.req.query("type");
-  const theme = c.req.query("theme");
-  const search = c.req.query("search");
-  const showCompletedParam = c.req.query("showCompleted");
-  const showCompleted = showCompletedParam !== "false";
+  const { difficulty, type, theme, search, showCompleted } =
+    c.req.valid("query");
 
   const filters = [eq(challenge.available, true)];
 
@@ -159,7 +143,6 @@ challenges.get("/:slug", async (c) => {
 challenges.get("/:slug/objectives", async (c) => {
   const slug = c.req.param("slug");
 
-  // First get the challenge to ensure it exists and get its ID
   const [challengeItem] = await db
     .select({
       id: challenge.id,

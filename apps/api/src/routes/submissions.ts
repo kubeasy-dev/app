@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { db } from "../db/index.js";
 import { challenge, userSubmission } from "../db/schema/index.js";
 import { requireAuth } from "../middleware/session.js";
+import type { Objective } from "../schemas/index.js";
 
 const submissions = new Hono();
 
@@ -80,14 +81,7 @@ submissions.get("/:slug/latest", requireAuth, async (c) => {
     });
   }
 
-  const objectives = latestSubmission.objectives as Array<{
-    id: string;
-    name: string;
-    description?: string;
-    passed: boolean;
-    category: string;
-    message: string;
-  }> | null;
+  const objectives = latestSubmission.objectives as Objective[] | null;
 
   return c.json({
     hasSubmission: true,

@@ -15,24 +15,25 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "hono": "^4.12.8",
-    "@hono/node-server": "^1.19.11",
-    "postgres": "^3.4.8",
-    "drizzle-orm": "0.45.1",
-    "better-auth": "1.5.5",
     "@better-auth/drizzle-adapter": "1.5.5",
+    "@hono/node-server": "^1.19.11",
+    "@hono/zod-validator": "^0.7.6",
+    "@kubeasy/api-schemas": "workspace:*",
+    "@kubeasy/jobs": "workspace:*",
+    "better-auth": "1.5.5",
+    "drizzle-orm": "0.45.1",
+    "hono": "^4.12.8",
     "ioredis": "^5.6.1",
     "nanoid": "5.1.6",
-    "zod": "4.3.6",
-    "@kubeasy/api-schemas": "workspace:*",
-    "@kubeasy/jobs": "workspace:*"
+    "postgres": "^3.4.8",
+    "zod": "4.3.6"
   },
   "devDependencies": {
+    "@kubeasy/typescript-config": "workspace:*",
+    "@types/node": "^22.15.0",
     "drizzle-kit": "0.31.9",
     "tsx": "4.21.0",
     "typescript": "5.9.3",
-    "vitest": "4.1.0",
-    "@kubeasy/typescript-config": "workspace:*",
-    "@types/node": "^22.15.0"
+    "vitest": "4.1.0"
   }
 }

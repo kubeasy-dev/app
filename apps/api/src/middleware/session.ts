@@ -1,8 +1,15 @@
 import { createMiddleware } from "hono/factory";
 import { auth } from "../lib/auth.js";
 
-type SessionUser = typeof auth.$Infer.Session.user;
-type SessionData = typeof auth.$Infer.Session.session;
+export type SessionUser = typeof auth.$Infer.Session.user;
+export type SessionData = typeof auth.$Infer.Session.session;
+
+export type AppEnv = {
+  Variables: {
+    user: SessionUser | null;
+    session: SessionData | null;
+  };
+};
 
 export const sessionMiddleware = createMiddleware<{
   Variables: {
