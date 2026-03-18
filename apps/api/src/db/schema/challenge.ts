@@ -1,4 +1,6 @@
-import { ObjectiveTypeSchema } from "@kubeasy/api-schemas/objectives";
+import { challengeDifficultyValues } from "@kubeasy/api-schemas/challenges";
+import { asDrizzleEnum } from "@kubeasy/api-schemas/drizzle";
+import { objectiveTypeValues } from "@kubeasy/api-schemas/objectives";
 import {
   boolean,
   index,
@@ -36,11 +38,10 @@ export const challengeType = pgTable("challenge_type", {
     .notNull(),
 });
 
-export const challengeDifficultyEnum = pgEnum("challenge_difficulty", [
-  "easy",
-  "medium",
-  "hard",
-]);
+export const challengeDifficultyEnum = pgEnum(
+  "challenge_difficulty",
+  asDrizzleEnum(challengeDifficultyValues),
+);
 
 export const challenge = pgTable(
   "challenge",
@@ -182,7 +183,7 @@ export const userXp = pgTable(
 // Table to store XP transaction history
 export const objectiveCategoryEnum = pgEnum(
   "objective_category",
-  ObjectiveTypeSchema.options as [string, ...string[]],
+  asDrizzleEnum(objectiveTypeValues),
 );
 
 // Table to store challenge objectives (parsed from validation CRDs)

@@ -70,13 +70,14 @@ export const ConnectivitySpecSchema = z.object({
 });
 export type ConnectivitySpec = z.infer<typeof ConnectivitySpecSchema>;
 
-export const ObjectiveTypeSchema = z.enum([
+export const objectiveTypeValues = [
   "status",
   "condition",
   "log",
   "event",
   "connectivity",
-]);
+] as const;
+export const ObjectiveTypeSchema = z.enum(objectiveTypeValues);
 export type ObjectiveType = z.infer<typeof ObjectiveTypeSchema>;
 
 export const ObjectiveSpecSchema = z.union([

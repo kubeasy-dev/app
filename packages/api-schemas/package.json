@@ -10,7 +10,8 @@
     "./xp": "./src/xp.ts",
     "./submissions": "./src/submissions.ts",
     "./auth": "./src/auth.ts",
-    "./objectives": "./src/objectives.ts"
+    "./objectives": "./src/objectives.ts",
+    "./drizzle": "./src/drizzle.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

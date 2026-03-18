@@ -2,7 +2,8 @@ import { z } from "zod";
 
 // ---------- Enums ----------
 
-export const ChallengeDifficultySchema = z.enum(["easy", "medium", "hard"]);
+export const challengeDifficultyValues = ["easy", "medium", "hard"] as const;
+export const ChallengeDifficultySchema = z.enum(challengeDifficultyValues);
 export type ChallengeDifficulty = z.infer<typeof ChallengeDifficultySchema>;
 
 // ---------- Inputs ----------

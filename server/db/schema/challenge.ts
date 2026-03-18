@@ -1,3 +1,5 @@
+import { challengeDifficultyValues } from "@kubeasy/api-schemas/challenges";
+import { asDrizzleEnum } from "@kubeasy/api-schemas/drizzle";
 import {
   boolean,
   index,
@@ -10,7 +12,7 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { ObjectiveTypeSchema } from "@/schemas/challengeObjectives";
+import { objectiveTypeValues } from "@/schemas/challengeObjectives";
 import { user } from "./auth";
 
 export const challengeTheme = pgTable("challenge_theme", {
@@ -36,11 +38,10 @@ export const challengeType = pgTable("challenge_type", {
     .notNull(),
 });
 
-export const challengeDifficultyEnum = pgEnum("challenge_difficulty", [
-  "easy",
-  "medium",
-  "hard",
-]);
+export const challengeDifficultyEnum = pgEnum(
+  "challenge_difficulty",
+  asDrizzleEnum(challengeDifficultyValues),
+);
 
 export const challenge = pgTable(
   "challenge",
@@ -183,7 +184,7 @@ export const userXp = pgTable(
 // Objective category enum matching the validation types from Zod schema
 export const objectiveCategoryEnum = pgEnum(
   "objective_category",
-  ObjectiveTypeSchema.options as [string, ...string[]],
+  asDrizzleEnum(objectiveTypeValues),
 );
 
 // Table to store challenge objectives (parsed from validation CRDs)
