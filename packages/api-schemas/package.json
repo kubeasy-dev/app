@@ -9,7 +9,8 @@
     "./progress": "./src/progress.ts",
     "./xp": "./src/xp.ts",
     "./submissions": "./src/submissions.ts",
-    "./auth": "./src/auth.ts"
+    "./auth": "./src/auth.ts",
+    "./objectives": "./src/objectives.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

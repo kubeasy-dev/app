@@ -1,3 +1,4 @@
+import { ObjectiveTypeSchema } from "@kubeasy/api-schemas/objectives";
 import {
   boolean,
   index,
@@ -179,20 +180,9 @@ export const userXp = pgTable(
 );
 
 // Table to store XP transaction history
-// Objective category enum matching the validation types from Zod schema
-// Inlined from schemas/challengeObjectives.ts ObjectiveTypeSchema
-// Original values: ["status", "condition", "log", "event", "connectivity"]
-export const objectiveCategoryValues = [
-  "status",
-  "condition",
-  "log",
-  "event",
-  "connectivity",
-] as const;
-
 export const objectiveCategoryEnum = pgEnum(
   "objective_category",
-  objectiveCategoryValues as unknown as [string, ...string[]],
+  ObjectiveTypeSchema.options as [string, ...string[]],
 );
 
 // Table to store challenge objectives (parsed from validation CRDs)

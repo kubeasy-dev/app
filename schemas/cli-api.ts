@@ -1,9 +1,9 @@
 import "zod-openapi";
 import { z } from "zod";
+import { ObjectiveTypeSchema } from "@/schemas/challengeObjectives";
 import {
   challengeDifficultyEnum,
   challengeStatusEnum,
-  objectiveCategoryEnum,
 } from "@/server/db/schema/challenge";
 
 // ---------- Shared ----------
@@ -84,7 +84,7 @@ export const challengeStatusResponseSchema = z
 
 // ---------- Submit ----------
 
-export const objectiveCategorySchema = z.enum(objectiveCategoryEnum.enumValues);
+export const objectiveCategorySchema = ObjectiveTypeSchema;
 
 export const objectiveResultSchema = z
   .object({

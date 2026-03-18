@@ -1,15 +1,9 @@
 import { z } from "zod";
+import { ObjectiveTypeSchema } from "./objectives.js";
 
 // ---------- Enums ----------
 
-export const ObjectiveCategorySchema = z.enum([
-  "status",
-  "log",
-  "event",
-  "metrics",
-  "rbac",
-  "connectivity",
-]);
+export const ObjectiveCategorySchema = ObjectiveTypeSchema;
 export type ObjectiveCategory = z.infer<typeof ObjectiveCategorySchema>;
 
 // ---------- Core schemas ----------

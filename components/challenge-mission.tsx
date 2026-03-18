@@ -33,19 +33,17 @@ interface ChallengeMissionProps {
 
 const CATEGORY_LABELS: Record<ObjectiveCategory, string> = {
   status: "Status",
+  condition: "Condition",
   log: "Logs",
   event: "Events",
-  metrics: "Metrics",
-  rbac: "RBAC",
   connectivity: "Network",
 };
 
 const CATEGORY_COLORS: Record<ObjectiveCategory, string> = {
-  log: "bg-blue-100 text-blue-700",
   status: "bg-purple-100 text-purple-700",
+  condition: "bg-indigo-100 text-indigo-700",
+  log: "bg-blue-100 text-blue-700",
   event: "bg-orange-100 text-orange-700",
-  metrics: "bg-green-100 text-green-700",
-  rbac: "bg-yellow-100 text-yellow-700",
   connectivity: "bg-cyan-100 text-cyan-700",
 };
 

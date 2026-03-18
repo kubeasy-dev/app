@@ -1,12 +1,12 @@
+import { ObjectiveTypeSchema } from "@kubeasy/api-schemas/objectives";
 import { z } from "zod";
-import {
-  challengeDifficultyEnum,
-  objectiveCategoryValues,
-} from "../db/schema/challenge.js";
+import { challengeDifficultyEnum } from "../db/schema/challenge.js";
 
-// ---- Enums (derived from DB schema — single source of truth) ----
+// ---- Enums ----
+// objectiveCategorySchema: source of truth is packages/api-schemas/src/objectives.ts
+// challengeDifficultySchema: source of truth is the DB pgEnum
 
-export const objectiveCategorySchema = z.enum(objectiveCategoryValues);
+export const objectiveCategorySchema = ObjectiveTypeSchema;
 
 export const challengeDifficultySchema = z.enum(
   challengeDifficultyEnum.enumValues,
