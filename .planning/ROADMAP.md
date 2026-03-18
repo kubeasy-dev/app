@@ -69,7 +69,7 @@ Plans:
   3. A CLI user can create an API key via the web interface, use it in `Authorization: Bearer <key>` on the submission endpoint, and have the associated user injected into the Hono context
   4. The Vercel wildcard `*.vercel.app` is removed from `trustedOrigins` — only `kubeasy.dev` and local dev origins are trusted
   5. CORS preflight for requests including the `User-Agent` header succeeds — no 403 from missing `allowHeaders` configuration
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 03-00-PLAN.md — Wave 0 test stubs for auth, OAuth, cookie, and API key middleware
@@ -154,7 +154,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 |-------|----------------|--------|-----------|
 | 1. Monorepo Scaffold | 4/4 | Complete   | 2026-03-18 |
 | 2. Hono API Migration | 5/5 | Complete   | 2026-03-18 |
-| 3. Authentication | 0/3 | Not started | - |
+| 3. Authentication | 1/3 | In Progress|  |
 | 4. Web Migration | 0/4 | Not started | - |
 | 5. Realtime SSE | 0/4 | Not started | - |
 | 6. Observability | 0/4 | Not started | - |

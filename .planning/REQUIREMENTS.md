@@ -36,11 +36,11 @@ Scope : migration feature-parity complète vers le monorepo. Aucune nouvelle fon
 
 ### Authentification
 
-- [ ] **AUTH-01**: Better Auth est configuré dans `apps/api` avec l'adaptateur Drizzle et monte son handler sur `GET/POST /api/auth/*`
-- [ ] **AUTH-02**: Les providers OAuth GitHub, Google et Microsoft sont configurés dans Better Auth côté API
-- [ ] **AUTH-03**: `@hono/cors` est configuré avant le handler Better Auth avec `credentials: true` et les origines de confiance listées (localhost dev + domaines production)
-- [ ] **AUTH-04**: Le plugin `apiKey()` Better Auth est activé — les utilisateurs peuvent créer, lister et révoquer des clés API depuis l'interface web
-- [ ] **AUTH-05**: Un middleware Hono valide les clés API (`Authorization: Bearer <key>`) sur les routes CLI et injecte l'utilisateur associé dans `c.var`
+- [x] **AUTH-01**: Better Auth est configuré dans `apps/api` avec l'adaptateur Drizzle et monte son handler sur `GET/POST /api/auth/*`
+- [x] **AUTH-02**: Les providers OAuth GitHub, Google et Microsoft sont configurés dans Better Auth côté API
+- [x] **AUTH-03**: `@hono/cors` est configuré avant le handler Better Auth avec `credentials: true` et les origines de confiance listées (localhost dev + domaines production)
+- [x] **AUTH-04**: Le plugin `apiKey()` Better Auth est activé — les utilisateurs peuvent créer, lister et révoquer des clés API depuis l'interface web
+- [x] **AUTH-05**: Un middleware Hono valide les clés API (`Authorization: Bearer <key>`) sur les routes CLI et injecte l'utilisateur associé dans `c.var`
 - [ ] **AUTH-06**: Le web `apps/web` utilise `createAuthClient` de Better Auth pointant vers l'URL de l'API — pas d'instance Better Auth dans le web
 
 ### Web Tanstack Start (`apps/web`)
@@ -131,11 +131,11 @@ Deferred — architecture préparée mais hors scope v1.
 | API-06 | Phase 2 | Complete |
 | API-07 | Phase 2 | Complete |
 | API-08 | Phase 2 | Complete |
-| AUTH-01 | Phase 3 | Pending |
-| AUTH-02 | Phase 3 | Pending |
-| AUTH-03 | Phase 3 | Pending |
-| AUTH-04 | Phase 3 | Pending |
-| AUTH-05 | Phase 3 | Pending |
+| AUTH-01 | Phase 3 | Complete |
+| AUTH-02 | Phase 3 | Complete |
+| AUTH-03 | Phase 3 | Complete |
+| AUTH-04 | Phase 3 | Complete |
+| AUTH-05 | Phase 3 | Complete |
 | AUTH-06 | Phase 3 | Pending |
 | WEB-01 | Phase 4 | Pending |
 | WEB-02 | Phase 4 | Pending |
