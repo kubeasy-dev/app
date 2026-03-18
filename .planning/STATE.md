@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-01-PLAN.md — apps/web TanStack Start scaffold
-last_updated: "2026-03-18T17:48:20.565Z"
+stopped_at: Completed 04-02-PLAN.md — typed API client layer and query option factories
+last_updated: "2026-03-18T17:53:50.502Z"
 last_activity: "2026-03-18 — Completed plan 01-02: @kubeasy/api-schemas package with challenges, themes, and submissions schemas"
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 16
-  completed_plans: 13
+  completed_plans: 14
   percent: 8
 ---
 
@@ -61,6 +61,7 @@ Progress: [░░░░░░░░░░] 8%
 | Phase 03-authentication P01 | 1 | 3 tasks | 6 files |
 | Phase 03-authentication P02 | 2 | 2 tasks | 2 files |
 | Phase 04-web-migration P01 | 14 | 2 tasks | 36 files |
+| Phase 04-web-migration P02 | 167 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -97,6 +98,7 @@ Recent decisions affecting current work:
 - [Phase 03-authentication]: AUTH-06 (apps/web Better Auth client) deferred to Phase 4 — apps/web does not exist yet
 - [Phase 04-web-migration]: StartClient takes no router prop in TanStack Start v1.166.14 — auto-hydrates via Vite plugin; setupRouterSsrQueryIntegration absent from react-query@5.91.0 — SSR handled by framework automatically
 - [Phase 04-web-migration]: apps/web routeTree.gen.ts manually written for scaffold — router-generator@1.166.13 conflict detection bug with pathless layouts and sibling routes; Vite plugin regenerates at dev/build time
+- [Phase 04-web-migration]: Progress routes use /:slug pattern (GET /progress/:slug, POST /progress/:slug/start, DELETE /progress/:slug/reset); latest validation at GET /submissions/:slug/latest; xp endpoint is /xp/history; user name update uses PATCH
 
 ### Pending Todos
 
@@ -111,6 +113,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T17:48:20.561Z
-Stopped at: Completed 04-01-PLAN.md — apps/web TanStack Start scaffold
+Last session: 2026-03-18T17:53:50.500Z
+Stopped at: Completed 04-02-PLAN.md — typed API client layer and query option factories
 Resume file: None
