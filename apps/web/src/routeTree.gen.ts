@@ -8,87 +8,456 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as ProtectedRouteImport } from './routes/_protected'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as ProtectedRouteImport } from "./routes/_protected";
+import { Route as ProtectedAdminChallengesRouteImport } from "./routes/_protected/(admin)/challenges";
+import { Route as ProtectedAdminIndexRouteImport } from "./routes/_protected/(admin)/index";
+import { Route as ProtectedAdminUsersRouteImport } from "./routes/_protected/(admin)/users";
+import { Route as ProtectedDashboardRouteImport } from "./routes/_protected/dashboard";
+import { Route as ProtectedProfileRouteImport } from "./routes/_protected/profile";
+import { Route as AuthCallbackRouteImport } from "./routes/auth/callback";
+import { Route as BlogSlugRouteImport } from "./routes/blog/$slug";
+import { Route as BlogIndexRouteImport } from "./routes/blog/index";
+import { Route as ChallengesSlugRouteImport } from "./routes/challenges/$slug";
+import { Route as ChallengesIndexRouteImport } from "./routes/challenges/index";
+import { Route as GetStartedRouteImport } from "./routes/get-started";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as LoginRouteImport } from "./routes/login";
+import { Route as OnboardingRouteImport } from "./routes/onboarding";
+import { Route as ThemesSlugRouteImport } from "./routes/themes/$slug";
+import { Route as ThemesIndexRouteImport } from "./routes/themes/index";
+import { Route as TypesSlugRouteImport } from "./routes/types/$slug";
+import { Route as TypesIndexRouteImport } from "./routes/types/index";
 
 const ProtectedRoute = ProtectedRouteImport.update({
-  id: '/_protected',
+  id: "/_protected",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 
 const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+  id: "/login",
+  path: "/login",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
+
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: "/onboarding",
+  path: "/onboarding",
+  getParentRoute: () => rootRouteImport,
+} as any);
+
+const GetStartedRoute = GetStartedRouteImport.update({
+  id: "/get-started",
+  path: "/get-started",
+  getParentRoute: () => rootRouteImport,
+} as any);
+
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: "/auth/callback",
+  path: "/auth/callback",
+  getParentRoute: () => rootRouteImport,
+} as any);
+
+const ChallengesIndexRoute = ChallengesIndexRouteImport.update({
+  id: "/challenges/",
+  path: "/challenges",
+  getParentRoute: () => rootRouteImport,
+} as any);
+
+const ChallengesSlugRoute = ChallengesSlugRouteImport.update({
+  id: "/challenges/$slug",
+  path: "/challenges/$slug",
+  getParentRoute: () => rootRouteImport,
+} as any);
+
+const ThemesIndexRoute = ThemesIndexRouteImport.update({
+  id: "/themes/",
+  path: "/themes",
+  getParentRoute: () => rootRouteImport,
+} as any);
+
+const ThemesSlugRoute = ThemesSlugRouteImport.update({
+  id: "/themes/$slug",
+  path: "/themes/$slug",
+  getParentRoute: () => rootRouteImport,
+} as any);
+
+const TypesIndexRoute = TypesIndexRouteImport.update({
+  id: "/types/",
+  path: "/types",
+  getParentRoute: () => rootRouteImport,
+} as any);
+
+const TypesSlugRoute = TypesSlugRouteImport.update({
+  id: "/types/$slug",
+  path: "/types/$slug",
+  getParentRoute: () => rootRouteImport,
+} as any);
+
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: "/blog/",
+  path: "/blog",
+  getParentRoute: () => rootRouteImport,
+} as any);
+
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: "/blog/$slug",
+  path: "/blog/$slug",
+  getParentRoute: () => rootRouteImport,
+} as any);
+
+const ProtectedDashboardRoute = ProtectedDashboardRouteImport.update({
+  id: "/_protected/dashboard",
+  path: "/dashboard",
+  getParentRoute: () => ProtectedRoute,
+} as any);
+
+const ProtectedProfileRoute = ProtectedProfileRouteImport.update({
+  id: "/_protected/profile",
+  path: "/profile",
+  getParentRoute: () => ProtectedRoute,
+} as any);
+
+const ProtectedAdminIndexRoute = ProtectedAdminIndexRouteImport.update({
+  id: "/_protected/(admin)/",
+  path: "/admin",
+  getParentRoute: () => ProtectedRoute,
+} as any);
+
+const ProtectedAdminChallengesRoute =
+  ProtectedAdminChallengesRouteImport.update({
+    id: "/_protected/(admin)/challenges",
+    path: "/admin/challenges",
+    getParentRoute: () => ProtectedRoute,
+  } as any);
+
+const ProtectedAdminUsersRoute = ProtectedAdminUsersRouteImport.update({
+  id: "/_protected/(admin)/users",
+  path: "/admin/users",
+  getParentRoute: () => ProtectedRoute,
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/login': typeof LoginRoute
+  "/": typeof IndexRoute;
+  "/login": typeof LoginRoute;
+  "/onboarding": typeof OnboardingRoute;
+  "/get-started": typeof GetStartedRoute;
+  "/auth/callback": typeof AuthCallbackRoute;
+  "/challenges": typeof ChallengesIndexRoute;
+  "/challenges/$slug": typeof ChallengesSlugRoute;
+  "/themes": typeof ThemesIndexRoute;
+  "/themes/$slug": typeof ThemesSlugRoute;
+  "/types": typeof TypesIndexRoute;
+  "/types/$slug": typeof TypesSlugRoute;
+  "/dashboard": typeof ProtectedDashboardRoute;
+  "/profile": typeof ProtectedProfileRoute;
+  "/admin": typeof ProtectedAdminIndexRoute;
+  "/admin/challenges": typeof ProtectedAdminChallengesRoute;
+  "/admin/users": typeof ProtectedAdminUsersRoute;
+  "/blog": typeof BlogIndexRoute;
+  "/blog/$slug": typeof BlogSlugRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/login': typeof LoginRoute
+  "/": typeof IndexRoute;
+  "/login": typeof LoginRoute;
+  "/onboarding": typeof OnboardingRoute;
+  "/get-started": typeof GetStartedRoute;
+  "/auth/callback": typeof AuthCallbackRoute;
+  "/challenges": typeof ChallengesIndexRoute;
+  "/challenges/$slug": typeof ChallengesSlugRoute;
+  "/themes": typeof ThemesIndexRoute;
+  "/themes/$slug": typeof ThemesSlugRoute;
+  "/types": typeof TypesIndexRoute;
+  "/types/$slug": typeof TypesSlugRoute;
+  "/dashboard": typeof ProtectedDashboardRoute;
+  "/profile": typeof ProtectedProfileRoute;
+  "/admin": typeof ProtectedAdminIndexRoute;
+  "/admin/challenges": typeof ProtectedAdminChallengesRoute;
+  "/admin/users": typeof ProtectedAdminUsersRoute;
+  "/blog": typeof BlogIndexRoute;
+  "/blog/": typeof BlogIndexRoute;
+  "/blog/$slug": typeof BlogSlugRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/_protected': typeof ProtectedRoute
-  '/': typeof IndexRoute
-  '/login': typeof LoginRoute
+  __root__: typeof rootRouteImport;
+  "/_protected": typeof ProtectedRoute;
+  "/": typeof IndexRoute;
+  "/login": typeof LoginRoute;
+  "/onboarding": typeof OnboardingRoute;
+  "/get-started": typeof GetStartedRoute;
+  "/auth/callback": typeof AuthCallbackRoute;
+  "/challenges/": typeof ChallengesIndexRoute;
+  "/challenges/$slug": typeof ChallengesSlugRoute;
+  "/themes/": typeof ThemesIndexRoute;
+  "/themes/$slug": typeof ThemesSlugRoute;
+  "/types/": typeof TypesIndexRoute;
+  "/types/$slug": typeof TypesSlugRoute;
+  "/_protected/dashboard": typeof ProtectedDashboardRoute;
+  "/_protected/profile": typeof ProtectedProfileRoute;
+  "/_protected/(admin)/": typeof ProtectedAdminIndexRoute;
+  "/_protected/(admin)/challenges": typeof ProtectedAdminChallengesRoute;
+  "/_protected/(admin)/users": typeof ProtectedAdminUsersRoute;
+  "/blog/": typeof BlogIndexRoute;
+  "/blog/$slug": typeof BlogSlugRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login'
-  id: '__root__' | '/_protected' | '/' | '/login'
-  fileRoutesById: FileRoutesById
+  fileRoutesByFullPath: FileRoutesByFullPath;
+  fullPaths:
+    | "/"
+    | "/login"
+    | "/onboarding"
+    | "/get-started"
+    | "/auth/callback"
+    | "/challenges"
+    | "/challenges/$slug"
+    | "/themes"
+    | "/themes/$slug"
+    | "/types"
+    | "/types/$slug"
+    | "/dashboard"
+    | "/profile"
+    | "/admin"
+    | "/admin/challenges"
+    | "/admin/users"
+    | "/blog"
+    | "/blog/$slug";
+  fileRoutesByTo: FileRoutesByTo;
+  to:
+    | "/"
+    | "/login"
+    | "/onboarding"
+    | "/get-started"
+    | "/auth/callback"
+    | "/challenges"
+    | "/challenges/$slug"
+    | "/themes"
+    | "/themes/$slug"
+    | "/types"
+    | "/types/$slug"
+    | "/dashboard"
+    | "/profile"
+    | "/admin"
+    | "/admin/challenges"
+    | "/admin/users"
+    | "/blog"
+    | "/blog/"
+    | "/blog/$slug";
+  id:
+    | "__root__"
+    | "/_protected"
+    | "/"
+    | "/login"
+    | "/onboarding"
+    | "/get-started"
+    | "/auth/callback"
+    | "/challenges/"
+    | "/challenges/$slug"
+    | "/themes/"
+    | "/themes/$slug"
+    | "/types/"
+    | "/types/$slug"
+    | "/_protected/dashboard"
+    | "/_protected/profile"
+    | "/_protected/(admin)/"
+    | "/_protected/(admin)/challenges"
+    | "/_protected/(admin)/users"
+    | "/blog/"
+    | "/blog/$slug";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  ProtectedRoute: typeof ProtectedRoute
-  IndexRoute: typeof IndexRoute
-  LoginRoute: typeof LoginRoute
+  ProtectedRoute: typeof ProtectedRoute;
+  IndexRoute: typeof IndexRoute;
+  LoginRoute: typeof LoginRoute;
+  OnboardingRoute: typeof OnboardingRoute;
+  GetStartedRoute: typeof GetStartedRoute;
+  AuthCallbackRoute: typeof AuthCallbackRoute;
+  ChallengesIndexRoute: typeof ChallengesIndexRoute;
+  ChallengesSlugRoute: typeof ChallengesSlugRoute;
+  ThemesIndexRoute: typeof ThemesIndexRoute;
+  ThemesSlugRoute: typeof ThemesSlugRoute;
+  TypesIndexRoute: typeof TypesIndexRoute;
+  TypesSlugRoute: typeof TypesSlugRoute;
+  BlogIndexRoute: typeof BlogIndexRoute;
+  BlogSlugRoute: typeof BlogSlugRoute;
 }
 
-declare module '@tanstack/react-router' {
+export interface ProtectedRouteChildren {
+  ProtectedDashboardRoute: typeof ProtectedDashboardRoute;
+  ProtectedProfileRoute: typeof ProtectedProfileRoute;
+  ProtectedAdminIndexRoute: typeof ProtectedAdminIndexRoute;
+  ProtectedAdminChallengesRoute: typeof ProtectedAdminChallengesRoute;
+  ProtectedAdminUsersRoute: typeof ProtectedAdminUsersRoute;
+}
+
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/_protected': {
-      id: '/_protected'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof ProtectedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+    "/_protected": {
+      id: "/_protected";
+      path: "";
+      fullPath: "";
+      preLoaderRoute: typeof ProtectedRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/login": {
+      id: "/login";
+      path: "/login";
+      fullPath: "/login";
+      preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/onboarding": {
+      id: "/onboarding";
+      path: "/onboarding";
+      fullPath: "/onboarding";
+      preLoaderRoute: typeof OnboardingRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/get-started": {
+      id: "/get-started";
+      path: "/get-started";
+      fullPath: "/get-started";
+      preLoaderRoute: typeof GetStartedRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/auth/callback": {
+      id: "/auth/callback";
+      path: "/auth/callback";
+      fullPath: "/auth/callback";
+      preLoaderRoute: typeof AuthCallbackRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/challenges/": {
+      id: "/challenges/";
+      path: "/challenges";
+      fullPath: "/challenges";
+      preLoaderRoute: typeof ChallengesIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/challenges/$slug": {
+      id: "/challenges/$slug";
+      path: "/challenges/$slug";
+      fullPath: "/challenges/$slug";
+      preLoaderRoute: typeof ChallengesSlugRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/themes/": {
+      id: "/themes/";
+      path: "/themes";
+      fullPath: "/themes";
+      preLoaderRoute: typeof ThemesIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/themes/$slug": {
+      id: "/themes/$slug";
+      path: "/themes/$slug";
+      fullPath: "/themes/$slug";
+      preLoaderRoute: typeof ThemesSlugRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/types/": {
+      id: "/types/";
+      path: "/types";
+      fullPath: "/types";
+      preLoaderRoute: typeof TypesIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/types/$slug": {
+      id: "/types/$slug";
+      path: "/types/$slug";
+      fullPath: "/types/$slug";
+      preLoaderRoute: typeof TypesSlugRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_protected/dashboard": {
+      id: "/_protected/dashboard";
+      path: "/dashboard";
+      fullPath: "/dashboard";
+      preLoaderRoute: typeof ProtectedDashboardRouteImport;
+      parentRoute: typeof ProtectedRoute;
+    };
+    "/_protected/profile": {
+      id: "/_protected/profile";
+      path: "/profile";
+      fullPath: "/profile";
+      preLoaderRoute: typeof ProtectedProfileRouteImport;
+      parentRoute: typeof ProtectedRoute;
+    };
+    "/_protected/(admin)/": {
+      id: "/_protected/(admin)/";
+      path: "/admin";
+      fullPath: "/admin";
+      preLoaderRoute: typeof ProtectedAdminIndexRouteImport;
+      parentRoute: typeof ProtectedRoute;
+    };
+    "/_protected/(admin)/challenges": {
+      id: "/_protected/(admin)/challenges";
+      path: "/admin/challenges";
+      fullPath: "/admin/challenges";
+      preLoaderRoute: typeof ProtectedAdminChallengesRouteImport;
+      parentRoute: typeof ProtectedRoute;
+    };
+    "/_protected/(admin)/users": {
+      id: "/_protected/(admin)/users";
+      path: "/admin/users";
+      fullPath: "/admin/users";
+      preLoaderRoute: typeof ProtectedAdminUsersRouteImport;
+      parentRoute: typeof ProtectedRoute;
+    };
+    "/blog/": {
+      id: "/blog/";
+      path: "/blog";
+      fullPath: "/blog";
+      preLoaderRoute: typeof BlogIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/blog/$slug": {
+      id: "/blog/$slug";
+      path: "/blog/$slug";
+      fullPath: "/blog/$slug";
+      preLoaderRoute: typeof BlogSlugRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
+const protectedRouteChildren: ProtectedRouteChildren = {
+  ProtectedDashboardRoute: ProtectedDashboardRoute,
+  ProtectedProfileRoute: ProtectedProfileRoute,
+  ProtectedAdminIndexRoute: ProtectedAdminIndexRoute,
+  ProtectedAdminChallengesRoute: ProtectedAdminChallengesRoute,
+  ProtectedAdminUsersRoute: ProtectedAdminUsersRoute,
+};
+
 const rootRouteChildren: RootRouteChildren = {
-  ProtectedRoute: ProtectedRoute,
+  ProtectedRoute: ProtectedRoute._addFileChildren(protectedRouteChildren),
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
-}
+  OnboardingRoute: OnboardingRoute,
+  GetStartedRoute: GetStartedRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
+  ChallengesIndexRoute: ChallengesIndexRoute,
+  ChallengesSlugRoute: ChallengesSlugRoute,
+  ThemesIndexRoute: ThemesIndexRoute,
+  ThemesSlugRoute: ThemesSlugRoute,
+  TypesIndexRoute: TypesIndexRoute,
+  TypesSlugRoute: TypesSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
+  BlogSlugRoute: BlogSlugRoute,
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
