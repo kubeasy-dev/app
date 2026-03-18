@@ -50,9 +50,10 @@ Plans:
   3. `pnpm why @neondatabase/serverless` from the repo root returns empty — the Neon serverless driver is fully removed
   4. Rate limiting on the CLI submission endpoint returns HTTP 429 after threshold is exceeded — verified with a script sending 100 requests in 10 seconds
   5. The Go CLI can call `POST /api/challenges/:slug/submit` with its existing payload structure and receive a valid response — CLI contract is preserved
-**Plans:** 4 plans
+**Plans:** 5 plans
 
 Plans:
+- [ ] 02-00-PLAN.md — vitest setup and test stubs (Wave 0)
 - [ ] 02-01-PLAN.md — apps/api scaffold (Hono + @hono/node-server, postgres.js + Drizzle, DB schema migration, Better Auth, session middleware)
 - [ ] 02-02-PLAN.md — Challenge, theme, and type REST endpoints (list with filters, detail, objectives)
 - [ ] 02-03-PLAN.md — User progress, XP, submission endpoints + XP service port + CLI alias
