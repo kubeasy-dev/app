@@ -6,6 +6,14 @@ import type {
   ChallengeListInput,
   ChallengeListOutput,
 } from "@kubeasy/api-schemas/challenges";
+import { createIsomorphicFn } from "@tanstack/react-start";
+
+const getSSRCookie = createIsomorphicFn()
+  .client(() => null)
+  .server(async () => {
+    const { getRequestHeaders } = await import("@tanstack/react-start/server");
+    return getRequestHeaders().get("Cookie");
+  });
 
 export interface ChallengeTypeItem {
   slug: string;
@@ -58,6 +66,11 @@ export async function apiFetch<T>(
   if (init.method && init.method !== "GET") {
     headers["Content-Type"] = "application/json";
   }
+
+  // Server-side (SSR): forward the incoming request's Cookie header since
+  // `credentials: "include"` is a browser-only feature and has no effect in Node.js.
+  const cookie = await getSSRCookie();
+  if (cookie) headers.Cookie = cookie;
 
   const res = await fetch(url, {
     ...init,
@@ -168,6 +181,18 @@ export const api = {
       apiFetch<unknown>("/user/name", {
         method: "PATCH",
         body: JSON.stringify({ firstName, lastName }),
+      }),
+    /**
+     * DELETE /api/user/progress
+     * Resets all user progress (challenges, XP transactions)
+     */
+    resetProgress: () =>
+      apiFetch<{
+        success: boolean;
+        deletedChallenges: number;
+        deletedXp: number;
+      }>("/user/progress", {
+        method: "DELETE",
       }),
   },
 
