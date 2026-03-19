@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { challenges } from "./challenges.js";
 import { cli } from "./cli/index.js";
 import { progress } from "./progress.js";
+import { sse } from "./sse.js";
 import { submissions } from "./submissions.js";
 import { submit } from "./submit.js";
 import { themes } from "./themes.js";
@@ -24,5 +25,6 @@ routes.route("/submissions", submissions);
 routes.route("/user", user);
 routes.route("/xp", xp);
 routes.route("/cli", cli);
+routes.route("/sse", sse);
 
 export { routes };
