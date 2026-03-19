@@ -144,6 +144,20 @@ submit.post(
       objectives,
     });
 
+    // 7.5 Publish SSE event (fire-and-forget — both validated and not-validated paths)
+    const sseChannel = `validation:${userId}:${challengeSlug}`;
+    const ssePayload = JSON.stringify({
+      validated,
+      objectives,
+      timestamp: new Date().toISOString(),
+    });
+    redis.publish(sseChannel, ssePayload).catch((err) => {
+      console.error("Failed to publish SSE event", {
+        channel: sseChannel,
+        error: String(err),
+      });
+    });
+
     // 8. If validation failed, return failure response
     if (!validated) {
       const failedObjectives = objectives.filter((obj) => !obj.passed);
