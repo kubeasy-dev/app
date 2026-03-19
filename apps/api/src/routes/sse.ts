@@ -6,13 +6,15 @@ import { requireAuth } from "../middleware/session.js";
 
 const sse = new Hono<AppEnv>();
 
-// GET /sse/validation/:challengeSlug -- real-time validation status push via SSE
-sse.get("/validation/:challengeSlug", requireAuth, async (c) => {
+// GET /sse/invalidate-cache -- generic cache-invalidation SSE channel
+// Subscribes to Redis `invalidate-cache:{userId}` channel.
+// Payload: { queryKey: string[] } -- browser calls invalidateQueries(queryKey).
+sse.get("/invalidate-cache", requireAuth, async (c) => {
   const user = c.get("user");
-  const challengeSlug = c.req.param("challengeSlug");
-  const channel = `validation:${user.id}:${challengeSlug}`;
+  const channel = `invalidate-cache:${user.id}`;
 
   return streamSSE(c, async (stream) => {
+    // Dedicated ioredis subscriber per SSE connection (never shared)
     const subscriber = new Redis(
       process.env.REDIS_URL ?? "redis://localhost:6379",
     );
@@ -31,13 +33,13 @@ sse.get("/validation/:challengeSlug", requireAuth, async (c) => {
     subscriber.on("message", async (_ch: string, message: string) => {
       await stream.writeSSE({
         data: message,
-        event: "validation-update",
+        event: "invalidate-cache",
       });
     });
 
     await subscriber.subscribe(channel);
 
-    // Heartbeat loop — keeps connection alive through proxies
+    // Heartbeat loop -- keeps connection alive through proxies
     while (!aborted) {
       await stream.writeSSE({ data: "", event: "heartbeat" });
       await stream.sleep(30_000);

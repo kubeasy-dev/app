@@ -11,7 +11,7 @@ import { redis } from "./redis.js";
 // Pass redis.options directly (ioredis RedisOptions = BullMQ ConnectionOptions).
 // This is guaranteed correct regardless of REDIS_URL format — ioredis already
 // parses the URL into host/port/password/db fields in redis.options.
-const userLifecycleQueue = createQueue(QUEUE_NAMES.USER_LIFECYCLE, redis.options);
+const userSigninQueue = createQueue(QUEUE_NAMES.USER_SIGNIN, redis.options);
 
 export const auth = betterAuth({
   baseURL: process.env.API_URL ?? "http://localhost:3001",
@@ -44,7 +44,7 @@ export const auth = betterAuth({
   },
   advanced: {
     crossSubDomainCookies: {
-      enabled: true,
+      enabled: process.env.NODE_ENV === "production",
       domain: ".kubeasy.dev",
     },
   },
@@ -76,14 +76,14 @@ export const auth = betterAuth({
       create: {
         after: async (user) => {
           try {
-            // Fire-and-forget: do NOT await the result
-            userLifecycleQueue.add("user-signup", {
+            userSigninQueue.add("user-signin", {
               userId: user.id,
               email: user.email,
+              provider: "unknown",
             });
           } catch (error) {
             // Never throw — auth must complete regardless of job dispatch failure
-            console.error("[auth] user-lifecycle job dispatch failed", error);
+            console.error("[auth] user-signin job dispatch failed", error);
           }
         },
       },
