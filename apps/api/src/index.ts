@@ -2,7 +2,7 @@ import { serve } from "@hono/node-server";
 import { app } from "./app.js";
 import { redis } from "./lib/redis.js";
 import { createChallengeSubmissionWorker } from "./workers/challenge-submission.worker.js";
-import { createUserLifecycleWorker } from "./workers/user-lifecycle.worker.js";
+import { createUserSigninWorker } from "./workers/user-lifecycle.worker.js";
 import { createXpAwardWorker } from "./workers/xp-award.worker.js";
 
 const port = Number(process.env.PORT ?? 3001);
@@ -14,7 +14,7 @@ const server = serve({ fetch: app.fetch, port }, (info) => {
 
 // Instantiate BullMQ workers
 const workers = [
-  createUserLifecycleWorker(),
+  createUserSigninWorker(),
   createChallengeSubmissionWorker(),
   createXpAwardWorker(),
 ];
