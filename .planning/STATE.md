@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05.1-05-PLAN.md
-last_updated: "2026-03-19T22:07:10.565Z"
+stopped_at: Phase 5.2 context gathered
+last_updated: "2026-03-19T22:25:53.393Z"
 last_activity: "2026-03-18 — Completed plan 04-03: landing page, blog SSG routes, and login page migration"
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 6
   total_plans: 24
   completed_plans: 24
@@ -134,6 +134,7 @@ Recent decisions affecting current work:
 ### Roadmap Evolution
 
 - Phase 05.1 inserted after Phase 5: repair workers features (URGENT)
+- Phase 05.2 inserted after Phase 5: il manque encore des trucs : radar chart et recent activities list on the dashboard page, profile page : edit name, craete/revoke token, subscription management in Resend, delete zone (URGENT)
 
 ### Pending Todos
 
@@ -148,6 +149,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T22:01:52.277Z
-Stopped at: Completed 05.1-05-PLAN.md
-Resume file: None
+Last session: 2026-03-19T22:25:53.387Z
+Stopped at: Phase 5.2 context gathered
+Resume file: .planning/phases/05.2-il-manque-encore-des-trucs-radar-chart-et-recent-activities-list-on-the-dashboard-page-profile-page-edit-name-craete-revoke-token-subscription-management-in-resend-delete-zone/05.2-CONTEXT.md
