@@ -1,16 +1,12 @@
+import { ChallengeDifficultySchema } from "@kubeasy/api-schemas/challenges";
 import { ObjectiveTypeSchema } from "@kubeasy/api-schemas/objectives";
 import { z } from "zod";
-import { challengeDifficultyEnum } from "../db/schema/challenge.js";
 
 // ---- Enums ----
-// objectiveCategorySchema: source of truth is packages/api-schemas/src/objectives.ts
-// challengeDifficultySchema: source of truth is the DB pgEnum
+// Both source of truth in packages/api-schemas
 
 export const objectiveCategorySchema = ObjectiveTypeSchema;
-
-export const challengeDifficultySchema = z.enum(
-  challengeDifficultyEnum.enumValues,
-);
+export const challengeDifficultySchema = ChallengeDifficultySchema;
 
 // ---- CLI submission ----
 
@@ -55,3 +51,11 @@ export const challengeFiltersSchema = z.object({
 });
 
 export type ChallengeFilters = z.infer<typeof challengeFiltersSchema>;
+
+// ---- CLI metadata ----
+export const cliMetadataSchema = z.object({
+  cliVersion: z.string(),
+  os: z.string(),
+  arch: z.string(),
+});
+export type CliMetadata = z.infer<typeof cliMetadataSchema>;

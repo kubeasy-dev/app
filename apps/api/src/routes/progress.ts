@@ -11,6 +11,7 @@ import {
   userXp,
   userXpTransaction,
 } from "../db/schema/index.js";
+import { trackChallengeStartedServer } from "../lib/analytics-server.js";
 import { requireAuth } from "../middleware/session.js";
 
 const progress = new Hono();
@@ -221,6 +222,13 @@ progress.post("/:slug/start", requireAuth, async (c) => {
     challengeId: challengeData.id,
     status: "in_progress",
     startedAt: now,
+  });
+
+  // Track challenge started (fire-and-forget)
+  trackChallengeStartedServer(userId, challengeData.id, slug, challengeData.title).catch((err) => {
+    console.error("[progress] challenge started tracking failed", {
+      error: String(err),
+    });
   });
 
   return c.json({
