@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05.1-01-PLAN.md
-last_updated: "2026-03-19T21:42:16.903Z"
+stopped_at: Completed 05.1-02-PLAN.md
+last_updated: "2026-03-19T21:45:47.115Z"
 last_activity: "2026-03-18 — Completed plan 04-03: landing page, blog SSG routes, and login page migration"
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 24
-  completed_plans: 20
+  completed_plans: 21
   percent: 8
 ---
 
@@ -68,6 +68,7 @@ Progress: [░░░░░░░░░░] 8%
 | Phase 05-realtime-sse PP02 | 2 | 2 tasks | 5 files |
 | Phase 05-realtime-sse P03 | 1 | 2 tasks | 2 files |
 | Phase 05.1-repair-workers-features P01 | 2 | 2 tasks | 10 files |
+| Phase 05.1-repair-workers-features P02 | 2 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,9 @@ Recent decisions affecting current work:
 - [Phase 05-realtime-sse]: SSE update is silent/background — validation-update event only calls invalidateQueries, no SSE-specific UI state
 - [Phase 05.1-repair-workers-features]: USER_LIFECYCLE renamed to USER_SIGNIN — queue fires on sign-in events; ChallengeSubmissionPayload drops xpAwarded/isFirstChallenge — workers compute XP themselves
 - [Phase 05.1-repair-workers-features]: queryKeys shared in api-schemas package; onboarding schema drops all Vercel Workflow webhook columns — replaced by BullMQ workers
+- [Phase 05.1-repair-workers-features]: submit.ts response simplified to { success, objectives } — no XP fields exposed to CLI; workers handle all XP side effects
+- [Phase 05.1-repair-workers-features]: SSE channel renamed to invalidate-cache:{userId} with queryKey payload — browser calls invalidateQueries on any cache-invalidation event
+- [Phase 05.1-repair-workers-features]: provider: unknown placeholder in USER_SIGNIN payload — worker resolves actual provider from account table if needed
 
 ### Roadmap Evolution
 
@@ -136,6 +140,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T21:42:16.900Z
-Stopped at: Completed 05.1-01-PLAN.md
+Last session: 2026-03-19T21:45:47.113Z
+Stopped at: Completed 05.1-02-PLAN.md
 Resume file: None

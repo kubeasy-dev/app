@@ -1,15 +1,18 @@
-import { QUEUE_NAMES, type UserSignupPayload } from "@kubeasy/jobs";
+import { QUEUE_NAMES, type UserSigninPayload } from "@kubeasy/jobs";
 import { Worker } from "bullmq";
+import { identifyUserServer } from "../lib/analytics-server.js";
+import { createResendContact } from "../lib/resend.js";
 
 export function createUserLifecycleWorker() {
-  return new Worker<UserSignupPayload>(
-    QUEUE_NAMES.USER_LIFECYCLE,
+  return new Worker<UserSigninPayload>(
+    QUEUE_NAMES.USER_SIGNIN,
     async (job) => {
-      console.log(`[user-lifecycle] Processing job ${job.id}`, {
-        userId: job.data.userId,
-        email: job.data.email,
-      });
-      // TODO: implement user lifecycle processing (welcome email, etc.)
+      const { userId, email } = job.data;
+
+      await Promise.allSettled([
+        createResendContact({ email, userId }),
+        identifyUserServer(userId, { email }),
+      ]);
     },
     {
       connection: {
