@@ -4,18 +4,22 @@ export interface ChallengeSubmissionPayload {
   userId: string;
   challengeSlug: string;
   challengeId: number;
+  difficulty: string;
 }
 
 export interface XpAwardPayload {
   userId: string;
   challengeId: number;
+  challengeSlug: string;
   xpAmount: number;
   action: "challenge_completed" | "daily_streak" | "first_challenge";
+  description: string;
 }
 
-export interface UserSignupPayload {
+export interface UserSigninPayload {
   userId: string;
   email: string;
+  provider: string;
 }
 
 export type JobPayload = {
@@ -23,5 +27,5 @@ export type JobPayload = {
 } & {
   [K in typeof QUEUE_NAMES.XP_AWARD]: XpAwardPayload;
 } & {
-  [K in typeof QUEUE_NAMES.USER_LIFECYCLE]: UserSignupPayload;
+  [K in typeof QUEUE_NAMES.USER_SIGNIN]: UserSigninPayload;
 };

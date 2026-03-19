@@ -2,7 +2,7 @@ export { createQueue } from "./factory";
 export type {
   ChallengeSubmissionPayload,
   JobPayload,
-  UserSignupPayload,
+  UserSigninPayload,
   XpAwardPayload,
 } from "./payloads";
 export type { QueueName } from "./queue-names";
