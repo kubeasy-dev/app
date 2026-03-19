@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 05-01: SSE endpoint and Redis publish"
-last_updated: "2026-03-19T08:13:25.408Z"
+stopped_at: "Completed 05-02: BullMQ workers and graceful shutdown"
+last_updated: "2026-03-19T08:16:52.637Z"
 last_activity: "2026-03-18 — Completed plan 04-03: landing page, blog SSG routes, and login page migration"
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 19
-  completed_plans: 17
+  completed_plans: 18
   percent: 8
 ---
 
@@ -65,6 +65,7 @@ Progress: [░░░░░░░░░░] 8%
 | Phase 04-web-migration P03 | 5 | 2 tasks | 21 files |
 | Phase 04-web-migration P04 | 35 | 2 tasks | 27 files |
 | Phase 05-realtime-sse P01 | 1 | 2 tasks | 3 files |
+| Phase 05-realtime-sse PP02 | 2 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -109,6 +110,8 @@ Recent decisions affecting current work:
 - [Phase 04-web-migration]: Admin role guard per-route via beforeLoad — TanStack Router pathless layout bug prevents shared admin layout; LucideIcon uses static icons map from lucide-react (no next/dynamic in TanStack Start)
 - [Phase 05-realtime-sse]: Fresh new Redis(url) per SSE connection (never redis.duplicate()) — independent subscriber that can be cleanly quit on disconnect without affecting the shared singleton
 - [Phase 05-realtime-sse]: Publish fires on BOTH validated:true and validated:false — browser always receives the latest submission state
+- [Phase 05-realtime-sse]: Worker factory pattern: createXxxWorker() returns Worker instance enabling array-based batch close() on shutdown
+- [Phase 05-realtime-sse]: BullMQ Worker connection uses parsed host/port from REDIS_URL (not url string); maxRetriesPerRequest: null mandatory
 
 ### Pending Todos
 
@@ -123,6 +126,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T08:13:25.406Z
-Stopped at: Completed 05-01: SSE endpoint and Redis publish
+Last session: 2026-03-19T08:16:52.634Z
+Stopped at: Completed 05-02: BullMQ workers and graceful shutdown
 Resume file: None
