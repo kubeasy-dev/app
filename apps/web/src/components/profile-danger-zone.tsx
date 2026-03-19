@@ -1,11 +1,10 @@
-import { useMutation } from "@tanstack/react-query";
-import { AlertTriangle, Trash2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -16,19 +15,24 @@ import { api } from "@/lib/api-client";
 import { authClient } from "@/lib/auth-client";
 
 export function ProfileDangerZone() {
+  const queryClient = useQueryClient();
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const resetMutation = useMutation({
+  const resetProgressMutation = useMutation({
     mutationFn: () => api.user.resetProgress(),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({ queryKey: ["user"] });
       toast.success("Progress reset successfully", {
         description: `Deleted ${data.deletedChallenges} challenges and ${data.deletedXp} XP`,
       });
       setResetDialogOpen(false);
     },
     onError: (error) => {
-      toast.error("Failed to reset progress", { description: error.message });
+      toast.error("Failed to reset progress", {
+        description: error.message,
+      });
+      setResetDialogOpen(false);
     },
   });
 
@@ -45,82 +49,99 @@ export function ProfileDangerZone() {
     },
   });
 
+  const handleResetProgress = () => {
+    setResetDialogOpen(true);
+  };
+
+  const confirmReset = () => {
+    resetProgressMutation.mutate();
+  };
+
   return (
-    <div className="bg-red-50 neo-border border-red-600 neo-shadow shadow-red-600 p-6">
+    <div className="bg-red-50 neo-border-destructive shadow-danger p-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="bg-red-600 p-2 neo-border border-red-800">
-          <AlertTriangle className="h-5 w-5 text-white" />
+        <div className="p-3 bg-red-600 text-white neo-border-destructive">
+          <AlertTriangle className="w-6 h-6" />
         </div>
         <div>
-          <h2 className="text-xl font-black text-red-700">Danger Zone</h2>
-          <p className="text-sm text-red-600 font-medium">
-            Irreversible actions — proceed with caution
+          <h2 className="text-2xl font-black text-red-600">Danger Zone</h2>
+          <p className="text-sm text-red-700 font-bold">
+            Irreversible actions - proceed with caution
           </p>
         </div>
       </div>
 
-      <div className="space-y-4">
-        {/* Reset progress section */}
-        <div className="flex items-center justify-between bg-white neo-border p-4">
-          <div>
-            <p className="font-bold">Reset All Progress</p>
-            <p className="text-sm text-muted-foreground">
-              Delete all your completed challenges, XP, and statistics. This
-              cannot be undone.
-            </p>
-          </div>
-          <Button
-            className="bg-red-600 text-white hover:bg-red-700 ml-4 shrink-0"
-            onClick={() => setResetDialogOpen(true)}
-          >
-            Reset All Progress
-          </Button>
-        </div>
-
-        {/* Delete account section */}
-        <div className="flex items-center justify-between bg-white neo-border p-4">
-          <div>
-            <p className="font-bold">Delete My Account</p>
-            <p className="text-sm text-muted-foreground">
-              Permanently delete your account and all associated data. This
-              action is irreversible.
-            </p>
-          </div>
-          <Button
-            className="bg-red-600 text-white hover:bg-red-700 ml-4 shrink-0"
-            onClick={() => setDeleteDialogOpen(true)}
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete My Account
-          </Button>
-        </div>
+      <div className="p-4 bg-white neo-border-destructive mb-4">
+        <h3 className="font-black mb-2">Reset All Progress</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          This will permanently delete all your completed challenges, progress,
+          and statistics. This action cannot be undone.
+        </p>
+        <Button
+          onClick={handleResetProgress}
+          disabled={resetProgressMutation.isPending}
+          className="bg-red-600 text-white neo-border-destructive shadow-danger hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <AlertTriangle className="w-4 h-4 mr-2" />
+          Reset All Progress
+        </Button>
       </div>
 
-      {/* Reset progress confirmation dialog */}
+      <div className="p-4 bg-white neo-border-destructive">
+        <h3 className="font-black mb-2">Delete Account</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Permanently delete your account and all associated data. This action
+          cannot be undone.
+        </p>
+        <Button
+          onClick={() => setDeleteDialogOpen(true)}
+          disabled={deleteAccountMutation.isPending}
+          className="bg-red-600 text-white neo-border-destructive shadow-danger hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <AlertTriangle className="w-4 h-4 mr-2" />
+          Delete My Account
+        </Button>
+      </div>
+
+      {/* Reset Confirmation Dialog */}
       <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
-        <DialogContent>
+        <DialogContent className="neo-border-destructive shadow-danger">
           <DialogHeader>
-            <DialogTitle>Reset All Progress</DialogTitle>
-            <DialogDescription>This will permanently delete:</DialogDescription>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              Reset All Progress
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              <p className="mb-3 font-semibold text-red-800">
+                ⚠️ Warning: This action cannot be undone!
+              </p>
+              <p className="mb-2">This will permanently delete:</p>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                <li>All your completed challenges</li>
+                <li>All your earned XP and rank progress</li>
+                <li>All your statistics and history</li>
+              </ul>
+              <p className="mt-3 font-semibold">
+                Are you absolutely sure you want to continue?
+              </p>
+            </DialogDescription>
           </DialogHeader>
-          <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
-            <li>All completed challenges</li>
-            <li>All earned XP and level progress</li>
-            <li>All statistics and streaks</li>
-          </ul>
-          <p className="text-sm font-semibold text-red-600">
-            This action cannot be undone.
-          </p>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
             <Button
-              className="bg-red-600 text-white hover:bg-red-700"
-              onClick={() => resetMutation.mutate()}
-              disabled={resetMutation.isPending}
+              variant="outline"
+              onClick={() => setResetDialogOpen(false)}
+              disabled={resetProgressMutation.isPending}
+              className="neo-border font-bold"
             >
-              {resetMutation.isPending
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmReset}
+              disabled={resetProgressMutation.isPending}
+              className="bg-red-600 text-white neo-border-destructive shadow-danger hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-bold"
+            >
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              {resetProgressMutation.isPending
                 ? "Resetting..."
                 : "Yes, Reset Everything"}
             </Button>
@@ -128,28 +149,44 @@ export function ProfileDangerZone() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete account confirmation dialog */}
+      {/* Delete Account Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="neo-border-destructive shadow-danger">
           <DialogHeader>
-            <DialogTitle>Delete Your Account</DialogTitle>
-            <DialogDescription>
-              Are you absolutely sure? This will permanently delete your account
-              and all associated data.
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              Delete Your Account
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              <p className="mb-3 font-semibold text-red-800">
+                ⚠️ Warning: This action cannot be undone!
+              </p>
+              <p className="mb-2">This will permanently delete:</p>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                <li>Your account and all personal data</li>
+                <li>All your completed challenges</li>
+                <li>All your earned XP and rank progress</li>
+              </ul>
+              <p className="mt-3 font-semibold">
+                Are you absolutely sure you want to delete your account?
+              </p>
             </DialogDescription>
           </DialogHeader>
-          <p className="text-sm text-red-600 font-semibold">
-            Your account cannot be recovered after deletion.
-          </p>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
             <Button
-              className="bg-red-600 text-white hover:bg-red-700"
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deleteAccountMutation.isPending}
+              className="neo-border font-bold"
+            >
+              Cancel
+            </Button>
+            <Button
               onClick={() => deleteAccountMutation.mutate()}
               disabled={deleteAccountMutation.isPending}
+              className="bg-red-600 text-white neo-border-destructive shadow-danger hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-bold"
             >
+              <AlertTriangle className="w-4 h-4 mr-2" />
               {deleteAccountMutation.isPending
                 ? "Deleting..."
                 : "Yes, Delete My Account"}

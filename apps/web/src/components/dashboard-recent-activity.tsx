@@ -1,7 +1,7 @@
 import type { XpTransaction } from "@kubeasy/api-schemas/xp";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Clock, History, X } from "lucide-react";
+import { Clock, History, Trophy, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,83 +15,94 @@ import { cn } from "@/lib/utils";
 
 const PREVIEW_COUNT = 4;
 
-interface MonthGroup {
-  key: string;
-  label: string;
-  items: XpTransaction[];
-}
-
-function groupByMonth(transactions: XpTransaction[]): MonthGroup[] {
-  const groupMap = new Map<string, MonthGroup>();
-
+function groupByMonth(transactions: XpTransaction[]) {
+  const map = new Map<string, { label: string; items: XpTransaction[] }>();
   for (const tx of transactions) {
     const date = new Date(tx.createdAt);
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    const key = `${date.getFullYear()}-${date.getMonth()}`;
     const label = date.toLocaleDateString("en-US", {
       month: "long",
       year: "numeric",
     });
-
-    if (!groupMap.has(key)) {
-      groupMap.set(key, { key, label, items: [] });
+    const group = map.get(key);
+    if (group) {
+      group.items.push(tx);
+    } else {
+      map.set(key, { label, items: [tx] });
     }
-    groupMap.get(key)?.items.push(tx);
   }
-
-  return Array.from(groupMap.values()).sort((a, b) =>
-    b.key.localeCompare(a.key),
-  );
+  return Array.from(map.entries()).map(([key, value]) => ({ key, ...value }));
 }
 
-interface ActivityItemProps {
+function ActivityItem({
+  activity,
+  compact = false,
+}: {
   activity: XpTransaction;
   compact?: boolean;
-}
-
-function ActivityItem({ activity, compact = false }: ActivityItemProps) {
-  const dateStr = new Date(activity.createdAt).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+}) {
+  const hasChallenge =
+    activity.challengeSlug !== null && activity.challengeTitle !== null;
+  const date = new Date(activity.createdAt);
 
   return (
     <div
       className={cn(
-        "relative flex items-center justify-between bg-background neo-border-thick",
-        "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[4px] before:bg-primary",
-        compact ? "p-3" : "p-4",
+        "bg-background neo-border-thick neo-shadow-sm relative before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[4px] before:bg-primary",
+        compact ? "pl-4" : "pl-6",
       )}
     >
-      <div className="pl-2 flex-1 min-w-0">
-        <div className={cn("font-bold truncate", compact ? "text-sm" : "")}>
-          {activity.challengeSlug ? (
-            <Link
-              to="/challenges/$slug"
-              params={{ slug: activity.challengeSlug }}
-              className="hover:text-primary transition-colors"
-            >
-              {activity.challengeTitle ?? activity.description}
-            </Link>
-          ) : (
-            <span>{activity.challengeTitle ?? activity.description}</span>
+      <div className={cn("flex items-start gap-3", compact ? "p-3" : "p-4")}>
+        <div className="p-1.5 neo-border-thick neo-shadow-sm rounded-lg bg-secondary shrink-0">
+          <Trophy
+            className={cn("text-primary", compact ? "w-3.5 h-3.5" : "w-4 h-4")}
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            {hasChallenge ? (
+              <Link
+                to="/challenges/$slug"
+                params={{ slug: activity.challengeSlug as string }}
+                className="font-black hover:text-primary transition-colors text-sm block truncate"
+              >
+                {activity.challengeTitle}
+              </Link>
+            ) : (
+              <span className="font-black text-sm block truncate">
+                {activity.description}
+              </span>
+            )}
+            {activity.xpAmount > 0 && (
+              <div className="px-1.5 py-0.5 bg-primary neo-border shrink-0">
+                <span className="text-xs font-black text-primary-foreground">
+                  +{activity.xpAmount} XP
+                </span>
+              </div>
+            )}
+          </div>
+          {hasChallenge && (
+            <div className="flex items-center justify-between mt-0.5">
+              <p className="text-xs text-muted-foreground font-bold">
+                {activity.description}
+              </p>
+              <p className="text-xs text-muted-foreground font-bold shrink-0 ml-2">
+                {date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                })}
+              </p>
+            </div>
+          )}
+          {!hasChallenge && (
+            <p className="text-xs text-muted-foreground font-bold mt-0.5">
+              {date.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              })}
+            </p>
           )}
         </div>
-        <div
-          className={cn(
-            "text-muted-foreground",
-            compact ? "text-xs" : "text-sm",
-          )}
-        >
-          {dateStr}
-        </div>
-      </div>
-      <div
-        className={cn(
-          "ml-3 font-black text-primary-foreground bg-primary neo-border",
-          compact ? "px-1.5 py-0.5 text-xs" : "px-1.5 py-0.5 text-sm",
-        )}
-      >
-        +{activity.xpAmount} XP
       </div>
     </div>
   );
@@ -100,97 +111,96 @@ function ActivityItem({ activity, compact = false }: ActivityItemProps) {
 export function DashboardRecentActivity() {
   const { data: transactions } = useSuspenseQuery(xpTransactionsOptions());
 
-  const recentXp = transactions
-    ?.slice(0, PREVIEW_COUNT)
-    .reduce((sum, tx) => sum + tx.xpAmount, 0);
-
-  const monthGroups = groupByMonth(transactions ?? []);
-
-  if (!transactions || transactions.length === 0) {
-    return (
-      <div className="bg-secondary neo-border-thick neo-shadow p-8 mb-12">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-primary neo-border-thick">
-            <Clock className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <h2 className="text-2xl font-black">Recent Activity</h2>
-        </div>
-        <p className="text-muted-foreground font-bold">
-          No activity yet. Complete a challenge to get started!
-        </p>
-      </div>
-    );
-  }
+  const preview = (transactions ?? []).slice(0, PREVIEW_COUNT);
+  const recentXp = (transactions ?? []).reduce(
+    (sum, tx) => sum + tx.xpAmount,
+    0,
+  );
+  const grouped = groupByMonth(transactions ?? []);
 
   return (
-    <Dialog>
-      <div className="bg-secondary neo-border-thick neo-shadow p-8 mb-12">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-primary neo-border-thick">
-            <History className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <h2 className="text-2xl font-black">Recent Activity</h2>
+    <div className="bg-secondary neo-border-thick neo-shadow p-8 mb-12">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 bg-primary neo-border-thick neo-shadow rounded-lg">
+          <Clock className="w-5 h-5 text-white" />
         </div>
-
-        <div className="space-y-3 mb-6">
-          {transactions.slice(0, PREVIEW_COUNT).map((tx) => (
-            <ActivityItem key={tx.id} activity={tx} />
-          ))}
-        </div>
-
-        <DialogTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-full neo-border neo-shadow font-black"
-          >
-            View All Activity
-          </Button>
-        </DialogTrigger>
+        <h2 className="text-2xl font-black">Recent Activity</h2>
       </div>
 
-      <DialogContent className="max-w-lg p-0 overflow-hidden">
-        {/* Header */}
-        <div className="bg-primary p-6 flex items-center justify-between">
-          <div>
-            <DialogTitle className="text-xl font-black text-primary-foreground">
-              Activity Log
-            </DialogTitle>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="px-1.5 py-0.5 bg-primary-foreground text-primary neo-border text-xs font-black">
-                +{recentXp} XP recently
-              </span>
-              <span className="text-primary-foreground text-sm font-bold">
-                {transactions.length} activities
-              </span>
-            </div>
-          </div>
-          <DialogClose className="text-primary-foreground hover:opacity-70 transition-opacity">
-            <X className="h-5 w-5" />
-            <span className="sr-only">Close</span>
-          </DialogClose>
-        </div>
-
-        {/* Body */}
-        <div className="overflow-y-auto max-h-[55vh] p-6">
-          <div className="space-y-6">
-            {monthGroups.map((group) => (
-              <div key={group.key}>
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-sm font-black uppercase tracking-wide text-muted-foreground">
-                    {group.label}
-                  </span>
-                  <div className="flex-1 h-[2px] bg-border" />
-                </div>
-                <div className="space-y-2">
-                  {group.items.map((tx) => (
-                    <ActivityItem key={tx.id} activity={tx} compact />
-                  ))}
-                </div>
-              </div>
+      {!transactions || transactions.length === 0 ? (
+        <p className="text-muted-foreground font-bold text-sm py-4 text-center">
+          No activity yet. Complete a challenge to get started!
+        </p>
+      ) : (
+        <>
+          <div className="space-y-4">
+            {preview.map((tx) => (
+              <ActivityItem key={tx.id} activity={tx} />
             ))}
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="w-full mt-6 neo-border neo-shadow font-black">
+                View All Activity
+                <History className="ml-2 w-4 h-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent
+              className="p-0 gap-0 overflow-hidden"
+              hideCloseButton
+            >
+              <DialogTitle className="sr-only">Activity Log</DialogTitle>
+
+              {/* Purple header with explicit close button */}
+              <div className="bg-primary px-6 py-5 flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Clock className="w-5 h-5 text-primary-foreground" />
+                    <span className="text-xl font-black text-primary-foreground">
+                      Activity Log
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="px-3 py-1 bg-white/20 border border-white/30">
+                      <span className="text-sm font-black text-primary-foreground">
+                        +{recentXp} XP recently
+                      </span>
+                    </div>
+                    <span className="text-primary-foreground/80 text-sm font-bold">
+                      {transactions.length} recent{" "}
+                      {transactions.length === 1 ? "activity" : "activities"}
+                    </span>
+                  </div>
+                </div>
+                <DialogClose className="text-primary-foreground/80 hover:text-primary-foreground transition-colors mt-1 shrink-0">
+                  <X className="w-5 h-5" />
+                  <span className="sr-only">Close</span>
+                </DialogClose>
+              </div>
+
+              {/* Grouped list */}
+              <div className="overflow-y-auto max-h-[55vh] p-5 space-y-5">
+                {grouped.map(({ label, key, items }) => (
+                  <div key={key}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-xs font-black uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                        {label}
+                      </span>
+                      <div className="flex-1 h-px bg-border" />
+                    </div>
+                    <div className="space-y-2">
+                      {items.map((tx) => (
+                        <ActivityItem key={tx.id} activity={tx} compact />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
+    </div>
   );
 }

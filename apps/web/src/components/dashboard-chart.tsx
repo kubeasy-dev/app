@@ -40,8 +40,8 @@ export function DashboardChart() {
   return (
     <div className="bg-secondary neo-border-thick neo-shadow p-8 mb-12">
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-primary neo-border-thick">
-          <TrendingUp className="h-5 w-5 text-primary-foreground" />
+        <div className="p-2 bg-primary neo-border-thick neo-shadow rounded-lg">
+          <TrendingUp className="w-5 h-5 text-primary-foreground" />
         </div>
         <h2 className="text-2xl font-black">Skills by Themes</h2>
       </div>

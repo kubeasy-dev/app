@@ -1,51 +1,60 @@
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { Check, Copy, Key, Plus, Trash2 } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { AlertCircle, Check, Copy, Key, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import { trackApiTokenCopied, trackApiTokenCreated } from "@/lib/analytics";
 import { authClient } from "@/lib/auth-client";
 
 interface ApiKey {
   id: string;
-  name: string;
+  name: string | null;
   createdAt: Date | string;
+  lastRequest?: Date | string | null;
+  requestCount?: number | null;
 }
 
 export function ProfileApiTokens() {
-  const [showNewTokenForm, setShowNewTokenForm] = useState(false);
+  const [showNewTokenDialog, setShowNewTokenDialog] = useState(false);
   const [newTokenName, setNewTokenName] = useState("");
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
   const [newlyCreatedToken, setNewlyCreatedToken] = useState<string | null>(
     null,
   );
-  const [newlyCreatedTokenName, setNewlyCreatedTokenName] =
-    useState<string>("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [tokenToDelete, setTokenToDelete] = useState<ApiKey | null>(null);
+  const [tokenToDelete, setTokenToDelete] = useState<{
+    id: string;
+    name: string | null;
+  } | null>(null);
 
-  const { data: tokens, refetch } = useSuspenseQuery({
+  const {
+    data: tokens,
+    refetch,
+    isLoading,
+  } = useQuery({
     queryKey: ["apiKey.list"],
     queryFn: async () => {
       const { data, error } = await authClient.apiKey.list();
       if (error) throw error;
-      const keys = data as unknown as {
-        apiKeys: ApiKey[];
-        total: number;
-        limit?: number;
-        offset?: number;
-      } | null;
-      return (keys?.apiKeys ?? []) as ApiKey[];
+      const result = data as unknown as { apiKeys: ApiKey[] } | null;
+      return result?.apiKeys ?? ([] as ApiKey[]);
     },
   });
 
@@ -56,139 +65,150 @@ export function ProfileApiTokens() {
       return data;
     },
     onSuccess: (data) => {
-      if (data?.key) {
-        setNewlyCreatedToken(data.key);
-        setNewlyCreatedTokenName(newTokenName);
-      }
-      trackApiTokenCreated();
+      if (data?.key) setNewlyCreatedToken(data.key);
+      setShowNewTokenDialog(false);
       setNewTokenName("");
-      setShowNewTokenForm(false);
+      trackApiTokenCreated();
       refetch();
     },
     onError: (error) => {
-      toast.error("Failed to create token", { description: error.message });
+      toast.error("Failed to create token", {
+        description: error.message,
+      });
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (keyId: string) => {
-      const { error } = await authClient.apiKey.delete({ keyId });
+    mutationFn: async (id: string) => {
+      const { data, error } = await authClient.apiKey.delete({ keyId: id });
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
-      refetch();
       setDeleteDialogOpen(false);
       setTokenToDelete(null);
-      toast.success("Token deleted successfully");
+      refetch();
     },
     onError: (error) => {
-      toast.error("Failed to delete token", { description: error.message });
+      toast.error("Failed to delete token", {
+        description: error.message,
+      });
     },
   });
 
-  function handleCopyToken(token: string, tokenName: string) {
+  const handleCreateToken = () => {
+    if (!newTokenName.trim()) return;
+    createMutation.mutate(newTokenName.trim());
+  };
+
+  const handleDeleteToken = (token: { id: string; name: string | null }) => {
+    setTokenToDelete(token);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (tokenToDelete) {
+      deleteMutation.mutate(tokenToDelete.id);
+    }
+  };
+
+  const handleCopyToken = (token: string, tokenName = "newly_created") => {
     navigator.clipboard.writeText(token);
     setCopiedToken(token);
     trackApiTokenCopied(tokenName);
     toast.success("Token copied to clipboard");
     setTimeout(() => setCopiedToken(null), 2000);
-  }
-
-  function handleCreateToken() {
-    if (!newTokenName.trim()) {
-      toast.error("Token name is required");
-      return;
-    }
-    createMutation.mutate(newTokenName.trim());
-  }
-
-  function openDeleteDialog(token: ApiKey) {
-    setTokenToDelete(token);
-    setDeleteDialogOpen(true);
-  }
+  };
 
   return (
     <div className="bg-secondary neo-border neo-shadow p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="bg-accent p-2 neo-border">
-            <Key className="h-5 w-5 text-white" />
+          <div className="p-3 bg-primary text-primary-foreground neo-border">
+            <Key className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-xl font-black">API Tokens</h2>
-            <p className="text-sm text-muted-foreground font-medium">
-              Manage your CLI authentication tokens
+            <h2 className="text-2xl font-black">API Tokens</h2>
+            <p className="text-sm text-muted-foreground">
+              Manage CLI authentication tokens
             </p>
           </div>
         </div>
         <Button
-          className="bg-accent text-white hover:bg-accent/90"
-          onClick={() => setShowNewTokenForm(true)}
+          onClick={() => setShowNewTokenDialog(true)}
+          size="sm"
+          className="bg-accent text-white neo-border neo-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-bold"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="w-4 h-4 mr-2" />
           New Token
         </Button>
       </div>
 
       {/* Newly created token alert */}
       {newlyCreatedToken && (
-        <div className="mb-4 bg-green-50 neo-border border-green-600 p-4">
-          <p className="text-sm font-bold text-green-800 mb-2">
-            Your new token has been created. Copy it now — it won't be shown
-            again.
-          </p>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 bg-background neo-border px-3 py-2 text-sm font-mono break-all">
-              {newlyCreatedToken}
-            </code>
+        <Alert className="mb-4 neo-border-thick bg-accent/10">
+          <AlertCircle className="h-5 w-5 text-accent" />
+          <AlertDescription className="font-semibold">
+            <p className="mb-2">
+              Make sure to copy your API token now. You won't be able to see it
+              again!
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="font-mono text-sm bg-background px-3 py-2 neo-border flex-1">
+                {newlyCreatedToken}
+              </code>
+              <Button
+                onClick={() => handleCopyToken(newlyCreatedToken)}
+                size="sm"
+                className="neo-border"
+              >
+                {copiedToken === newlyCreatedToken ? (
+                  <Check className="w-4 h-4 text-green-600" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
             <Button
-              size="icon"
+              onClick={() => setNewlyCreatedToken(null)}
+              size="sm"
               variant="outline"
-              onClick={() =>
-                handleCopyToken(newlyCreatedToken, newlyCreatedTokenName)
-              }
+              className="mt-2 neo-border"
             >
-              {copiedToken === newlyCreatedToken ? (
-                <Check className="h-4 w-4 text-green-600" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
+              I've saved my token
             </Button>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mt-2 text-green-700 hover:text-green-800"
-            onClick={() => setNewlyCreatedToken(null)}
-          >
-            I've saved my token
-          </Button>
-        </div>
+          </AlertDescription>
+        </Alert>
       )}
 
-      {/* New token form */}
-      {showNewTokenForm && (
-        <div className="mb-4 bg-background neo-border p-4">
-          <p className="text-sm font-bold mb-3">Create a new API token</p>
-          <div className="flex items-center gap-2">
+      {/* New Token Form */}
+      {showNewTokenDialog && (
+        <div className="mb-4 p-4 bg-accent/10 neo-border border-accent">
+          <h3 className="font-black mb-3">Create New Token</h3>
+          <div className="flex gap-2">
             <Input
               value={newTokenName}
               onChange={(e) => setNewTokenName(e.target.value)}
-              placeholder="Token name (e.g. my-laptop)"
+              placeholder="Token name (e.g., production-cli)"
+              className="neo-border font-bold flex-1"
               onKeyDown={(e) => e.key === "Enter" && handleCreateToken()}
+              disabled={createMutation.isPending}
             />
             <Button
               onClick={handleCreateToken}
+              className="bg-accent text-white neo-border font-bold"
               disabled={createMutation.isPending}
             >
               {createMutation.isPending ? "Creating..." : "Create"}
             </Button>
             <Button
-              variant="outline"
               onClick={() => {
-                setShowNewTokenForm(false);
+                setShowNewTokenDialog(false);
                 setNewTokenName("");
               }}
+              variant="outline"
+              className="neo-border font-bold"
+              disabled={createMutation.isPending}
             >
               Cancel
             </Button>
@@ -196,64 +216,87 @@ export function ProfileApiTokens() {
         </div>
       )}
 
-      {/* Token list */}
-      {tokens.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Key className="h-10 w-10 text-muted-foreground mb-3" />
-          <p className="font-bold text-muted-foreground">No API tokens yet</p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Create your first token to authenticate with the CLI
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {tokens.map((token) => (
+      {/* Tokens List */}
+      <div className="space-y-3">
+        {isLoading ? (
+          <div className="p-4 bg-background neo-border animate-pulse">
+            <div className="h-6 w-32 bg-muted rounded mb-2" />
+            <div className="h-4 w-48 bg-muted rounded" />
+          </div>
+        ) : !tokens || tokens.length === 0 ? (
+          <Empty>
+            <EmptyMedia variant="icon">
+              <Key />
+            </EmptyMedia>
+            <EmptyHeader>
+              <EmptyTitle>No API tokens yet</EmptyTitle>
+              <EmptyDescription>
+                Create one to authenticate with the CLI
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          tokens.map((token) => (
             <div
               key={token.id}
-              className="flex items-center justify-between bg-background neo-border px-4 py-3"
+              className="p-4 bg-background neo-border flex items-center justify-between gap-4"
             >
-              <div>
-                <p className="font-bold text-sm">{token.name}</p>
-                <p className="text-xs text-muted-foreground">
+              <div className="flex-1 min-w-0">
+                <div className="font-black mb-1">{token.name || "Unnamed"}</div>
+                <div className="text-xs text-muted-foreground">
                   Created {new Date(token.createdAt).toLocaleDateString()}
-                </p>
+                  {token.lastRequest && (
+                    <>
+                      {" "}
+                      · Last used{" "}
+                      {new Date(token.lastRequest).toLocaleDateString()}
+                    </>
+                  )}
+                  {token.requestCount !== null &&
+                    token.requestCount !== undefined && (
+                      <> · {token.requestCount} requests</>
+                    )}
+                </div>
               </div>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                onClick={() => openDeleteDialog(token)}
+              <button
+                type="button"
+                onClick={() => handleDeleteToken(token)}
+                className="p-2 hover:bg-red-100 neo-border transition-colors"
+                title="Delete token"
+                disabled={deleteMutation.isPending}
               >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </button>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
 
-      {/* Delete confirmation dialog */}
+      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete API Token</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete{" "}
-              <strong>{tokenToDelete?.name}</strong>? Any CLI sessions using
-              this token will stop working.
+              Are you sure you want to delete the token "
+              {tokenToDelete?.name || "Unnamed"}"? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
             <Button
-              variant="destructive"
-              onClick={() =>
-                tokenToDelete && deleteMutation.mutate(tokenToDelete.id)
-              }
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
               disabled={deleteMutation.isPending}
+              className="neo-border font-bold"
             >
-              {deleteMutation.isPending ? "Deleting..." : "Yes, Delete Token"}
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending}
+              className="bg-red-600 text-white neo-border border-red-800 neo-shadow shadow-red-800 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-bold"
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete Token"}
             </Button>
           </DialogFooter>
         </DialogContent>

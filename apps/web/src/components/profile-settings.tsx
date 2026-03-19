@@ -16,11 +16,11 @@ export function ProfileSettings({
   initialFirstName,
   initialLastName,
 }: ProfileSettingsProps) {
+  const queryClient = useQueryClient();
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
-  const queryClient = useQueryClient();
 
-  const { mutate, isPending } = useMutation({
+  const updateNameMutation = useMutation({
     mutationFn: () =>
       api.user.updateName(firstName.trim(), lastName.trim() || undefined),
     onSuccess: () => {
@@ -34,59 +34,63 @@ export function ProfileSettings({
     },
   });
 
-  function handleSaveProfile() {
+  const handleSaveProfile = () => {
     if (!firstName.trim()) {
       toast.error("First name is required");
       return;
     }
-    mutate();
-  }
+
+    updateNameMutation.mutate();
+  };
 
   return (
     <div className="bg-secondary neo-border neo-shadow p-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="bg-primary p-2 neo-border">
-          <User className="h-5 w-5 text-primary-foreground" />
+        <div className="p-3 bg-primary text-primary-foreground neo-border">
+          <User className="w-6 h-6" />
         </div>
         <div>
-          <h2 className="text-xl font-black">Profile Settings</h2>
-          <p className="text-sm text-muted-foreground font-medium">
+          <h2 className="text-2xl font-black">Profile Settings</h2>
+          <p className="text-sm text-muted-foreground">
             Update your personal information
           </p>
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="firstName" className="font-bold">
+      <div className="grid md:grid-cols-2 gap-4 mb-6">
+        <div>
+          <Label htmlFor="firstName" className="font-bold mb-2 block">
             First Name
           </Label>
           <Input
             id="firstName"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            placeholder="Enter your first name"
+            className="neo-border bg-background font-bold"
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="lastName" className="font-bold">
+
+        <div>
+          <Label htmlFor="lastName" className="font-bold mb-2 block">
             Last Name
           </Label>
           <Input
             id="lastName"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            placeholder="Enter your last name"
+            className="neo-border bg-background font-bold"
           />
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end">
-        <Button onClick={handleSaveProfile} disabled={isPending}>
-          <Save className="h-4 w-4" />
-          {isPending ? "Saving..." : "Save Changes"}
-        </Button>
-      </div>
+      <Button
+        onClick={handleSaveProfile}
+        disabled={updateNameMutation.isPending}
+        className="bg-primary text-primary-foreground neo-border neo-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <Save className="w-4 h-4 mr-2" />
+        {updateNameMutation.isPending ? "Saving..." : "Save Changes"}
+      </Button>
     </div>
   );
 }

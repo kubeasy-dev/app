@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import "tailwindcss" source("../");
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
@@ -190,6 +190,10 @@
   /* Color variant neo-borders */
   .neo-border-destructive {
     border: 3px solid oklch(0.6 0.25 25);
+  }
+
+  .shadow-danger {
+    box-shadow: var(--shadow-danger);
   }
 
   .neo-border-primary {
