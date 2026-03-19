@@ -1,11 +1,13 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Clock, Target, TrendingUp, Trophy } from "lucide-react";
+import { DashboardChart } from "@/components/dashboard-chart";
+import { DashboardRecentActivity } from "@/components/dashboard-recent-activity";
 import {
   completionOptions,
+  themeListOptions,
   userStreakOptions,
   userXpOptions,
-  xpTransactionsOptions,
 } from "@/lib/query-options";
 
 const GITHUB_URL = "https://github.com/kubeasy-dev/kubeasy";
@@ -16,7 +18,7 @@ export const Route = createFileRoute("/_protected/dashboard")({
       queryClient.ensureQueryData(completionOptions({ splitByTheme: true })),
       queryClient.ensureQueryData(userXpOptions()),
       queryClient.ensureQueryData(userStreakOptions()),
-      queryClient.ensureQueryData(xpTransactionsOptions()),
+      queryClient.ensureQueryData(themeListOptions()),
     ]);
   },
   component: DashboardPage,
@@ -29,7 +31,6 @@ function DashboardPage() {
   );
   const { data: xpData } = useSuspenseQuery(userXpOptions());
   const { data: streak } = useSuspenseQuery(userStreakOptions());
-  const { data: transactions } = useSuspenseQuery(xpTransactionsOptions());
 
   const firstName = user.name?.split(" ")[0] || "there";
 
@@ -115,39 +116,11 @@ function DashboardPage() {
           </div>
         </div>
 
+        {/* Skills by Themes */}
+        <DashboardChart />
+
         {/* Recent Activity */}
-        {transactions && transactions.length > 0 && (
-          <div className="bg-secondary neo-border-thick neo-shadow p-8 mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-primary neo-border-thick">
-                <Clock className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <h2 className="text-2xl font-black">Recent Activity</h2>
-            </div>
-            <div className="space-y-3">
-              {transactions.slice(0, 5).map((tx) => (
-                <div
-                  key={tx.id}
-                  className="flex items-center justify-between p-4 bg-background neo-border-thick"
-                >
-                  <div>
-                    <div className="font-bold">
-                      {tx.challengeTitle ?? "Challenge completed"}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {tx.createdAt instanceof Date
-                        ? tx.createdAt.toLocaleDateString()
-                        : new Date(String(tx.createdAt)).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div className="font-black text-primary">
-                    +{tx.xpAmount} XP
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <DashboardRecentActivity />
 
         {/* Quick Actions */}
         <div className="bg-primary neo-border-thick neo-shadow p-8">
