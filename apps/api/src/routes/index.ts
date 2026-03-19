@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { challenges } from "./challenges.js";
 import { cli } from "./cli/index.js";
+import { onboarding } from "./onboarding.js";
 import { progress } from "./progress.js";
 import { sse } from "./sse.js";
 import { submissions } from "./submissions.js";
@@ -26,5 +27,6 @@ routes.route("/user", user);
 routes.route("/xp", xp);
 routes.route("/cli", cli);
 routes.route("/sse", sse);
+routes.route("/onboarding", onboarding);
 
 export { routes };
