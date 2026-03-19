@@ -2,6 +2,7 @@
   "name": "@kubeasy/api-schemas",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "exports": {
     ".": "./src/index.ts",
     "./challenges": "./src/challenges.ts",
@@ -11,7 +12,8 @@
     "./submissions": "./src/submissions.ts",
     "./auth": "./src/auth.ts",
     "./objectives": "./src/objectives.ts",
-    "./drizzle": "./src/drizzle.ts"
+    "./drizzle": "./src/drizzle.ts",
+    "./query-keys": "./src/query-keys.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
