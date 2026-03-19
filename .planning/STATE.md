@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 5.2 context gathered
-last_updated: "2026-03-19T22:25:53.393Z"
+stopped_at: Completed 05.2-01-PLAN.md
+last_updated: "2026-03-19T22:43:52.420Z"
 last_activity: "2026-03-18 — Completed plan 04-03: landing page, blog SSG routes, and login page migration"
 progress:
   total_phases: 9
   completed_phases: 6
-  total_plans: 24
-  completed_plans: 24
+  total_plans: 27
+  completed_plans: 25
   percent: 8
 ---
 
@@ -72,6 +72,7 @@ Progress: [░░░░░░░░░░] 8%
 | Phase 05.1-repair-workers-features P03 | 2 | 2 tasks | 4 files |
 | Phase 05.1-repair-workers-features P04 | 3 | 2 tasks | 5 files |
 | Phase 05.1-repair-workers-features P05 | 5 | 1 tasks | 4 files |
+| Phase 05.2-missing-dashboard-profile-features P01 | 2 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -130,6 +131,8 @@ Recent decisions affecting current work:
 - [Phase 05.1-repair-workers-features]: Resend contact creation wrapped in try/catch inside better-all block — failure logs and returns null, does not block identify/trackSignup
 - [Phase 05.1-repair-workers-features]: CliEnv type declared locally in cli/index.ts as { Variables: { user: SessionUser; session: null } } — matches apiKeyMiddleware injection, avoids null-check burden from AppEnv
 - [Phase 05.1-repair-workers-features]: useInvalidateCacheSSE takes only enabled: boolean (no slug) — SSE channel is user-scoped; server publishes specific queryKey to invalidate
+- [Phase 05.2-missing-dashboard-profile-features]: ThemeListOutput is Theme[] array, not { themes: Theme[] } object - plan interface was wrong; fixed at build time
+- [Phase 05.2-missing-dashboard-profile-features]: xpTransactionsOptions removed from loader — DashboardRecentActivity fetches its own data, avoiding double prefetch
 
 ### Roadmap Evolution
 
@@ -149,6 +152,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T22:25:53.387Z
-Stopped at: Phase 5.2 context gathered
-Resume file: .planning/phases/05.2-il-manque-encore-des-trucs-radar-chart-et-recent-activities-list-on-the-dashboard-page-profile-page-edit-name-craete-revoke-token-subscription-management-in-resend-delete-zone/05.2-CONTEXT.md
+Last session: 2026-03-19T22:43:52.418Z
+Stopped at: Completed 05.2-01-PLAN.md
+Resume file: None

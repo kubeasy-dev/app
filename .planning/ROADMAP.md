@@ -183,6 +183,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 5.1 -> 5.2 -> 6 -> 7
 | 4. Web Migration | 4/4 | Complete   | 2026-03-18 |
 | 5. Realtime SSE | 1/3 | In Progress|  |
 | 5.1 Repair Workers | 5/5 | Complete | 2026-03-19 |
-| 5.2 Dashboard & Profile | 0/3 | Not started | - |
+| 5.2 Dashboard & Profile | 1/3 | In Progress|  |
 | 6. Observability | 0/4 | Not started | - |
 | 7. Railway Deployment | 0/4 | Not started | - |
