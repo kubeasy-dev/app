@@ -124,6 +124,18 @@ Plans:
 - [ ] 05.1-04-PLAN.md — Onboarding API routes + CLI routes (POST /user, POST /track/setup) + challenge start analytics
 - [ ] 05.1-05-PLAN.md — Web useInvalidateCacheSSE hook replacing useValidationSSE + ChallengeMission update
 
+### Phase 05.2: Missing Dashboard & Profile Features (INSERTED)
+
+**Goal:** Dashboard page has a recharts radar chart ("Skills by Themes") and full-fidelity recent activity section (4-item preview + grouped-by-month dialog). Profile page has edit name, API token management (create/copy/delete), email subscription management via Resend, and danger zone (reset progress + delete account).
+**Requirements**: None (inserted phase, no formal requirement IDs)
+**Depends on:** Phase 5.1
+**Plans:** 3 plans
+
+Plans:
+- [ ] 05.2-01-PLAN.md — Dashboard radar chart (recharts) + recent activity with grouped-by-month dialog
+- [ ] 05.2-02-PLAN.md — Profile settings (edit name), API tokens (Better Auth client), danger zone (reset progress + delete account)
+- [ ] 05.2-03-PLAN.md — Profile email preferences (TanStack Start server functions + Resend Topics API)
+
 ### Phase 6: Observability
 **Goal**: All HTTP requests, database spans, and structured logs from `apps/api` and `apps/web` (SSR) flow through the OTel Collector — with PostHog OTLP export removed and a DB span smoke test confirming correct SDK initialization order
 **Depends on**: Phase 5
@@ -161,7 +173,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 5.1 -> 6 -> 7
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 5.1 -> 5.2 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -170,6 +182,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 5.1 -> 6 -> 7
 | 3. Authentication | 3/3 | Complete   | 2026-03-18 |
 | 4. Web Migration | 4/4 | Complete   | 2026-03-18 |
 | 5. Realtime SSE | 1/3 | In Progress|  |
-| 5.1 Repair Workers | 0/5 | Not started | - |
+| 5.1 Repair Workers | 5/5 | Complete | 2026-03-19 |
+| 5.2 Dashboard & Profile | 0/3 | Not started | - |
 | 6. Observability | 0/4 | Not started | - |
 | 7. Railway Deployment | 0/4 | Not started | - |
