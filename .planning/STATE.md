@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05.1-03-PLAN.md
-last_updated: "2026-03-19T21:52:30.678Z"
+stopped_at: Completed 05.1-04-PLAN.md
+last_updated: "2026-03-19T21:58:18.498Z"
 last_activity: "2026-03-18 — Completed plan 04-03: landing page, blog SSG routes, and login page migration"
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 24
-  completed_plans: 22
+  completed_plans: 23
   percent: 8
 ---
 
@@ -70,6 +70,7 @@ Progress: [░░░░░░░░░░] 8%
 | Phase 05.1-repair-workers-features P01 | 2 | 2 tasks | 10 files |
 | Phase 05.1-repair-workers-features P02 | 2 | 2 tasks | 3 files |
 | Phase 05.1-repair-workers-features P03 | 2 | 2 tasks | 4 files |
+| Phase 05.1-repair-workers-features P04 | 3 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -126,6 +127,7 @@ Recent decisions affecting current work:
 - [Phase 05.1-repair-workers-features]: Cast difficulty to ChallengeDifficulty at worker boundary — ChallengeSubmissionPayload uses string to avoid circular imports from jobs package
 - [Phase 05.1-repair-workers-features]: user-lifecycle.worker.ts kept as filename; function renamed to createUserSigninWorker — index.ts updated accordingly
 - [Phase 05.1-repair-workers-features]: Resend contact creation wrapped in try/catch inside better-all block — failure logs and returns null, does not block identify/trackSignup
+- [Phase 05.1-repair-workers-features]: CliEnv type declared locally in cli/index.ts as { Variables: { user: SessionUser; session: null } } — matches apiKeyMiddleware injection, avoids null-check burden from AppEnv
 
 ### Roadmap Evolution
 
@@ -144,6 +146,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T21:52:30.675Z
-Stopped at: Completed 05.1-03-PLAN.md
+Last session: 2026-03-19T21:58:18.495Z
+Stopped at: Completed 05.1-04-PLAN.md
 Resume file: None
