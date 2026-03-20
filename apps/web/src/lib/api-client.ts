@@ -173,6 +173,21 @@ export const api = {
   user: {
     xp: () => apiFetch<XpAndRankOutput>("/user/xp"),
     streak: () => apiFetch<StreakOutput>("/user/streak"),
+    emailTopics: () =>
+      apiFetch<
+        {
+          id: string;
+          name: string;
+          description: string | null;
+          defaultSubscription: "opt_in" | "opt_out";
+          subscribed: boolean;
+        }[]
+      >("/user/email-topics"),
+    updateEmailTopic: (topicId: string, subscribed: boolean) =>
+      apiFetch<{ success: boolean }>(`/user/email-topics/${topicId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ subscribed }),
+      }),
     /**
      * PATCH /api/user/name
      * Updates user name
