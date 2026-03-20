@@ -105,3 +105,11 @@ None - no external service configuration required.
 ---
 *Phase: 03-authentication*
 *Completed: 2026-03-18*
+
+## Self-Check: PASSED
+
+- FOUND: apps/api/src/middleware/api-key.ts
+- FOUND: apps/api/src/routes/cli/index.ts
+- FOUND: commit bff11ce5a (Task 1)
+- FOUND: commit e24545fb4 (Task 2)
+- FOUND: commit 632a9c193 (plan metadata)

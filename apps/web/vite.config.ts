@@ -1,16 +1,16 @@
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
-import { defineConfig } from 'vite'
-import viteReact from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import tailwindcss from "@tailwindcss/vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import viteReact from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   server: { port: 3000 },
   resolve: {
-    alias: { '@': new URL('./src', import.meta.url).pathname },
+    alias: { "@": new URL("./src", import.meta.url).pathname },
   },
   plugins: [
-    tailwindcss(),
     tanstackStart({
+      router: { entry: "./lib/router" },
       prerender: {
         enabled: true,
         crawlLinks: true,
@@ -19,5 +19,6 @@ export default defineConfig({
       },
     }),
     viteReact(),
+    tailwindcss(),
   ],
-})
+});

@@ -128,6 +128,17 @@ None - no external service configuration required.
 - scripts/rate-limit-test.js ready for use once apps/api is running (Plan 02-04)
 - All 4 describe() structures match the API surface planned in 02-02 and 02-03
 
+## Self-Check: PASSED
+
+- FOUND: apps/api/vitest.config.ts
+- FOUND: apps/api/src/__tests__/challenges.test.ts
+- FOUND: apps/api/src/__tests__/submit.test.ts
+- FOUND: apps/api/src/__tests__/middleware.test.ts
+- FOUND: apps/api/src/__tests__/cli.test.ts
+- FOUND: scripts/rate-limit-test.js
+- FOUND: commit 8faca93 (feat: test stubs)
+- FOUND: commit 6ec775d (chore: vitest config pre-committed by 02-01)
+
 ---
 *Phase: 02-hono-api-migration*
 *Completed: 2026-03-18*

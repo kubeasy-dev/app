@@ -10,9 +10,9 @@
 
 import { Route as rootRouteImport } from "./routes/__root";
 import { Route as ProtectedRouteImport } from "./routes/_protected";
-import { Route as ProtectedAdminChallengesRouteImport } from "./routes/_protected/(admin)/challenges";
-import { Route as ProtectedAdminIndexRouteImport } from "./routes/_protected/(admin)/index";
-import { Route as ProtectedAdminUsersRouteImport } from "./routes/_protected/(admin)/users";
+import { Route as ProtectedAdminChallengesRouteImport } from "./routes/_protected/admin/challenges";
+import { Route as ProtectedAdminIndexRouteImport } from "./routes/_protected/admin/index";
+import { Route as ProtectedAdminUsersRouteImport } from "./routes/_protected/admin/users";
 import { Route as ProtectedDashboardRouteImport } from "./routes/_protected/dashboard";
 import { Route as ProtectedProfileRouteImport } from "./routes/_protected/profile";
 import { Route as AuthCallbackRouteImport } from "./routes/auth/callback";
@@ -29,280 +29,252 @@ import { Route as ThemesIndexRouteImport } from "./routes/themes/index";
 import { Route as TypesSlugRouteImport } from "./routes/types/$slug";
 import { Route as TypesIndexRouteImport } from "./routes/types/index";
 
-const ProtectedRoute = ProtectedRouteImport.update({
-  id: "/_protected",
-  getParentRoute: () => rootRouteImport,
-} as any);
-
-const LoginRoute = LoginRouteImport.update({
-  id: "/login",
-  path: "/login",
-  getParentRoute: () => rootRouteImport,
-} as any);
-
-const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
-  getParentRoute: () => rootRouteImport,
-} as any);
-
 const OnboardingRoute = OnboardingRouteImport.update({
   id: "/onboarding",
   path: "/onboarding",
   getParentRoute: () => rootRouteImport,
 } as any);
-
+const LoginRoute = LoginRouteImport.update({
+  id: "/login",
+  path: "/login",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const GetStartedRoute = GetStartedRouteImport.update({
   id: "/get-started",
   path: "/get-started",
   getParentRoute: () => rootRouteImport,
 } as any);
-
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: "/auth/callback",
-  path: "/auth/callback",
+const ProtectedRoute = ProtectedRouteImport.update({
+  id: "/_protected",
   getParentRoute: () => rootRouteImport,
 } as any);
-
-const ChallengesIndexRoute = ChallengesIndexRouteImport.update({
-  id: "/challenges/",
-  path: "/challenges",
+const IndexRoute = IndexRouteImport.update({
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
 } as any);
-
-const ChallengesSlugRoute = ChallengesSlugRouteImport.update({
-  id: "/challenges/$slug",
-  path: "/challenges/$slug",
-  getParentRoute: () => rootRouteImport,
-} as any);
-
-const ThemesIndexRoute = ThemesIndexRouteImport.update({
-  id: "/themes/",
-  path: "/themes",
-  getParentRoute: () => rootRouteImport,
-} as any);
-
-const ThemesSlugRoute = ThemesSlugRouteImport.update({
-  id: "/themes/$slug",
-  path: "/themes/$slug",
-  getParentRoute: () => rootRouteImport,
-} as any);
-
 const TypesIndexRoute = TypesIndexRouteImport.update({
   id: "/types/",
-  path: "/types",
+  path: "/types/",
   getParentRoute: () => rootRouteImport,
 } as any);
-
+const ThemesIndexRoute = ThemesIndexRouteImport.update({
+  id: "/themes/",
+  path: "/themes/",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ChallengesIndexRoute = ChallengesIndexRouteImport.update({
+  id: "/challenges/",
+  path: "/challenges/",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: "/blog/",
+  path: "/blog/",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const TypesSlugRoute = TypesSlugRouteImport.update({
   id: "/types/$slug",
   path: "/types/$slug",
   getParentRoute: () => rootRouteImport,
 } as any);
-
-const BlogIndexRoute = BlogIndexRouteImport.update({
-  id: "/blog/",
-  path: "/blog",
+const ThemesSlugRoute = ThemesSlugRouteImport.update({
+  id: "/themes/$slug",
+  path: "/themes/$slug",
   getParentRoute: () => rootRouteImport,
 } as any);
-
+const ChallengesSlugRoute = ChallengesSlugRouteImport.update({
+  id: "/challenges/$slug",
+  path: "/challenges/$slug",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: "/blog/$slug",
   path: "/blog/$slug",
   getParentRoute: () => rootRouteImport,
 } as any);
-
-const ProtectedDashboardRoute = ProtectedDashboardRouteImport.update({
-  id: "/_protected/dashboard",
-  path: "/dashboard",
-  getParentRoute: () => ProtectedRoute,
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: "/auth/callback",
+  path: "/auth/callback",
+  getParentRoute: () => rootRouteImport,
 } as any);
-
 const ProtectedProfileRoute = ProtectedProfileRouteImport.update({
-  id: "/_protected/profile",
+  id: "/profile",
   path: "/profile",
   getParentRoute: () => ProtectedRoute,
 } as any);
-
-const ProtectedAdminIndexRoute = ProtectedAdminIndexRouteImport.update({
-  id: "/_protected/(admin)/",
-  path: "/admin",
+const ProtectedDashboardRoute = ProtectedDashboardRouteImport.update({
+  id: "/dashboard",
+  path: "/dashboard",
   getParentRoute: () => ProtectedRoute,
 } as any);
-
+const ProtectedAdminIndexRoute = ProtectedAdminIndexRouteImport.update({
+  id: "/admin/",
+  path: "/admin/",
+  getParentRoute: () => ProtectedRoute,
+} as any);
+const ProtectedAdminUsersRoute = ProtectedAdminUsersRouteImport.update({
+  id: "/admin/users",
+  path: "/admin/users",
+  getParentRoute: () => ProtectedRoute,
+} as any);
 const ProtectedAdminChallengesRoute =
   ProtectedAdminChallengesRouteImport.update({
-    id: "/_protected/(admin)/challenges",
+    id: "/admin/challenges",
     path: "/admin/challenges",
     getParentRoute: () => ProtectedRoute,
   } as any);
 
-const ProtectedAdminUsersRoute = ProtectedAdminUsersRouteImport.update({
-  id: "/_protected/(admin)/users",
-  path: "/admin/users",
-  getParentRoute: () => ProtectedRoute,
-} as any);
-
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
+  "/get-started": typeof GetStartedRoute;
   "/login": typeof LoginRoute;
   "/onboarding": typeof OnboardingRoute;
-  "/get-started": typeof GetStartedRoute;
-  "/auth/callback": typeof AuthCallbackRoute;
-  "/challenges": typeof ChallengesIndexRoute;
-  "/challenges/$slug": typeof ChallengesSlugRoute;
-  "/themes": typeof ThemesIndexRoute;
-  "/themes/$slug": typeof ThemesSlugRoute;
-  "/types": typeof TypesIndexRoute;
-  "/types/$slug": typeof TypesSlugRoute;
   "/dashboard": typeof ProtectedDashboardRoute;
   "/profile": typeof ProtectedProfileRoute;
-  "/admin": typeof ProtectedAdminIndexRoute;
+  "/auth/callback": typeof AuthCallbackRoute;
+  "/blog/$slug": typeof BlogSlugRoute;
+  "/challenges/$slug": typeof ChallengesSlugRoute;
+  "/themes/$slug": typeof ThemesSlugRoute;
+  "/types/$slug": typeof TypesSlugRoute;
+  "/blog/": typeof BlogIndexRoute;
+  "/challenges/": typeof ChallengesIndexRoute;
+  "/themes/": typeof ThemesIndexRoute;
+  "/types/": typeof TypesIndexRoute;
   "/admin/challenges": typeof ProtectedAdminChallengesRoute;
   "/admin/users": typeof ProtectedAdminUsersRoute;
-  "/blog": typeof BlogIndexRoute;
-  "/blog/$slug": typeof BlogSlugRoute;
+  "/admin/": typeof ProtectedAdminIndexRoute;
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
+  "/get-started": typeof GetStartedRoute;
   "/login": typeof LoginRoute;
   "/onboarding": typeof OnboardingRoute;
-  "/get-started": typeof GetStartedRoute;
-  "/auth/callback": typeof AuthCallbackRoute;
-  "/challenges": typeof ChallengesIndexRoute;
-  "/challenges/$slug": typeof ChallengesSlugRoute;
-  "/themes": typeof ThemesIndexRoute;
-  "/themes/$slug": typeof ThemesSlugRoute;
-  "/types": typeof TypesIndexRoute;
-  "/types/$slug": typeof TypesSlugRoute;
   "/dashboard": typeof ProtectedDashboardRoute;
   "/profile": typeof ProtectedProfileRoute;
-  "/admin": typeof ProtectedAdminIndexRoute;
+  "/auth/callback": typeof AuthCallbackRoute;
+  "/blog/$slug": typeof BlogSlugRoute;
+  "/challenges/$slug": typeof ChallengesSlugRoute;
+  "/themes/$slug": typeof ThemesSlugRoute;
+  "/types/$slug": typeof TypesSlugRoute;
+  "/blog": typeof BlogIndexRoute;
+  "/challenges": typeof ChallengesIndexRoute;
+  "/themes": typeof ThemesIndexRoute;
+  "/types": typeof TypesIndexRoute;
   "/admin/challenges": typeof ProtectedAdminChallengesRoute;
   "/admin/users": typeof ProtectedAdminUsersRoute;
-  "/blog": typeof BlogIndexRoute;
-  "/blog/": typeof BlogIndexRoute;
-  "/blog/$slug": typeof BlogSlugRoute;
+  "/admin": typeof ProtectedAdminIndexRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
-  "/_protected": typeof ProtectedRoute;
   "/": typeof IndexRoute;
+  "/_protected": typeof ProtectedRouteWithChildren;
+  "/get-started": typeof GetStartedRoute;
   "/login": typeof LoginRoute;
   "/onboarding": typeof OnboardingRoute;
-  "/get-started": typeof GetStartedRoute;
-  "/auth/callback": typeof AuthCallbackRoute;
-  "/challenges/": typeof ChallengesIndexRoute;
-  "/challenges/$slug": typeof ChallengesSlugRoute;
-  "/themes/": typeof ThemesIndexRoute;
-  "/themes/$slug": typeof ThemesSlugRoute;
-  "/types/": typeof TypesIndexRoute;
-  "/types/$slug": typeof TypesSlugRoute;
   "/_protected/dashboard": typeof ProtectedDashboardRoute;
   "/_protected/profile": typeof ProtectedProfileRoute;
-  "/_protected/(admin)/": typeof ProtectedAdminIndexRoute;
-  "/_protected/(admin)/challenges": typeof ProtectedAdminChallengesRoute;
-  "/_protected/(admin)/users": typeof ProtectedAdminUsersRoute;
-  "/blog/": typeof BlogIndexRoute;
+  "/auth/callback": typeof AuthCallbackRoute;
   "/blog/$slug": typeof BlogSlugRoute;
+  "/challenges/$slug": typeof ChallengesSlugRoute;
+  "/themes/$slug": typeof ThemesSlugRoute;
+  "/types/$slug": typeof TypesSlugRoute;
+  "/blog/": typeof BlogIndexRoute;
+  "/challenges/": typeof ChallengesIndexRoute;
+  "/themes/": typeof ThemesIndexRoute;
+  "/types/": typeof TypesIndexRoute;
+  "/_protected/admin/challenges": typeof ProtectedAdminChallengesRoute;
+  "/_protected/admin/users": typeof ProtectedAdminUsersRoute;
+  "/_protected/admin/": typeof ProtectedAdminIndexRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | "/"
+    | "/get-started"
     | "/login"
     | "/onboarding"
-    | "/get-started"
-    | "/auth/callback"
-    | "/challenges"
-    | "/challenges/$slug"
-    | "/themes"
-    | "/themes/$slug"
-    | "/types"
-    | "/types/$slug"
     | "/dashboard"
     | "/profile"
-    | "/admin"
+    | "/auth/callback"
+    | "/blog/$slug"
+    | "/challenges/$slug"
+    | "/themes/$slug"
+    | "/types/$slug"
+    | "/blog/"
+    | "/challenges/"
+    | "/themes/"
+    | "/types/"
     | "/admin/challenges"
     | "/admin/users"
-    | "/blog"
-    | "/blog/$slug";
+    | "/admin/";
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/"
+    | "/get-started"
     | "/login"
     | "/onboarding"
-    | "/get-started"
-    | "/auth/callback"
-    | "/challenges"
-    | "/challenges/$slug"
-    | "/themes"
-    | "/themes/$slug"
-    | "/types"
-    | "/types/$slug"
     | "/dashboard"
     | "/profile"
-    | "/admin"
+    | "/auth/callback"
+    | "/blog/$slug"
+    | "/challenges/$slug"
+    | "/themes/$slug"
+    | "/types/$slug"
+    | "/blog"
+    | "/challenges"
+    | "/themes"
+    | "/types"
     | "/admin/challenges"
     | "/admin/users"
-    | "/blog"
-    | "/blog/"
-    | "/blog/$slug";
+    | "/admin";
   id:
     | "__root__"
-    | "/_protected"
     | "/"
+    | "/_protected"
+    | "/get-started"
     | "/login"
     | "/onboarding"
-    | "/get-started"
-    | "/auth/callback"
-    | "/challenges/"
-    | "/challenges/$slug"
-    | "/themes/"
-    | "/themes/$slug"
-    | "/types/"
-    | "/types/$slug"
     | "/_protected/dashboard"
     | "/_protected/profile"
-    | "/_protected/(admin)/"
-    | "/_protected/(admin)/challenges"
-    | "/_protected/(admin)/users"
+    | "/auth/callback"
+    | "/blog/$slug"
+    | "/challenges/$slug"
+    | "/themes/$slug"
+    | "/types/$slug"
     | "/blog/"
-    | "/blog/$slug";
+    | "/challenges/"
+    | "/themes/"
+    | "/types/"
+    | "/_protected/admin/challenges"
+    | "/_protected/admin/users"
+    | "/_protected/admin/";
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  ProtectedRoute: typeof ProtectedRoute;
   IndexRoute: typeof IndexRoute;
+  ProtectedRoute: typeof ProtectedRouteWithChildren;
+  GetStartedRoute: typeof GetStartedRoute;
   LoginRoute: typeof LoginRoute;
   OnboardingRoute: typeof OnboardingRoute;
-  GetStartedRoute: typeof GetStartedRoute;
   AuthCallbackRoute: typeof AuthCallbackRoute;
-  ChallengesIndexRoute: typeof ChallengesIndexRoute;
+  BlogSlugRoute: typeof BlogSlugRoute;
   ChallengesSlugRoute: typeof ChallengesSlugRoute;
-  ThemesIndexRoute: typeof ThemesIndexRoute;
   ThemesSlugRoute: typeof ThemesSlugRoute;
-  TypesIndexRoute: typeof TypesIndexRoute;
   TypesSlugRoute: typeof TypesSlugRoute;
   BlogIndexRoute: typeof BlogIndexRoute;
-  BlogSlugRoute: typeof BlogSlugRoute;
-}
-
-export interface ProtectedRouteChildren {
-  ProtectedDashboardRoute: typeof ProtectedDashboardRoute;
-  ProtectedProfileRoute: typeof ProtectedProfileRoute;
-  ProtectedAdminIndexRoute: typeof ProtectedAdminIndexRoute;
-  ProtectedAdminChallengesRoute: typeof ProtectedAdminChallengesRoute;
-  ProtectedAdminUsersRoute: typeof ProtectedAdminUsersRoute;
+  ChallengesIndexRoute: typeof ChallengesIndexRoute;
+  ThemesIndexRoute: typeof ThemesIndexRoute;
+  TypesIndexRoute: typeof TypesIndexRoute;
 }
 
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    "/_protected": {
-      id: "/_protected";
-      path: "";
-      fullPath: "";
-      preLoaderRoute: typeof ProtectedRouteImport;
+    "/onboarding": {
+      id: "/onboarding";
+      path: "/onboarding";
+      fullPath: "/onboarding";
+      preLoaderRoute: typeof OnboardingRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/login": {
@@ -312,20 +284,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LoginRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/onboarding": {
-      id: "/onboarding";
-      path: "/onboarding";
-      fullPath: "/onboarding";
-      preLoaderRoute: typeof OnboardingRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
     "/get-started": {
       id: "/get-started";
       path: "/get-started";
@@ -333,46 +291,46 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof GetStartedRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/auth/callback": {
-      id: "/auth/callback";
-      path: "/auth/callback";
-      fullPath: "/auth/callback";
-      preLoaderRoute: typeof AuthCallbackRouteImport;
+    "/_protected": {
+      id: "/_protected";
+      path: "";
+      fullPath: "/";
+      preLoaderRoute: typeof ProtectedRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/challenges/": {
-      id: "/challenges/";
-      path: "/challenges";
-      fullPath: "/challenges";
-      preLoaderRoute: typeof ChallengesIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/challenges/$slug": {
-      id: "/challenges/$slug";
-      path: "/challenges/$slug";
-      fullPath: "/challenges/$slug";
-      preLoaderRoute: typeof ChallengesSlugRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/themes/": {
-      id: "/themes/";
-      path: "/themes";
-      fullPath: "/themes";
-      preLoaderRoute: typeof ThemesIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/themes/$slug": {
-      id: "/themes/$slug";
-      path: "/themes/$slug";
-      fullPath: "/themes/$slug";
-      preLoaderRoute: typeof ThemesSlugRouteImport;
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/types/": {
       id: "/types/";
       path: "/types";
-      fullPath: "/types";
+      fullPath: "/types/";
       preLoaderRoute: typeof TypesIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/themes/": {
+      id: "/themes/";
+      path: "/themes";
+      fullPath: "/themes/";
+      preLoaderRoute: typeof ThemesIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/challenges/": {
+      id: "/challenges/";
+      path: "/challenges";
+      fullPath: "/challenges/";
+      preLoaderRoute: typeof ChallengesIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/blog/": {
+      id: "/blog/";
+      path: "/blog";
+      fullPath: "/blog/";
+      preLoaderRoute: typeof BlogIndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/types/$slug": {
@@ -382,46 +340,18 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TypesSlugRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/_protected/dashboard": {
-      id: "/_protected/dashboard";
-      path: "/dashboard";
-      fullPath: "/dashboard";
-      preLoaderRoute: typeof ProtectedDashboardRouteImport;
-      parentRoute: typeof ProtectedRoute;
+    "/themes/$slug": {
+      id: "/themes/$slug";
+      path: "/themes/$slug";
+      fullPath: "/themes/$slug";
+      preLoaderRoute: typeof ThemesSlugRouteImport;
+      parentRoute: typeof rootRouteImport;
     };
-    "/_protected/profile": {
-      id: "/_protected/profile";
-      path: "/profile";
-      fullPath: "/profile";
-      preLoaderRoute: typeof ProtectedProfileRouteImport;
-      parentRoute: typeof ProtectedRoute;
-    };
-    "/_protected/(admin)/": {
-      id: "/_protected/(admin)/";
-      path: "/admin";
-      fullPath: "/admin";
-      preLoaderRoute: typeof ProtectedAdminIndexRouteImport;
-      parentRoute: typeof ProtectedRoute;
-    };
-    "/_protected/(admin)/challenges": {
-      id: "/_protected/(admin)/challenges";
-      path: "/admin/challenges";
-      fullPath: "/admin/challenges";
-      preLoaderRoute: typeof ProtectedAdminChallengesRouteImport;
-      parentRoute: typeof ProtectedRoute;
-    };
-    "/_protected/(admin)/users": {
-      id: "/_protected/(admin)/users";
-      path: "/admin/users";
-      fullPath: "/admin/users";
-      preLoaderRoute: typeof ProtectedAdminUsersRouteImport;
-      parentRoute: typeof ProtectedRoute;
-    };
-    "/blog/": {
-      id: "/blog/";
-      path: "/blog";
-      fullPath: "/blog";
-      preLoaderRoute: typeof BlogIndexRouteImport;
+    "/challenges/$slug": {
+      id: "/challenges/$slug";
+      path: "/challenges/$slug";
+      fullPath: "/challenges/$slug";
+      preLoaderRoute: typeof ChallengesSlugRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/blog/$slug": {
@@ -431,33 +361,96 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof BlogSlugRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/auth/callback": {
+      id: "/auth/callback";
+      path: "/auth/callback";
+      fullPath: "/auth/callback";
+      preLoaderRoute: typeof AuthCallbackRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_protected/profile": {
+      id: "/_protected/profile";
+      path: "/profile";
+      fullPath: "/profile";
+      preLoaderRoute: typeof ProtectedProfileRouteImport;
+      parentRoute: typeof ProtectedRoute;
+    };
+    "/_protected/dashboard": {
+      id: "/_protected/dashboard";
+      path: "/dashboard";
+      fullPath: "/dashboard";
+      preLoaderRoute: typeof ProtectedDashboardRouteImport;
+      parentRoute: typeof ProtectedRoute;
+    };
+    "/_protected/admin/": {
+      id: "/_protected/admin/";
+      path: "/admin";
+      fullPath: "/admin/";
+      preLoaderRoute: typeof ProtectedAdminIndexRouteImport;
+      parentRoute: typeof ProtectedRoute;
+    };
+    "/_protected/admin/users": {
+      id: "/_protected/admin/users";
+      path: "/admin/users";
+      fullPath: "/admin/users";
+      preLoaderRoute: typeof ProtectedAdminUsersRouteImport;
+      parentRoute: typeof ProtectedRoute;
+    };
+    "/_protected/admin/challenges": {
+      id: "/_protected/admin/challenges";
+      path: "/admin/challenges";
+      fullPath: "/admin/challenges";
+      preLoaderRoute: typeof ProtectedAdminChallengesRouteImport;
+      parentRoute: typeof ProtectedRoute;
+    };
   }
 }
 
-const protectedRouteChildren: ProtectedRouteChildren = {
+interface ProtectedRouteChildren {
+  ProtectedDashboardRoute: typeof ProtectedDashboardRoute;
+  ProtectedProfileRoute: typeof ProtectedProfileRoute;
+  ProtectedAdminChallengesRoute: typeof ProtectedAdminChallengesRoute;
+  ProtectedAdminUsersRoute: typeof ProtectedAdminUsersRoute;
+  ProtectedAdminIndexRoute: typeof ProtectedAdminIndexRoute;
+}
+
+const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedDashboardRoute: ProtectedDashboardRoute,
   ProtectedProfileRoute: ProtectedProfileRoute,
-  ProtectedAdminIndexRoute: ProtectedAdminIndexRoute,
   ProtectedAdminChallengesRoute: ProtectedAdminChallengesRoute,
   ProtectedAdminUsersRoute: ProtectedAdminUsersRoute,
+  ProtectedAdminIndexRoute: ProtectedAdminIndexRoute,
 };
 
+const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
+  ProtectedRouteChildren,
+);
+
 const rootRouteChildren: RootRouteChildren = {
-  ProtectedRoute: ProtectedRoute._addFileChildren(protectedRouteChildren),
   IndexRoute: IndexRoute,
+  ProtectedRoute: ProtectedRouteWithChildren,
+  GetStartedRoute: GetStartedRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
-  GetStartedRoute: GetStartedRoute,
   AuthCallbackRoute: AuthCallbackRoute,
-  ChallengesIndexRoute: ChallengesIndexRoute,
+  BlogSlugRoute: BlogSlugRoute,
   ChallengesSlugRoute: ChallengesSlugRoute,
-  ThemesIndexRoute: ThemesIndexRoute,
   ThemesSlugRoute: ThemesSlugRoute,
-  TypesIndexRoute: TypesIndexRoute,
   TypesSlugRoute: TypesSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
-  BlogSlugRoute: BlogSlugRoute,
+  ChallengesIndexRoute: ChallengesIndexRoute,
+  ThemesIndexRoute: ThemesIndexRoute,
+  TypesIndexRoute: TypesIndexRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>();
+
+import type { getRouter } from "./lib/router.ts";
+
+declare module "@tanstack/react-start" {
+  interface Register {
+    ssr: true;
+    router: Awaited<ReturnType<typeof getRouter>>;
+  }
+}

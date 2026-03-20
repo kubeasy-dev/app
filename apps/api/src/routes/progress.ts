@@ -1,5 +1,6 @@
 import { zValidator } from "@hono/zod-validator";
 import { and, count, eq, sql } from "drizzle-orm";
+import type { Handler } from "hono";
 import { Hono } from "hono";
 import { nanoid } from "nanoid";
 import { z } from "zod";
@@ -113,12 +114,11 @@ progress.get(
 );
 
 // GET /progress/:slug -- get challenge status for authenticated user
-progress.get("/:slug", requireAuth, async (c) => {
+const handleGetStatus: Handler = async (c) => {
   const user = c.get("user");
   const userId = user.id;
-  const slug = c.req.param("slug");
+  const slug = c.req.param("slug")!;
 
-  // Find challenge by slug
   const [challengeData] = await db
     .select({ id: challenge.id })
     .from(challenge)
@@ -129,7 +129,6 @@ progress.get("/:slug", requireAuth, async (c) => {
     return c.json({ error: "Challenge not found" }, 404);
   }
 
-  // Find user progress
   const [progressRecord] = await db
     .select({
       status: userProgress.status,
@@ -154,7 +153,11 @@ progress.get("/:slug", requireAuth, async (c) => {
     startedAt: progressRecord.startedAt,
     completedAt: progressRecord.completedAt,
   });
-});
+};
+
+progress.get("/:slug", requireAuth, handleGetStatus);
+// CLI legacy alias: GET /:slug/status
+progress.get("/:slug/status", requireAuth, handleGetStatus);
 
 // POST /progress/:slug/start -- create or update user progress to in_progress
 progress.post("/:slug/start", requireAuth, async (c) => {
@@ -225,7 +228,12 @@ progress.post("/:slug/start", requireAuth, async (c) => {
   });
 
   // Track challenge started (fire-and-forget)
-  trackChallengeStartedServer(userId, challengeData.id, slug, challengeData.title).catch((err) => {
+  trackChallengeStartedServer(
+    userId,
+    challengeData.id,
+    slug,
+    challengeData.title,
+  ).catch((err) => {
     console.error("[progress] challenge started tracking failed", {
       error: String(err),
     });
@@ -238,10 +246,11 @@ progress.post("/:slug/start", requireAuth, async (c) => {
 });
 
 // DELETE /progress/:slug/reset -- delete progress, submissions, and XP transactions for a challenge
-progress.delete("/:slug/reset", requireAuth, async (c) => {
+// Also accepts POST for CLI legacy compatibility (old CLI used POST instead of DELETE)
+const handleReset: Handler = async (c) => {
   const user = c.get("user");
   const userId = user.id;
-  const slug = c.req.param("slug");
+  const slug = c.req.param("slug")!;
 
   // Find challenge by slug
   const [challengeData] = await db
@@ -299,6 +308,8 @@ progress.delete("/:slug/reset", requireAuth, async (c) => {
     success: true,
     message: "Challenge progress reset successfully",
   });
-});
+};
+
+progress.on(["DELETE", "POST"], "/:slug/reset", requireAuth, handleReset);
 
 export { progress };

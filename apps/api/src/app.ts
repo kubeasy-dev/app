@@ -29,7 +29,7 @@ app.use("*", logger());
 app.use("/api/*", sessionMiddleware);
 
 // Mount Better Auth handler
-app.on(["GET", "POST"], "/api/auth/**", (c) => {
+app.on(["GET", "POST"], "/api/auth/*", (c) => {
   return auth.handler(c.req.raw);
 });
 

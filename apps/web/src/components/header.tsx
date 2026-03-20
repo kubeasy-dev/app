@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
+import { UserDropdown } from "@/components/user-dropdown";
 import { authClient } from "@/lib/auth-client";
 import { siteConfig } from "@/lib/constants";
 
@@ -68,15 +69,10 @@ export function Header() {
         <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center gap-3">
             {user ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold">{user.name}</span>
-                <a
-                  href="/dashboard"
-                  className="inline-flex items-center justify-center h-7 gap-1 rounded-lg px-2.5 text-sm font-bold neo-border neo-shadow bg-primary text-primary-foreground"
-                >
-                  Dashboard
-                </a>
-              </div>
+              <UserDropdown
+                user={user}
+                isAdmin={session?.user.role === "admin"}
+              />
             ) : (
               <>
                 <Link

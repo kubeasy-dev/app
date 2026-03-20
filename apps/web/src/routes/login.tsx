@@ -14,7 +14,7 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const { redirect: redirectUrl } = Route.useSearch();
-  const callbackUrl = redirectUrl ?? "/dashboard";
+  const callbackUrl = `${window.location.origin}${redirectUrl ?? "/dashboard"}`;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">

@@ -13,6 +13,7 @@ import { apiKeyMiddleware } from "../../middleware/api-key.js";
 import type { SessionUser } from "../../middleware/session.js";
 import { cliMetadataSchema } from "../../schemas/index.js";
 import { submit } from "../submit.js";
+import { legacyCli } from "./legacy.js";
 
 type CliEnv = { Variables: { user: SessionUser; session: null } };
 
@@ -21,9 +22,16 @@ const cli = new Hono<CliEnv>();
 // API key auth required for all CLI routes (replaces session cookie auth)
 cli.use("/*", apiKeyMiddleware);
 
-// Mount the submit routes under /cli/challenges
-// This makes POST /api/cli/challenges/:slug/submit available
-cli.route("/challenges", submit);
+// Current paths (plural)
+cli.route("/challenges", submit); // POST /api/cli/challenges/:slug/submit
+
+// Legacy paths (singular) — aliases for old CLI compatibility
+// GET  /api/cli/challenge/:slug          → challenge detail
+// GET  /api/cli/challenge/:slug/status   → challenge status
+// POST /api/cli/challenge/:slug/start    → start challenge
+// POST /api/cli/challenge/:slug/reset    → reset challenge
+// POST /api/cli/challenge/:slug/submit   → submit challenge
+cli.route("/challenge", legacyCli);
 
 // Helper to parse user name
 function parseUserName(fullName: string | null) {
