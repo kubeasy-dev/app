@@ -12,135 +12,104 @@ function getPool(): Pool {
 }
 
 type EmailTopic = {
-  id: number;
-  resendTopicId: string;
+  id: string;
   name: string;
   description: string | null;
-  defaultOptIn: boolean;
+  defaultSubscription: "opt_in" | "opt_out";
   subscribed: boolean;
 };
 
 export const getEmailTopicsFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<EmailTopic[]> => {
+    if (!process.env.RESEND_API_KEY) return [];
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    // Fetch all topics from Resend
+    const topicsResponse = await resend.topics.list();
+    if (!topicsResponse.data?.data || topicsResponse.error) return [];
+
+    const allTopics = topicsResponse.data.data;
+    const topics: EmailTopic[] = allTopics.map((t) => ({
+      id: t.id,
+      name: t.name,
+      description: t.description ?? null,
+      defaultSubscription: t.default_subscription,
+      subscribed: t.default_subscription === "opt_in",
+    }));
+
+    if (topics.length === 0) return [];
+
+    // Try to get user's subscription status
     const headers = getRequestHeaders();
     const session = await authClient.getSession({
       fetchOptions: { headers: { Cookie: headers.get("Cookie") ?? "" } },
     });
 
+    if (!session?.data?.user) return topics;
+
     const pool = getPool();
-
-    // Fetch all topics from the DB
-    const { rows: topicRows } = await pool.query<{
-      id: number;
-      resend_topic_id: string;
-      name: string;
-      description: string | null;
-      default_opt_in: boolean;
-    }>(
-      "SELECT id, resend_topic_id, name, description, default_opt_in FROM email_topic ORDER BY id",
+    const { rows } = await pool.query<{ resend_contact_id: string | null }>(
+      'SELECT resend_contact_id FROM "user" WHERE id = $1',
+      [session.data.user.id],
     );
+    const resendContactId = rows[0]?.resend_contact_id;
 
-    const topics: EmailTopic[] = topicRows.map((row) => ({
-      id: row.id,
-      resendTopicId: row.resend_topic_id,
-      name: row.name,
-      description: row.description,
-      defaultOptIn: row.default_opt_in,
-      subscribed: row.default_opt_in,
-    }));
+    if (!resendContactId) return topics;
 
-    // If no session, return topics with default opt-in status
-    if (!session?.data?.user) {
-      return topics;
-    }
-
-    const userId = session.data.user.id;
-
-    // Get user's Resend contact ID
-    const { rows: userRows } = await pool.query<{
-      resend_contact_id: string | null;
-    }>('SELECT resend_contact_id FROM "user" WHERE id = $1', [userId]);
-    const resendContactId = userRows[0]?.resend_contact_id;
-
-    // If no Resend contact or no API key, return defaults
-    if (!resendContactId || !process.env.RESEND_API_KEY) {
-      return topics;
-    }
-
-    // Fetch subscription status from Resend
     try {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      const response = await resend.contacts.topics.list({
+      const contactTopicsResponse = await resend.contacts.topics.list({
         id: resendContactId,
       });
 
-      if (!response.data || !Array.isArray(response.data.data)) {
-        // Graceful degradation: return defaultOptIn on unexpected response
-        return topics;
-      }
+      if (!contactTopicsResponse.data?.data) return topics;
 
       const subscriptionMap = new Map(
-        response.data.data.map((t) => [t.id, t.subscription === "opt_in"]),
+        contactTopicsResponse.data.data.map((t) => [
+          t.id,
+          t.subscription === "opt_in",
+        ]),
       );
 
       return topics.map((topic) => ({
         ...topic,
-        subscribed: subscriptionMap.has(topic.resendTopicId)
-          ? (subscriptionMap.get(topic.resendTopicId) ?? topic.defaultOptIn)
-          : topic.defaultOptIn,
+        subscribed: subscriptionMap.has(topic.id)
+          ? (subscriptionMap.get(topic.id) ?? topic.subscribed)
+          : topic.subscribed,
       }));
-    } catch (error) {
-      // Graceful degradation: log error and return defaultOptIn
-      console.error(
-        "[email.functions] Failed to fetch Resend subscriptions:",
-        error,
-      );
+    } catch {
       return topics;
     }
   },
 );
 
 export const updateEmailSubscriptionFn = createServerFn({ method: "POST" })
-  .inputValidator((data: { topicId: number; subscribed: boolean }) => data)
+  .inputValidator((data: { topicId: string; subscribed: boolean }) => data)
   .handler(async ({ data }): Promise<{ success: boolean }> => {
+    if (!process.env.RESEND_API_KEY) throw new Error("Resend not configured");
+
     const headers = getRequestHeaders();
     const session = await authClient.getSession({
       fetchOptions: { headers: { Cookie: headers.get("Cookie") ?? "" } },
     });
 
-    if (!session?.data?.user) {
-      throw new Error("Not authenticated");
-    }
+    if (!session?.data?.user) throw new Error("Not authenticated");
 
-    const userId = session.data.user.id;
     const pool = getPool();
-
-    // Look up the email topic
-    const { rows: topicRows } = await pool.query<{ resend_topic_id: string }>(
-      "SELECT resend_topic_id FROM email_topic WHERE id = $1",
-      [data.topicId],
+    const { rows } = await pool.query<{ resend_contact_id: string | null }>(
+      'SELECT resend_contact_id FROM "user" WHERE id = $1',
+      [session.data.user.id],
     );
-    const topic = topicRows[0];
-    if (!topic) {
-      throw new Error("Email topic not found");
-    }
+    const resendContactId = rows[0]?.resend_contact_id;
 
-    // Get user's Resend contact ID
-    const { rows: userRows } = await pool.query<{
-      resend_contact_id: string | null;
-    }>('SELECT resend_contact_id FROM "user" WHERE id = $1', [userId]);
-    const resendContactId = userRows[0]?.resend_contact_id;
-
-    if (!resendContactId) {
-      throw new Error("No Resend contact found");
-    }
+    if (!resendContactId) throw new Error("No Resend contact found");
 
     const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.contacts.topics.update({
       id: resendContactId,
       topics: [
         {
-          id: topic.resend_topic_id,
+          id: data.topicId,
           subscription: data.subscribed ? "opt_in" : "opt_out",
         },
       ],

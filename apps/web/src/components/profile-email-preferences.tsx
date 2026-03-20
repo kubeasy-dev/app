@@ -17,7 +17,7 @@ export function ProfileEmailPreferences() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (vars: { topicId: number; subscribed: boolean }) =>
+    mutationFn: (vars: { topicId: string; subscribed: boolean }) =>
       updateEmailSubscriptionFn({ data: vars }),
     onMutate: async (vars) => {
       await queryClient.cancelQueries({ queryKey: ["email", "topics"] });
