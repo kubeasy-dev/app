@@ -33,8 +33,6 @@ export function ProfileEmailPreferences() {
       queryClient.setQueryData(["email", "topics"], context?.prev);
       toast.error("Failed to update email preferences");
     },
-    onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: ["email", "topics"] }),
     onSuccess: () => toast.success("Email preferences updated"),
   });
 
