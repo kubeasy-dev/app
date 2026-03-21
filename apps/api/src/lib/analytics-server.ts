@@ -5,8 +5,8 @@
  * and tRPC procedures (especially for CLI interactions).
  */
 
+import { logger } from "@kubeasy/logger";
 import { PostHog } from "posthog-node";
-import { logger } from "./logger.js";
 
 // Initialize PostHog client for server-side tracking
 const posthogKey = process.env.POSTHOG_KEY;
