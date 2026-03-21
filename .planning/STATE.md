@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-02-PLAN.md
-last_updated: "2026-03-21T14:01:04.634Z"
+stopped_at: Completed 06-03-PLAN.md
+last_updated: "2026-03-21T14:06:20.014Z"
 last_activity: "2026-03-18 — Completed plan 04-03: landing page, blog SSG routes, and login page migration"
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 31
-  completed_plans: 29
+  completed_plans: 30
   percent: 8
 ---
 
@@ -77,6 +77,7 @@ Progress: [░░░░░░░░░░] 8%
 | Phase 05.2-missing-dashboard-profile-features P03 | 10 | 2 tasks | 4 files |
 | Phase 06-observability P01 | 15 | 2 tasks | 6 files |
 | Phase 06-observability P02 | 2 | 2 tasks | 5 files |
+| Phase 06-observability P03 | 4 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -145,6 +146,8 @@ Recent decisions affecting current work:
 - [Phase 06-observability]: pino logger wrapped in (message, attributes?) adapter functions — preserves existing logger API contract without requiring callers to swap argument order to pino's native (obj, message) format
 - [Phase 06-observability]: pino-pretty capped at ^13.0.0 — plan specified ^14.0.0 which does not exist on npm (latest is 13.1.3)
 - [Phase 06-observability]: --import ./dist/instrumentation.js flag mandatory in start script — never import @kubeasy/* inside instrumentation.ts
+- [Phase 06-observability]: createStartHandler takes callback directly (not {createRouter}) — actual v1.166.x API; research doc had stale pattern
+- [Phase 06-observability]: apps/web instrumentation omits PgInstrumentation and IORedisInstrumentation — those connections only exist in apps/api
 
 ### Roadmap Evolution
 
@@ -164,6 +167,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T14:01:04.631Z
-Stopped at: Completed 06-02-PLAN.md
+Last session: 2026-03-21T14:06:20.012Z
+Stopped at: Completed 06-03-PLAN.md
 Resume file: None
