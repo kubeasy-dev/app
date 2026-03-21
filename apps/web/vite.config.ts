@@ -10,6 +10,7 @@ export default defineConfig({
   },
   plugins: [
     tanstackStart({
+      server: { entry: "./src/server.tsx" },
       router: { entry: "./lib/router" },
       prerender: {
         enabled: true,
