@@ -46,12 +46,28 @@ Deploy both services to Railway in production: multi-stage Dockerfiles using `tu
 - All other env vars (Better Auth, OAuth providers, Resend, PostHog) set as Railway service variables
 - Variable naming stays ISO with docker-compose local env — same names, different values
 
+### Production server entry points (confirmed from code + docs)
+- **apps/api**: `node --import ./dist/instrumentation.js dist/index.js` (from `apps/api/package.json` start script — Dockerfile CMD must replicate exactly)
+- **apps/web**: `node .output/server/index.mjs` (TanStack Start Vinxi build output — NOT `vite preview` which is dev-only)
+- `apps/web/package.json` `start` script (`vite preview`) is wrong for production — Dockerfile must override with the correct command
+
+### Dockerfile structure (Turborepo 3-stage pattern)
+- **Stage 1 — Prepare**: Install turbo globally, run `turbo prune @kubeasy/<app> --docker` → produces `out/json` (package.json files only) and `out/full` (complete source)
+- **Stage 2 — Builder**: Copy `out/json`, `pnpm install --frozen-lockfile`, copy `out/full`, run `turbo run build --filter=@kubeasy/<app>`
+- **Stage 3 — Runner**: Copy only built artifacts from builder, set `NODE_ENV=production`, non-root user, expose port, set CMD
+- Base image: `node:22-alpine` (current LTS at time of Phase 6)
+- Non-root user: create `appgroup`/`appuser` in alpine pattern (`addgroup -S` / `adduser -S`)
+- `pnpm` must be installed in the Prepare and Builder stages (not available by default in alpine)
+
+### apps/web prerender (already configured)
+- `vite.config.ts` already has `prerender: { enabled: true, crawlLinks: true, autoStaticPathsDiscovery: true }` — static pages are pre-rendered at build time automatically, no extra config needed
+- After `vite build`, `.output/server/index.mjs` serves both pre-rendered static pages and SSR pages from the same Node.js process
+
 ### Claude's Discretion
-- Node.js version to pin in Dockerfiles (use current LTS)
-- Non-root user setup in Dockerfiles
-- Exact `turbo prune` multi-stage build structure (installer/builder/runner stages)
 - SigNoz Docker image version and Railway service config
-- Health check endpoint and Railway health check config per service
+- Health check endpoint config (`/health` route on api) and Railway health check settings
+- Exact `.dockerignore` contents per app
+- Whether to use `turbo run build --filter=@kubeasy/<app>` or `pnpm build` in builder stage
 
 </decisions>
 
@@ -65,8 +81,15 @@ Deploy both services to Railway in production: multi-stage Dockerfiles using `tu
 
 ### Existing infra
 - `docker-compose.yml` — Local postgres + redis services; env var names must match Railway plugin injected names
-- `apps/api/package.json` — `start` script: `node --import ./dist/instrumentation.js dist/index.js` — Dockerfile CMD must replicate this
-- `apps/web/package.json` — Web start script and build output location for Dockerfile runner stage
+- `apps/api/package.json` — `start` script: `node --import ./dist/instrumentation.js dist/index.js` — Dockerfile CMD must replicate this exactly
+- `apps/web/vite.config.ts` — Prerender config (`crawlLinks`, `autoStaticPathsDiscovery`) already in place; `tanstackStart` plugin with `server.entry: './src/server.tsx'`
+- `apps/web/src/server.tsx` — SSR entry: `createStartHandler(defaultStreamHandler)` from `@tanstack/react-start/server`
+
+### External documentation reviewed
+- [TanStack Start hosting guide](https://tanstack.com/start/latest/docs/framework/react/guide/hosting) — Railway is an official hosting partner; production command is `node .output/server/index.mjs`
+- [Turborepo Docker guide](https://turborepo.dev/docs/guides/tools/docker) — 3-stage pattern, `--docker` flag produces `out/json` + `out/full`, enables Docker layer caching for deps vs source separately
+- [Hono Node.js guide](https://hono.dev/docs/getting-started/nodejs) — `serve()` from `@hono/node-server`, graceful SIGTERM shutdown pattern
+- [Hono Docker guide](https://oneuptime.com/blog/post/2026-02-08-how-to-containerize-a-hono-application-with-docker/view) — node:alpine multi-stage, non-root user (`addgroup -S` / `adduser -S`), `CMD ["node", "dist/index.js"]`
 
 ### Requirements
 - `.planning/REQUIREMENTS.md` §DEPLOY-01 — Multi-stage Dockerfile with `turbo prune --scope --docker`
@@ -85,9 +108,10 @@ Deploy both services to Railway in production: multi-stage Dockerfiles using `tu
 - `packages/logger`, `packages/api-schemas`, `packages/jobs`: Workspace packages that both apps import — must be pruned correctly by `turbo prune --docker`
 
 ### Established Patterns
-- `apps/api` start command uses `--import ./dist/instrumentation.js` flag — Dockerfile CMD must preserve this exact invocation
-- `apps/web` uses Vinxi/TanStack Start — check `apps/web/package.json` start script for the correct SSR server entry point
-- Monorepo uses pnpm workspaces — Dockerfiles must use `pnpm install --frozen-lockfile` with the pruned lockfile from `turbo prune`
+- `apps/api` CMD: `node --import ./dist/instrumentation.js dist/index.js` — must preserve `--import` flag for OTel init before postgres pool creation
+- `apps/web` CMD: `node .output/server/index.mjs` — Vinxi/TanStack Start build output; `vite preview` in package.json is dev-only, Dockerfile ignores it
+- Monorepo uses pnpm workspaces — Dockerfiles must use `pnpm install --frozen-lockfile` with the pruned lockfile from `turbo prune --docker`
+- `turbo prune` produces `out/json` (dep layer, changes rarely) and `out/full` (source, changes often) — copy them in separate COPY commands to maximize Docker cache hits
 
 ### Integration Points
 - `apps/api/railway.json` — New file to create with watch paths + build config
