@@ -23,6 +23,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 COPY --from=builder --chown=appuser:appgroup /app/apps/api/dist ./apps/api/dist
+COPY --from=builder --chown=appuser:appgroup /app/apps/api/drizzle ./apps/api/drizzle
+COPY --from=builder --chown=appuser:appgroup /app/apps/api/drizzle.config.ts ./apps/api/drizzle.config.ts
 COPY --from=builder --chown=appuser:appgroup /app/apps/api/package.json ./apps/api/package.json
 COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
 COPY --from=builder --chown=appuser:appgroup /app/packages ./packages
