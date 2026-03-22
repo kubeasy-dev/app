@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "NODE_OPTIONS='--import tsx/esm --import ./src/instrumentation.ts' vite dev",
+    "dev": "vite dev",
     "build": "vite build",
-    "start": "vite preview",
+    "start": "node dist/server/server.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -6,6 +6,6 @@
     }
   },
   "deploy": {
-    "startCommand": "cd apps/api && node --import ./dist/instrumentation.js dist/index.js"
+    "startCommand": "cd apps/api && node dist/index.js"
   }
 }
