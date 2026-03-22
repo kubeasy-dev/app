@@ -23,6 +23,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 COPY --from=builder --chown=appuser:appgroup /app/apps/web/dist ./dist
+COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --from=builder --chown=appuser:appgroup /app/packages ./packages
 USER appuser
 EXPOSE 3000
 CMD ["node", "dist/server/server.js"]
