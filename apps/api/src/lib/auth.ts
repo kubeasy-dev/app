@@ -5,13 +5,9 @@ import { betterAuth } from "better-auth";
 import { admin } from "better-auth/plugins";
 import { db } from "../db/index";
 import * as schema from "../db/schema/auth";
-import { redis } from "./redis";
+import { redisConfig } from "./redis";
 
-// Module-level singleton — never instantiate inside a hook callback.
-// Pass redis.options directly (ioredis RedisOptions = BullMQ ConnectionOptions).
-// This is guaranteed correct regardless of REDIS_URL format — ioredis already
-// parses the URL into host/port/password/db fields in redis.options.
-const userSigninQueue = createQueue(QUEUE_NAMES.USER_SIGNIN, redis.options);
+const userSigninQueue = createQueue(QUEUE_NAMES.USER_SIGNIN, redisConfig);
 
 export const auth = betterAuth({
   baseURL: process.env.API_URL ?? "http://localhost:3001",

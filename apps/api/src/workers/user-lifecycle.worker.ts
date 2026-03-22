@@ -8,15 +8,11 @@ import {
   identifyUserServer,
   trackUserSignupServer,
 } from "../lib/analytics-server";
+import { redisConfig } from "../lib/redis";
 import { createResendContact } from "../lib/resend";
 
 export function createUserSigninWorker() {
-  const redisUrl = new URL(process.env.REDIS_URL ?? "redis://localhost:6379");
-  const connection = {
-    host: redisUrl.hostname,
-    port: Number(redisUrl.port || 6379),
-    maxRetriesPerRequest: null as null,
-  };
+  const connection = { ...redisConfig, maxRetriesPerRequest: null as null };
 
   return new Worker<UserSigninPayload>(
     QUEUE_NAMES.USER_SIGNIN,

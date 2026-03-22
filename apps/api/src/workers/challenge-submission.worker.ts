@@ -9,16 +9,12 @@ import { and, count, eq } from "drizzle-orm";
 import { db } from "../db/index";
 import { userXpTransaction } from "../db/schema/index";
 import { trackChallengeCompletedServer } from "../lib/analytics-server";
+import { redisConfig } from "../lib/redis";
 import { calculateStreak, calculateXPGain } from "../services/xp/index";
 import type { ChallengeDifficulty } from "../services/xp/types";
 
 export function createChallengeSubmissionWorker() {
-  const redisUrl = new URL(process.env.REDIS_URL ?? "redis://localhost:6379");
-  const connection = {
-    host: redisUrl.hostname,
-    port: Number(redisUrl.port || 6379),
-    maxRetriesPerRequest: null as null,
-  };
+  const connection = { ...redisConfig, maxRetriesPerRequest: null as null };
 
   // Queue instance for dispatching XP_AWARD jobs
   const xpAwardQueue = createQueue(QUEUE_NAMES.XP_AWARD, connection);

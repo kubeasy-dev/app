@@ -4,15 +4,10 @@ import { Worker } from "bullmq";
 import { sql } from "drizzle-orm";
 import { db } from "../db/index";
 import { userXp, userXpTransaction } from "../db/schema/index";
-import { redis } from "../lib/redis";
+import { redis, redisConfig } from "../lib/redis";
 
 export function createXpAwardWorker() {
-  const redisUrl = new URL(process.env.REDIS_URL ?? "redis://localhost:6379");
-  const connection = {
-    host: redisUrl.hostname,
-    port: Number(redisUrl.port || 6379),
-    maxRetriesPerRequest: null as null,
-  };
+  const connection = { ...redisConfig, maxRetriesPerRequest: null as null };
 
   return new Worker<XpAwardPayload>(
     QUEUE_NAMES.XP_AWARD,

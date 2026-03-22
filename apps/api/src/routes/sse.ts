@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { Redis } from "ioredis";
+import { redisConfig } from "../lib/redis";
 import type { AppEnv } from "../middleware/session";
 import { requireAuth } from "../middleware/session";
 
@@ -15,9 +16,7 @@ sse.get("/invalidate-cache", requireAuth, async (c) => {
 
   return streamSSE(c, async (stream) => {
     // Dedicated ioredis subscriber per SSE connection (never shared)
-    const subscriber = new Redis(
-      process.env.REDIS_URL ?? "redis://localhost:6379",
-    );
+    const subscriber = new Redis(redisConfig);
     let aborted = false;
 
     stream.onAbort(async () => {
