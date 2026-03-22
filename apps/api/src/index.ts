@@ -1,11 +1,19 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { serve } from "@hono/node-server";
 import { logger } from "@kubeasy/logger";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { app } from "./app";
+import { db } from "./db";
 import { sdk } from "./instrumentation";
 import { redis } from "./lib/redis";
 import { createChallengeSubmissionWorker } from "./workers/challenge-submission.worker";
 import { createUserSigninWorker } from "./workers/user-lifecycle.worker";
 import { createXpAwardWorker } from "./workers/xp-award.worker";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+await migrate(db, { migrationsFolder: path.join(__dirname, "../drizzle") });
+logger.info("Database migrations applied");
 
 const port = Number(process.env.PORT ?? 3001);
 
