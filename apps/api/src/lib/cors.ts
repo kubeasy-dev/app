@@ -6,6 +6,7 @@
 export const allowedOrigins = [
   "http://localhost:3000",
   "https://kubeasy.dev",
+  "https://*.kubeasy.dev",
   "https://*.up.railway.app",
 ];
 
