@@ -4,7 +4,7 @@ milestone: v1.1
 milestone_name: SSG Fixes & Polish
 status: planning
 last_updated: "2026-03-23"
-last_activity: "2026-03-23 — Archived v1.0 milestone"
+last_activity: "2026-03-23 - Completed quick task 260323-nnr: Améliorer le tooling du monorepo: knip/biome config, .env cleanup, maintenance workflow, vercel.json/dockerignore suppression, renovate monorepo support"
 progress:
   total_phases: 0
   completed_phases: 0
@@ -46,3 +46,9 @@ Toutes les décisions v1.0 sont archivées dans PROJECT.md Key Decisions table.
 ### Blockers/Concerns
 
 None — v1.0 shipped and verified.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260323-nnr | Améliorer le tooling du monorepo: knip/biome config, .env cleanup, maintenance workflow, vercel.json/dockerignore suppression, renovate monorepo support | 2026-03-23 | b9c3f65c9 | [260323-nnr-am-liorer-le-tooling-du-monorepo-knip-bi](./quick/260323-nnr-am-liorer-le-tooling-du-monorepo-knip-bi/) |
