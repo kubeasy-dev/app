@@ -16,14 +16,16 @@ const tracingMiddleware = createMiddleware({ type: "request" }).server(
 
         try {
           const result = await next();
-          span.setAttribute(
-            "http.response.status_code",
-            result.response?.status ?? 200,
-          );
+          if (result.response?.status != null) {
+            span.setAttribute(
+              "http.response.status_code",
+              result.response.status,
+            );
+          }
           span.setStatus({ code: SpanStatusCode.OK });
           return result;
         } catch (error) {
-          span.recordException(error as Error);
+          span.recordException(error as Error | string);
           span.setStatus({
             code: SpanStatusCode.ERROR,
             message: error instanceof Error ? error.message : String(error),
