@@ -6,6 +6,8 @@
     "schedule:daily",
     "security:minimumReleaseAgeNpm",
     "group:allNonMajor",
+    "group:monorepos",
+    "group:recommended",
     ":assignAndReview(pbrissaud)",
     ":automergeLinters"
   ],
@@ -24,6 +26,21 @@
     {
       "matchPackageNames": ["@biomejs/biome"],
       "groupName": "biome"
+    },
+    {
+      "matchFileNames": ["packages/**"],
+      "groupName": "shared packages deps",
+      "groupSlug": "shared-packages"
+    },
+    {
+      "matchFileNames": ["apps/web/**"],
+      "groupName": "web app deps",
+      "groupSlug": "web-app"
+    },
+    {
+      "matchFileNames": ["apps/api/**"],
+      "groupName": "api app deps",
+      "groupSlug": "api-app"
     }
   ]
 }
