@@ -34,13 +34,6 @@ interface ChallengeMissionProps {
   slug: string;
 }
 
-type ObjectiveCategory =
-  | "status"
-  | "condition"
-  | "log"
-  | "event"
-  | "connectivity";
-
 const CATEGORY_LABELS: Record<string, string> = {
   status: "Status",
   condition: "Condition",

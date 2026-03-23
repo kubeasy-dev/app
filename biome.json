@@ -16,7 +16,8 @@
       "!.output",
       "!.vinxi",
       "!**/*.css",
-      "!**/routeTree.gen.ts"
+      "!**/routeTree.gen.ts",
+      "!**/drizzle/meta"
     ]
   },
   "formatter": {
