@@ -34,17 +34,21 @@ jobs:
           prompt: |
             REPO: ${{ github.repository }}
 
+            This is a pnpm monorepo managed by Turborepo with:
+            - apps/web (TanStack Start + Vite frontend)
+            - apps/api (Hono API server)
+            - packages/* (shared packages: api-schemas, jobs, logger, typescript-config)
+
             Perform weekly repository maintenance:
 
             1. Scan for security vulnerabilities using `pnpm audit`
             2. Run `pnpm exec knip` to detect unused files, exports, dependencies, and types
             3. Review open issues older than 90 days
             4. Check for TODO comments in recent commits
-            5. Review React/Next.js code for performance issues:
+            5. Review code for performance issues:
                - Check for sequential awaits that could be parallelized (use Promise.all)
                - Check for barrel file imports that hurt bundle size (import directly from source)
-               - Check for heavy components that should use next/dynamic
-               - Check for missing Suspense boundaries around async server components
+               - Check for heavy components that should use dynamic imports
                - Check for unnecessary client-side state that could be server-side
             6. Verify README.md examples still work
 
