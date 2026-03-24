@@ -160,10 +160,10 @@ importers:
   apps/web:
     dependencies:
       '@better-auth/api-key':
-        specifier: ^1.5.5
+        specifier: 1.5.5
         version: 1.5.5(@better-auth/core@1.5.5(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.3.6))(jose@6.2.1)(kysely@0.28.12)(nanostores@1.2.0))(@better-auth/utils@0.3.1)(better-auth@1.5.5(9ed99b99459340d3f2cad85fa6d63503))
       '@fontsource-variable/geist':
-        specifier: ^5.2.8
+        specifier: 5.2.8
         version: 5.2.8
       '@kubeasy/api-schemas':
         specifier: workspace:*
@@ -172,8 +172,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/logger
       '@notionhq/client':
-        specifier: 5.12.0
-        version: 5.12.0
+        specifier: 5.14.0
+        version: 5.14.0
       '@opentelemetry/api':
         specifier: 1.9.0
         version: 1.9.0
@@ -190,7 +190,7 @@ importers:
         specifier: 0.59.0
         version: 0.59.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-undici':
-        specifier: ^0.23.0
+        specifier: 0.23.0
         version: 0.23.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources':
         specifier: 2.6.0
@@ -232,74 +232,74 @@ importers:
         specifier: 1.2.6
         version: 1.2.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@tanstack/react-query':
-        specifier: ^5.91.0
+        specifier: 5.91.0
         version: 5.91.0(react@19.2.4)
       '@tanstack/react-router':
-        specifier: ^1.167.4
+        specifier: 1.167.5
         version: 1.167.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@tanstack/react-start':
-        specifier: ^1.166.16
+        specifier: 1.166.17
         version: 1.166.17(crossws@0.4.4(srvx@0.11.12))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(webpack@5.105.4(esbuild@0.27.4))
       '@unpic/react':
-        specifier: ^1.0.2
+        specifier: 1.0.2
         version: 1.0.2(next@16.1.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       better-auth:
-        specifier: ^1.5.5
+        specifier: 1.5.5
         version: 1.5.5(9ed99b99459340d3f2cad85fa6d63503)
       class-variance-authority:
-        specifier: ^0.7.1
+        specifier: 0.7.1
         version: 0.7.1
       clsx:
-        specifier: ^2.1.1
+        specifier: 2.1.1
         version: 2.1.1
       lucide-react:
-        specifier: ^0.577.0
+        specifier: 0.577.0
         version: 0.577.0(react@19.2.4)
       next-themes:
         specifier: 0.4.6
         version: 0.4.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       pg:
-        specifier: ^8.20.0
+        specifier: 8.20.0
         version: 8.20.0
       pino:
-        specifier: ^10.3.1
+        specifier: 10.3.1
         version: 10.3.1
       posthog-js:
-        specifier: 1.360.1
-        version: 1.360.1
+        specifier: 1.363.1
+        version: 1.363.1
       react:
-        specifier: ^19.1.0
+        specifier: 19.2.4
         version: 19.2.4
       react-dom:
-        specifier: ^19.1.0
+        specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       recharts:
         specifier: 3.8.0
         version: 3.8.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react-is@16.13.1)(react@19.2.4)(redux@5.0.1)
       shadcn:
-        specifier: ^4.0.8
+        specifier: 4.0.8
         version: 4.0.8(@types/node@24.12.0)(typescript@5.9.3)
       sonner:
-        specifier: ^2.0.7
+        specifier: 2.0.7
         version: 2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       tailwind-merge:
-        specifier: ^3.5.0
+        specifier: 3.5.0
         version: 3.5.0
       tw-animate-css:
-        specifier: ^1.4.0
+        specifier: 1.4.0
         version: 1.4.0
       zod:
-        specifier: ^4.3.6
+        specifier: 4.3.6
         version: 4.3.6
     devDependencies:
       '@kubeasy/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
       '@tailwindcss/vite':
-        specifier: ^4.2.2
+        specifier: 4.2.2
         version: 4.2.2(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
       '@types/pg':
-        specifier: ^8.18.0
+        specifier: 8.18.0
         version: 8.18.0
       '@types/react':
         specifier: 19.2.14
@@ -308,16 +308,16 @@ importers:
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
-        specifier: ^6.0.1
+        specifier: 6.0.1
         version: 6.0.1(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
       nitro:
         specifier: npm:nitro-nightly@3.0.1-20260322-095631-ffdd706a
         version: nitro-nightly@3.0.1-20260322-095631-ffdd706a(@electric-sql/pglite@0.3.15)(@upstash/redis@1.37.0)(chokidar@4.0.3)(dotenv@17.3.1)(drizzle-orm@0.45.1(@electric-sql/pglite@0.3.15)(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@prisma/client@7.5.0(prisma@7.5.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.18.0)(@upstash/redis@1.37.0)(kysely@0.28.12)(mysql2@3.15.3)(pg@8.20.0)(postgres@3.4.8)(prisma@7.5.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)))(giget@2.0.0)(ioredis@5.9.3)(jiti@2.6.1)(lru-cache@11.2.7)(mongodb@7.1.0)(mysql2@3.15.3)(rollup@4.60.0)(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
       pino-pretty:
-        specifier: ^13.1.3
+        specifier: 13.1.3
         version: 13.1.3
       tailwindcss:
-        specifier: ^4.2.2
+        specifier: 4.2.2
         version: 4.2.2
       tsx:
         specifier: 4.21.0
@@ -326,10 +326,10 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       vite:
-        specifier: ^8.0.0
+        specifier: 8.0.0
         version: 8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.0
+        specifier: 4.1.0
         version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@24.12.0)(@vitest/ui@4.1.0)(msw@2.12.13(@types/node@24.12.0)(typescript@5.9.3))(vite@8.0.0(@types/node@24.12.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/api-schemas:
@@ -1554,8 +1554,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@notionhq/client@5.12.0':
-    resolution: {integrity: sha512-yLdw1saMUx4lmwMXOk72QK/N0wuw9x0JuOAuAX+q2Z8IEZzB5di6SEKL6a8eNh5cy3RLKdeXaXJFF4NF2LwXDg==}
+  '@notionhq/client@5.14.0':
+    resolution: {integrity: sha512-9bbH7/9M6D9YlHMYCZ1aAFxRCWiKRBpP/XOnAHFtBCFDf00PPhpWRSsGE1FfmjYCNW2BFRj19WshJFH5IFfNvg==}
     engines: {node: '>=18'}
 
   '@oozcitak/dom@2.0.2':
@@ -1964,8 +1964,11 @@ packages:
   '@posthog/core@1.23.3':
     resolution: {integrity: sha512-nehG2nig9qiU4lEUIyfXQLaBnylm5wdDiIBsp2tBFJX5BcUHNAXSwpkHjKLQ9TDfik0HW1HwZ2mY/3hJgJNToQ==}
 
-  '@posthog/types@1.360.1':
-    resolution: {integrity: sha512-zzvgckmzmjYB7YGnA2cIMtF9thj8O1TMp2YCXcBb+qnGcI5cKTo8j+lO7Kq1Lbwgp7ZPxBWUXfKHg03K5vVdjg==}
+  '@posthog/core@1.24.1':
+    resolution: {integrity: sha512-e8AciAnc6MRFws89ux8lJKFAaI03yEon0ASDoUO7yS91FVqbUGXYekObUUR3LHplcg+pmyiJBI0jolY0SFbGRA==}
+
+  '@posthog/types@1.363.1':
+    resolution: {integrity: sha512-bFYk5XHgYEfVhQU0AwkG9MbMqq9QRbKDDJxOtYWGJ6Uw+/nLRNs/ZydXy3aMt0ldIdkNzZq+qaJ/p2Jg0+mP8g==}
 
   '@prisma/client-runtime-utils@7.5.0':
     resolution: {integrity: sha512-KnJ2b4Si/pcWEtK68uM+h0h1oh80CZt2suhLTVuLaSKg4n58Q9jBF/A42Kw6Ma+aThy1yAhfDeTC0JvEmeZnFQ==}
@@ -5279,8 +5282,8 @@ packages:
     resolution: {integrity: sha512-d+JFcLM17njZaOLkv6SCev7uoLaBtfK86vMUXhW1Z4glPWh4jozno9APvW/XKFJ3CCxVoC7OL38BqRydtu5nGg==}
     engines: {node: '>=12'}
 
-  posthog-js@1.360.1:
-    resolution: {integrity: sha512-wtKZm0b0SLYLtk0T3SiyXn9cBhwE421fPcJUJ7cRpJmsysHKJcOJ9O/Q7nx7aDj6LvTFILuzjzYO3YTCjbWgqQ==}
+  posthog-js@1.363.1:
+    resolution: {integrity: sha512-iaDtRxCs/FiB+RXe83uo7RZXgpLlyB6qFoNHl3bNMgRCgrPI2nkzx2m9Va1l30HHl/zA1kPOXSy2/tZC5Ql5kg==}
 
   posthog-node@5.28.1:
     resolution: {integrity: sha512-dfUaeNwKc/YZI/vbP5IJSMuMprPLbtzWM/ZQFkuyWj0fhU3PW0VmxNO1gkqy48SsUauamczEPBKTQRYZVLcacg==}
@@ -7345,7 +7348,7 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
-  '@notionhq/client@5.12.0': {}
+  '@notionhq/client@5.14.0': {}
 
   '@oozcitak/dom@2.0.2':
     dependencies:
@@ -7793,7 +7796,11 @@ snapshots:
     dependencies:
       cross-spawn: 7.0.6
 
-  '@posthog/types@1.360.1': {}
+  '@posthog/core@1.24.1':
+    dependencies:
+      cross-spawn: 7.0.6
+
+  '@posthog/types@1.363.1': {}
 
   '@prisma/client-runtime-utils@7.5.0':
     optional: true
@@ -11144,15 +11151,15 @@ snapshots:
   postgres@3.4.8:
     optional: true
 
-  posthog-js@1.360.1:
+  posthog-js@1.363.1:
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.208.0
       '@opentelemetry/exporter-logs-otlp-http': 0.208.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 2.6.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-logs': 0.208.0(@opentelemetry/api@1.9.0)
-      '@posthog/core': 1.23.3
-      '@posthog/types': 1.360.1
+      '@posthog/core': 1.24.1
+      '@posthog/types': 1.363.1
       core-js: 3.49.0
       dompurify: 3.3.3
       fflate: 0.4.8
