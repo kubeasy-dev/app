@@ -1,0 +1,10 @@
+{
+  "extends": "@kubeasy/typescript-config/base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "paths": {
+      "@kubeasy/ui/*": ["./src/*"]
+    }
+  },
+  "include": ["src"]
+}
