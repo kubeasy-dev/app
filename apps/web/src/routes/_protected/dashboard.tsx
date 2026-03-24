@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Clock, Target, TrendingUp, Trophy } from "lucide-react";
+import { Award, Flame, Star, Target, TrendingUp, Trophy } from "lucide-react";
 import { DashboardChart } from "@/components/dashboard-chart";
 import { DashboardRecentActivity } from "@/components/dashboard-recent-activity";
 import {
@@ -10,6 +10,7 @@ import {
   userXpOptions,
 } from "@/lib/query-options";
 import { serverLog } from "@/lib/server-log";
+import { Button } from "@kubeasy/ui/button";
 
 const GITHUB_URL = "https://github.com/kubeasy-dev/kubeasy";
 
@@ -51,78 +52,78 @@ function DashboardPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {/* Card 1: Completed */}
           <div className="bg-secondary neo-border-thick neo-shadow p-6">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-primary neo-border-thick">
-                <Trophy className="h-5 w-5 text-primary-foreground" />
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 bg-primary neo-border-thick neo-shadow rounded-lg">
+                <Award className="w-6 h-6 text-primary-foreground" />
               </div>
-              <span className="text-sm font-bold text-muted-foreground uppercase">
-                XP Earned
-              </span>
+              <div>
+                <p className="text-sm font-bold text-foreground">Completed</p>
+                <p className="text-3xl font-black text-foreground">
+                  {completion?.completedCount ?? 0}
+                </p>
+              </div>
             </div>
-            <div className="text-3xl font-black">{xpData?.xpEarned ?? 0}</div>
-            <div className="text-sm font-bold text-muted-foreground mt-1">
-              {xpData?.rank ?? "Beginner"}
-            </div>
+            <p className="text-sm font-bold text-foreground">
+              {completion?.percentageCompleted ?? 0}% of all challenges
+            </p>
           </div>
 
+          {/* Card 2: Points */}
           <div className="bg-secondary neo-border-thick neo-shadow p-6">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-primary neo-border-thick">
-                <Target className="h-5 w-5 text-primary-foreground" />
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 bg-primary neo-border-thick neo-shadow rounded-lg">
+                <Trophy className="w-6 h-6 text-primary-foreground" />
               </div>
-              <span className="text-sm font-bold text-muted-foreground uppercase">
-                Completed
-              </span>
+              <div>
+                <p className="text-sm font-bold text-foreground">Points</p>
+                <p className="text-3xl font-black text-foreground">
+                  {xpData?.xpEarned ?? 0}
+                </p>
+              </div>
             </div>
-            <div className="text-3xl font-black">
-              {completion?.completedCount ?? 0}
-            </div>
-            <div className="text-sm font-bold text-muted-foreground mt-1">
-              of {completion?.totalCount ?? 0} challenges
-            </div>
+            <p className="text-sm font-bold text-foreground">Total XP earned</p>
           </div>
 
+          {/* Card 3: Rank */}
           <div className="bg-secondary neo-border-thick neo-shadow p-6">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-primary neo-border-thick">
-                <TrendingUp className="h-5 w-5 text-primary-foreground" />
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 bg-primary neo-border-thick neo-shadow rounded-lg">
+                <Star className="w-6 h-6 text-primary-foreground" />
               </div>
-              <span className="text-sm font-bold text-muted-foreground uppercase">
-                Progress
-              </span>
+              <div>
+                <p className="text-sm font-bold text-foreground">Rank</p>
+                <p className="text-2xl font-black text-foreground leading-tight">
+                  {xpData?.rank ?? "Beginner"}
+                </p>
+              </div>
             </div>
-            <div className="text-3xl font-black">
-              {completion?.percentageCompleted ?? 0}%
-            </div>
-            <div className="text-sm font-bold text-muted-foreground mt-1">
-              completion rate
-            </div>
+            <p className="text-sm font-bold text-foreground">Congratulations!</p>
           </div>
 
+          {/* Card 4: Day Streak */}
           <div className="bg-secondary neo-border-thick neo-shadow p-6">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-primary neo-border-thick">
-                <Clock className="h-5 w-5 text-primary-foreground" />
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 bg-primary neo-border-thick neo-shadow rounded-lg">
+                <Flame className="w-6 h-6 text-primary-foreground" />
               </div>
-              <span className="text-sm font-bold text-muted-foreground uppercase">
-                Streak
-              </span>
+              <div>
+                <p className="text-sm font-bold text-foreground">Day Streak</p>
+                <p className="text-3xl font-black text-foreground">
+                  {streak?.currentStreak ?? 0}
+                </p>
+              </div>
             </div>
-            <div className="text-3xl font-black">
-              {streak?.currentStreak ?? 0}
-            </div>
-            <div className="text-sm font-bold text-muted-foreground mt-1">
-              day streak
-            </div>
+            <p className="text-sm font-bold text-foreground">Keep it up!</p>
           </div>
         </div>
 
-        {/* Skills by Themes */}
-        <DashboardChart />
-
-        {/* Recent Activity */}
-        <DashboardRecentActivity />
+        {/* Chart + Recent Activity (2-column grid at lg) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          <DashboardChart />
+          <DashboardRecentActivity />
+        </div>
 
         {/* Quick Actions */}
         <div className="bg-primary neo-border-thick neo-shadow p-8">
@@ -130,29 +131,36 @@ function DashboardPage() {
             Quick Actions
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link
-              to="/challenges"
-              className="bg-secondary neo-border neo-shadow font-black py-6 flex flex-col items-center gap-2 hover:neo-shadow-lg transition-shadow"
+            <Button
+              variant="secondary"
+              className="neo-border neo-shadow font-black h-auto py-6 flex-col gap-2"
+              asChild
             >
-              <Target className="w-8 h-8" />
-              <span>Browse Challenges</span>
-            </Link>
-            <Link
-              to="/themes"
-              className="bg-secondary neo-border neo-shadow font-black py-6 flex flex-col items-center gap-2 hover:neo-shadow-lg transition-shadow"
+              <Link to="/challenges">
+                <Target className="w-8 h-8" />
+                <span>Browse Challenges</span>
+              </Link>
+            </Button>
+            <Button
+              variant="secondary"
+              className="neo-border neo-shadow font-black h-auto py-6 flex-col gap-2"
+              asChild
             >
-              <TrendingUp className="w-8 h-8" />
-              <span>Explore Themes</span>
-            </Link>
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="bg-secondary neo-border neo-shadow font-black py-6 flex flex-col items-center gap-2 hover:neo-shadow-lg transition-shadow"
+              <Link to="/themes">
+                <TrendingUp className="w-8 h-8" />
+                <span>Explore Themes</span>
+              </Link>
+            </Button>
+            <Button
+              variant="secondary"
+              className="neo-border neo-shadow font-black h-auto py-6 flex-col gap-2"
+              asChild
             >
-              <Trophy className="w-8 h-8" />
-              <span>View on GitHub</span>
-            </a>
+              <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+                <Trophy className="w-8 h-8" />
+                <span>View on GitHub</span>
+              </a>
+            </Button>
           </div>
         </div>
       </div>
