@@ -1,0 +1,39 @@
+{
+  "$schema": "https://turborepo.dev/microfrontends/schema.json",
+  "applications": {
+    "web": {
+      "packageName": "@kubeasy/web",
+      "development": {
+        "local": {
+          "port": 3000
+        }
+      }
+    },
+    "api": {
+      "packageName": "@kubeasy/api",
+      "development": {
+        "local": {
+          "port": 3001
+        }
+      },
+      "routing": [
+        {
+          "paths": ["/api/:path*"]
+        }
+      ]
+    },
+    "admin": {
+      "packageName": "@kubeasy/admin",
+      "development": {
+        "local": {
+          "port": 3002
+        }
+      },
+      "routing": [
+        {
+          "paths": ["/admin", "/admin/:path*"]
+        }
+      ]
+    }
+  }
+}
