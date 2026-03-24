@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: UI Parity + Micro-Frontend + Admin
 status: Phase complete — ready for verification
-stopped_at: Completed 10-02-PLAN.md (Tasks 1-2); awaiting human-verify checkpoint Task 3
-last_updated: "2026-03-24T22:30:22.233Z"
+stopped_at: Completed 10-02-PLAN.md — Phase 10 fully complete
+last_updated: "2026-03-24T22:57:21.746Z"
 progress:
   total_phases: 5
   completed_phases: 3
@@ -48,6 +48,7 @@ Plan: 2 of 2
 | Phase 09-ui-parity P01 | 15 | 2 tasks | 6 files |
 | Phase 10-micro-frontend-dev-proxy-admin-scaffold P01 | 190s | 2 tasks | 16 files |
 | Phase 10-micro-frontend-dev-proxy-admin-scaffold P02 | 12min | 2 tasks | 7 files |
+| Phase 10-micro-frontend-dev-proxy-admin-scaffold P02 | 35min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,8 @@ v1.1 key constraints:
 - [Phase 10-micro-frontend-dev-proxy-admin-scaffold]: admin auth-client baseURL defaults to localhost:3024 (MFE proxy) not localhost:3001 — browser cookies use same origin
 - [Phase 10-micro-frontend-dev-proxy-admin-scaffold]: Cross-app redirects use window.location.href not router.navigate — admin and web are separate SPAs on different ports
 - [Phase 10-micro-frontend-dev-proxy-admin-scaffold]: Caddyfile created in apps/caddy/ as reference template only — not wired to docker-compose yet (Phase 12)
+- [Phase 10-micro-frontend-dev-proxy-admin-scaffold]: Auth guard redirects use relative paths (/login, /) when all apps share the same origin via MFE proxy
+- [Phase 10-micro-frontend-dev-proxy-admin-scaffold]: Admin top-nav style aligned with web app header (h-20, font-black, neo-border-thick) post-verification
 
 ### Pending Todos
 
@@ -94,6 +97,6 @@ None — v1.0 in production, v1.1 scope defined.
 
 ## Session Continuity
 
-Last session: 2026-03-24T22:30:22.230Z
-Stopped at: Completed 10-02-PLAN.md (Tasks 1-2); awaiting human-verify checkpoint Task 3
+Last session: 2026-03-24T22:57:21.743Z
+Stopped at: Completed 10-02-PLAN.md — Phase 10 fully complete
 Resume file: None
