@@ -166,4 +166,93 @@ Deferred — architecture préparée mais hors scope v1.
 ---
 
 *Requirements defined: 2026-03-18*
-*Last updated: 2026-03-18 after roadmap creation*
+*Last updated: 2026-03-24 — v1.1 requirements added*
+
+---
+
+## v1.1 Requirements
+
+Scope: UI parity restoration, shared shadcn/ui package, Turborepo micro-frontend infrastructure, admin SPA migration (exact feature parity with ../website admin), Caddy production reverse proxy.
+
+### Shared UI Package
+
+- [ ] **UI-01**: L'utilisateur peut utiliser n'importe quel composant shadcn depuis `@kubeasy/ui` — les 17 composants sont migrés depuis `apps/web/src/components/ui/`, exportés en TypeScript source (JIT, pas de build step)
+- [ ] **UI-02**: Chaque app consommatrice importe les design tokens CSS depuis `packages/ui/src/styles/tokens.css` — les variables `:root` (couleurs, radius, etc.) sont définies une seule fois
+- [ ] **UI-03**: `apps/web` importe tous ses composants UI depuis `@kubeasy/ui` — le dossier `apps/web/src/components/ui/` est supprimé
+- [ ] **UI-04**: `react` et `react-dom` sont déclarés en `peerDependencies` dans `packages/ui/package.json` — `pnpm ls react` confirme une seule instance React par app
+- [ ] **UI-05**: La config Tailwind v4 de `apps/web` et `apps/admin` inclut `@source` pointant vers `packages/ui/src` — les classes Tailwind du package partagé apparaissent dans le CSS généré
+
+### UI Parity
+
+- [ ] **PARITY-01**: Les pages blog (liste + articles) de `apps/web` correspondent visuellement à `../website` — typographie, spacing, layout, couleurs, composants
+- [ ] **PARITY-02**: Les pages marketing (landing, pricing, about) de `apps/web` correspondent visuellement à `../website`
+- [ ] **PARITY-03**: Les pages challenges (liste + détail) de `apps/web` correspondent visuellement à `../website`
+- [ ] **PARITY-04**: Les pages dashboard et profil de `apps/web` correspondent visuellement à `../website`
+
+### Micro-Frontend Infrastructure
+
+- [ ] **MFE-01**: Un fichier `microfrontends.json` à la racine configure le proxy Turborepo — `apps/web:3000` (catch-all), `apps/api:3001` (`/api`), `apps/admin:3002` (`/admin`) — accessible sur `localhost:3024`
+- [ ] **MFE-02**: Les scripts dev de `apps/web`, `apps/api`, `apps/admin` utilisent `$TURBO_MFE_PORT` pour écouter sur le port injecté par le proxy Turborepo
+- [ ] **MFE-03**: Le `Caddyfile` dans `apps/caddy` route `kubeasy.dev/*` → `apps/web`, `/api/*` → `apps/api` (`flush_interval -1` pour SSE), `/admin/*` → `apps/admin`, avec `auto_https off`
+- [ ] **MFE-04**: `apps/caddy` est déployé comme service Railway séparé avec son Dockerfile — le custom domain `kubeasy.dev` est transféré sur ce service
+- [ ] **MFE-05**: `API_URL` dans `apps/api` est mis à jour vers `https://kubeasy.dev` après cutover Caddy — les OAuth redirect URIs (GitHub, Google, Microsoft) sont mis à jour
+
+### Admin App — Scaffold & Auth
+
+- [ ] **ADMIN-01**: `apps/admin` est une SPA Vite + React client-side avec TanStack Router, `base: "/admin/"` dans `vite.config.ts` et `basename="/admin"` dans le router — `vite build && vite preview` vérifié
+- [ ] **ADMIN-02**: Route guard admin — session via Better Auth client (`credentials: "include"`), redirect vers `kubeasy.dev` si utilisateur non-admin
+
+### Admin App — Challenges Page (/admin/challenges)
+
+- [ ] **ADMIN-03**: L'utilisateur admin voit 4 stats cards challenges — completion rate, success rate, total submissions, avg attempts (labels et calculs identiques à `../website`)
+- [ ] **ADMIN-04**: L'utilisateur admin voit la table de tous les challenges avec les colonnes : title, theme, type, difficulty, created date, completion %, success rate %, toggle available
+- [ ] **ADMIN-05**: L'utilisateur admin peut activer/désactiver un challenge via un toggle (optimistic update + gestion d'erreur)
+
+### Admin App — Users Page (/admin/users)
+
+- [ ] **ADMIN-06**: L'utilisateur admin voit 4 stats cards utilisateurs — total users, active, banned, admins count
+- [ ] **ADMIN-07**: L'utilisateur admin voit la table paginée des utilisateurs (50/page) avec : avatar+nom+email, rôle badge, challenges complétés, XP total, date inscription, statut (actif/banni+raison)
+- [ ] **ADMIN-08**: L'utilisateur admin peut changer le rôle d'un utilisateur (Make admin / Remove admin) via le menu dropdown
+- [ ] **ADMIN-09**: L'utilisateur admin peut bannir un utilisateur avec une raison optionnelle (dialog de confirmation) et débannir un utilisateur banni
+- [ ] **ADMIN-10**: La table affiche les utilisateurs bannis avec apparence atténuée (faded) et une protection anti-self-action (ne peut pas se bannir/changer son propre rôle)
+
+### Admin API — Hono Endpoints (à ajouter dans apps/api)
+
+- [ ] **ADMIN-11**: `GET /api/admin/challenges` retourne tous les challenges avec métriques (starts, completions, submissions, successful submissions)
+- [ ] **ADMIN-12**: `GET /api/admin/challenges/stats` retourne les stats globales challenges (totalSubmissions, successfulSubmissions, successRate, totalStarts, totalCompletions, completionRate)
+- [ ] **ADMIN-13**: `GET /api/admin/users` retourne la liste paginée des utilisateurs avec métriques (completedChallenges, totalXp, banned, banReason, role, createdAt)
+- [ ] **ADMIN-14**: `GET /api/admin/users/stats` retourne les stats globales utilisateurs (total, active, banned, admins)
+- [ ] **ADMIN-15**: `PATCH /api/admin/users/:id/ban` bannit un utilisateur (raison optionnelle) — interdit le self-ban
+- [ ] **ADMIN-16**: `PATCH /api/admin/users/:id/unban` débanit un utilisateur
+- [ ] **ADMIN-17**: `PATCH /api/admin/users/:id/role` modifie le rôle d'un utilisateur (`admin` | `user`) — interdit le self-role-change
+
+### Admin Deployment
+
+- [ ] **ADMIN-18**: `apps/admin` est déployé comme service Railway séparé avec son propre Dockerfile (pattern `turbo prune --docker`)
+
+---
+
+## v2 Requirements (Deferred from v1.1)
+
+- **ADMIN-DEF-01**: Admin submissions view (per user/challenge) — trop de complexité pour v1.1
+- **ADMIN-DEF-02**: Admin analytics dashboard (PostHog integration)
+- **ADMIN-DEF-03**: Challenge import UI (sync depuis GitHub challenges repo via UI)
+
+---
+
+## Traceability (v1.1)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| UI-01 through UI-05 | Phase 8 | Pending |
+| PARITY-01 through PARITY-04 | Phase 9 | Pending |
+| MFE-01, MFE-02 | Phase 10 | Pending |
+| ADMIN-01, ADMIN-02 | Phase 10 | Pending |
+| ADMIN-03 through ADMIN-10 | Phase 11 | Pending |
+| ADMIN-11 through ADMIN-17 | Phase 11 | Pending |
+| ADMIN-18, MFE-03 through MFE-05 | Phase 12 | Pending |
+
+**Coverage v1.1:**
+- v1.1 requirements: 33 total
+- Mapped to phases: TBD (roadmapper will finalize)
+- Unmapped: TBD
