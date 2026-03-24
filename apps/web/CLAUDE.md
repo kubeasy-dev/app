@@ -100,6 +100,15 @@ The API base URL is set via `VITE_API_URL` env variable.
 ## Environment Variables
 
 ```bash
-VITE_API_URL=http://localhost:3001   # API base URL
-BETTER_AUTH_URL=https://kubeasy.dev  # Used for OAuth proxy on previews
+# Client-side (must be prefixed VITE_ to be exposed to the browser)
+VITE_API_URL=http://localhost:3001   # API base URL for client-side fetch (auth client, API client, SSE)
+
+# Server-side (Nitro SSR — accessed via process.env)
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318  # OpenTelemetry collector endpoint
+
+# Notion (blog content — blog pages return empty silently if missing)
+NOTION_INTEGRATION_TOKEN=            # Notion integration secret
+NOTION_BLOG_DATASOURCE_ID=           # Notion database ID for blog posts
+NOTION_PEOPLE_DATASOURCE_ID=         # Notion database ID for people/team
+NOTION_DIRECTORY_DATASOURCE_ID=      # Notion database ID for directory
 ```
