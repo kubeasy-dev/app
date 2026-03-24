@@ -22,7 +22,7 @@
   "devDependencies": {
     "@kubeasy/typescript-config": "workspace:*",
     "typescript": "5.9.3",
-    "vitest": "^4.1.0"
+    "vitest": "4.1.0"
   },
   "peerDependencies": {
     "zod": "^4.0.0"
