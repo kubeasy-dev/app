@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.1
-milestone_name: SSG Fixes & Polish
+milestone_name: UI Parity + Micro-Frontend + Admin
 status: planning
-last_updated: "2026-03-23"
-last_activity: "2026-03-23 - Completed quick task 260323-nnr: Améliorer le tooling du monorepo: knip/biome config, .env cleanup, maintenance workflow, vercel.json/dockerignore suppression, renovate monorepo support"
+last_updated: "2026-03-24"
+last_activity: "2026-03-24 - Milestone v1.1 started"
 progress:
   total_phases: 0
   completed_phases: 0
@@ -17,19 +17,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-23)
+See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** API Hono source de vérité unique, web TanStack Start client hybride, BullMQ découplé pour extraction future
-**Current focus:** Planning v1.1 — SSG fixes, challenges list bug
+**Current focus:** v1.1 — UI parity, micro-frontend setup, admin migration
 
 ## Current Position
 
-Milestone v1.0 archivé. Prêt pour `/gsd:new-milestone` pour démarrer v1.1.
-
-**Known gaps à adresser en v1.1 :**
-- WEB-04: Blog articles non SSG à build time
-- Challenges list: bug SSR/SSG suspecté
-- Cross-subdomain cookie flow: validation sur `*.kubeasy.dev` stable
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-24 — Milestone v1.1 started
 
 ## Accumulated Context
 
@@ -39,9 +37,9 @@ Toutes les décisions v1.0 sont archivées dans PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-- Vérifier SSG blog articles (WEB-04)
-- Investiguer bug challenges list SSR/SSG
-- Valider cross-subdomain cookie flow production
+- Phase 8: Audit UI parity avec ../website
+- Phase 9: Turborepo micro-frontend + packages/ui shadcn
+- Phase 10: Admin SPA Vite/React dans apps/admin
 
 ### Blockers/Concerns
 

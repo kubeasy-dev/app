@@ -1,4 +1,4 @@
-# Kubeasy — Monorepo v1.0 (Shipped)
+# Kubeasy — Monorepo v1.1 (In Progress)
 
 ## What This Is
 
@@ -9,6 +9,17 @@ Les fonctionnalités restent identiques au monolithe Next.js original : apprenti
 ## Core Value
 
 L'API Hono est la source de vérité unique (auth, données, temps réel). Le web TanStack Start est un client hybride qui la consomme. BullMQ est assez découplé (`packages/jobs`) pour migrer vers un worker dédié sans refacto majeur.
+
+## Current Milestone: v1.1 UI Parity + Micro-Frontend + Admin
+
+**Goal:** Restaurer la parité visuelle avec l'ancienne version, restructurer le monorepo en micro-frontends avec une lib shadcn partagée, et migrer la partie admin en SPA Vite/React.
+
+**Target features:**
+- Phase 8 — UI Parity : audit composant par composant entre apps/web et ../website, corriger toutes les différences visuelles
+- Phase 9 — Micro-Frontend + Shared UI : Turborepo micro-frontend (kubeasy.dev/{api,admin,…}), Caddy Railway en prod, packages/ui avec shadcn commun
+- Phase 10 — Admin App : nouvelle app Vite + React client-side dans apps/admin, consommant apps/api, migration de l'interface admin existante
+
+---
 
 ## Requirements
 
@@ -33,9 +44,11 @@ L'API Hono est la source de vérité unique (auth, données, temps réel). Le we
 
 ### Active (v1.1)
 
-- [ ] SSG blog articles à build time (WEB-04) — actuellement SSR uniquement
-- [ ] Vérifier et corriger le rendu SSR/SSG de la liste challenges — bug suspecté
-- [ ] Vérifier cross-subdomain cookie flow sur domaine `*.kubeasy.dev` stable
+- [ ] Parité visuelle complète entre apps/web et ../website (blog, landing, challenges, dashboard)
+- [ ] Turborepo micro-frontend : proxy unifié dev (kubeasy.dev/{api,admin,site})
+- [ ] Caddy reverse proxy Railway en prod pour routing multi-app sous kubeasy.dev
+- [ ] packages/ui : bibliothèque shadcn/ui partagée entre apps/web et apps/admin
+- [ ] apps/admin : nouvelle SPA Vite + React client-side, migration interface admin existante
 
 ### Out of Scope
 
@@ -106,5 +119,22 @@ L'API Hono est la source de vérité unique (auth, données, temps réel). Le we
 | pg Pool remplace postgres.js | OTel pg auto-instrumentation requiert le driver pg officiel | ✓ Good — DB spans visibles dans SigNoz |
 | Refacto in-place dans ce repo | Historique git préservé, transition progressive | ✓ Good — pas de friction de migration |
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd:transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd:complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
-*Last updated: 2026-03-23 after v1.0 milestone*
+*Last updated: 2026-03-24 — Milestone v1.1 started*
