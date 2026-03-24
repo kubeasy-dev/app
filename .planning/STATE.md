@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: UI Parity + Micro-Frontend + Admin
-status: Ready to execute
-stopped_at: Completed 10-01-PLAN.md
-last_updated: "2026-03-24T22:25:24.944Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 10-02-PLAN.md (Tasks 1-2); awaiting human-verify checkpoint Task 3
+last_updated: "2026-03-24T22:30:22.233Z"
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -47,6 +47,7 @@ Plan: 2 of 2
 | Phase 09-ui-parity P03 | 3 | 1 tasks | 1 files |
 | Phase 09-ui-parity P01 | 15 | 2 tasks | 6 files |
 | Phase 10-micro-frontend-dev-proxy-admin-scaffold P01 | 190s | 2 tasks | 16 files |
+| Phase 10-micro-frontend-dev-proxy-admin-scaffold P02 | 12min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,8 @@ v1.1 key constraints:
 - [Phase 09-ui-parity]: Blog category filter uses useState in route component, derived from post list (no URL search params)
 - [Phase 10-micro-frontend-dev-proxy-admin-scaffold]: @tanstack/router-plugin pinned to 1.167.4 matching lockfile (compatible with react-router 1.168.3)
 - [Phase 10-micro-frontend-dev-proxy-admin-scaffold]: admin auth-client baseURL defaults to localhost:3024 (MFE proxy) not localhost:3001 — browser cookies use same origin
+- [Phase 10-micro-frontend-dev-proxy-admin-scaffold]: Cross-app redirects use window.location.href not router.navigate — admin and web are separate SPAs on different ports
+- [Phase 10-micro-frontend-dev-proxy-admin-scaffold]: Caddyfile created in apps/caddy/ as reference template only — not wired to docker-compose yet (Phase 12)
 
 ### Pending Todos
 
@@ -91,6 +94,6 @@ None — v1.0 in production, v1.1 scope defined.
 
 ## Session Continuity
 
-Last session: 2026-03-24T22:25:24.942Z
-Stopped at: Completed 10-01-PLAN.md
+Last session: 2026-03-24T22:30:22.230Z
+Stopped at: Completed 10-02-PLAN.md (Tasks 1-2); awaiting human-verify checkpoint Task 3
 Resume file: None

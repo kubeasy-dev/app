@@ -200,7 +200,7 @@ Scope: UI parity restoration, shared shadcn/ui package, Turborepo micro-frontend
 ### Admin App — Scaffold & Auth
 
 - [x] **ADMIN-01**: `apps/admin` est une SPA Vite + React client-side avec TanStack Router, `base: "/admin/"` dans `vite.config.ts` et `basename="/admin"` dans le router — `vite build && vite preview` vérifié
-- [ ] **ADMIN-02**: Route guard admin — session via Better Auth client (`credentials: "include"`), redirect vers `kubeasy.dev` si utilisateur non-admin
+- [x] **ADMIN-02**: Route guard admin — session via Better Auth client (`credentials: "include"`), redirect vers `kubeasy.dev` si utilisateur non-admin
 
 ### Admin App — Challenges Page (/admin/challenges)
 
@@ -256,7 +256,7 @@ Scope: UI parity restoration, shared shadcn/ui package, Turborepo micro-frontend
 | MFE-01 | Phase 10 | Complete |
 | MFE-02 | Phase 10 | Complete |
 | ADMIN-01 | Phase 10 | Complete |
-| ADMIN-02 | Phase 10 | Pending |
+| ADMIN-02 | Phase 10 | Complete |
 | ADMIN-03 | Phase 11 | Pending |
 | ADMIN-04 | Phase 11 | Pending |
 | ADMIN-05 | Phase 11 | Pending |

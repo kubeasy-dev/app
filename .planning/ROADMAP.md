@@ -30,7 +30,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 
 - [ ] **Phase 8: Shared UI Package** — Extract all shadcn/ui components into `packages/ui`, wire Tailwind v4 `@source`, refactor `apps/web` imports
 - [x] **Phase 9: UI Parity** — Audit and correct all visual differences between `apps/web` and `../website` across all 4 page groups (completed 2026-03-24)
-- [ ] **Phase 10: Micro-Frontend Dev Proxy + Admin Scaffold** — Configure `microfrontends.json`, scaffold `apps/admin` Vite SPA with auth guard and draft Caddyfile
+- [x] **Phase 10: Micro-Frontend Dev Proxy + Admin Scaffold** — Configure `microfrontends.json`, scaffold `apps/admin` Vite SPA with auth guard and draft Caddyfile (completed 2026-03-24)
 - [ ] **Phase 11: Admin Features** — Build admin challenge management and user management pages, add all Hono admin API endpoints
 - [ ] **Phase 12: Caddy Production + Railway Deployment** — Deploy Caddy service on Railway, DNS cutover to unified `kubeasy.dev`, update OAuth redirect URIs
 
@@ -78,10 +78,10 @@ Plans:
   2. A non-admin user visiting `localhost:3024/admin` is redirected to the main site — the route guard enforces role check via Better Auth session
   3. An admin user can log in and see the `apps/admin` shell layout with navigation — no features yet, but the authenticated shell renders without errors
   4. `vite build` succeeds for `apps/admin` and assets load correctly at `/admin/` path — no 404s on sub-path assets
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 10-01-PLAN.md — MFE proxy config + apps/admin Vite CSR SPA package bootstrap
-- [ ] 10-02-PLAN.md — Admin auth guard, top-nav shell, placeholder routes, Caddyfile
+- [x] 10-02-PLAN.md — Admin auth guard, top-nav shell, placeholder routes, Caddyfile
 **UI hint**: yes
 
 ### Phase 11: Admin Features
@@ -123,6 +123,6 @@ Plans:
 | 7. Railway Deployment | v1.0 | 3/3 | Complete | 2026-03-23 |
 | 8. Shared UI Package | v1.1 | 0/2 | Planning | — |
 | 9. UI Parity | v1.1 | 4/4 | Complete   | 2026-03-24 |
-| 10. Micro-Frontend Dev Proxy + Admin Scaffold | v1.1 | 1/2 | In Progress|  |
+| 10. Micro-Frontend Dev Proxy + Admin Scaffold | v1.1 | 2/2 | Complete   | 2026-03-24 |
 | 11. Admin Features | v1.1 | 0/? | Not started | — |
 | 12. Caddy Production + Railway Deployment | v1.1 | 0/? | Not started | — |
