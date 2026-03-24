@@ -244,15 +244,40 @@ Scope: UI parity restoration, shared shadcn/ui package, Turborepo micro-frontend
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UI-01 through UI-05 | Phase 8 | Pending |
-| PARITY-01 through PARITY-04 | Phase 9 | Pending |
-| MFE-01, MFE-02 | Phase 10 | Pending |
-| ADMIN-01, ADMIN-02 | Phase 10 | Pending |
-| ADMIN-03 through ADMIN-10 | Phase 11 | Pending |
-| ADMIN-11 through ADMIN-17 | Phase 11 | Pending |
-| ADMIN-18, MFE-03 through MFE-05 | Phase 12 | Pending |
+| UI-01 | Phase 8 | Pending |
+| UI-02 | Phase 8 | Pending |
+| UI-03 | Phase 8 | Pending |
+| UI-04 | Phase 8 | Pending |
+| UI-05 | Phase 8 | Pending |
+| PARITY-01 | Phase 9 | Pending |
+| PARITY-02 | Phase 9 | Pending |
+| PARITY-03 | Phase 9 | Pending |
+| PARITY-04 | Phase 9 | Pending |
+| MFE-01 | Phase 10 | Pending |
+| MFE-02 | Phase 10 | Pending |
+| ADMIN-01 | Phase 10 | Pending |
+| ADMIN-02 | Phase 10 | Pending |
+| ADMIN-03 | Phase 11 | Pending |
+| ADMIN-04 | Phase 11 | Pending |
+| ADMIN-05 | Phase 11 | Pending |
+| ADMIN-06 | Phase 11 | Pending |
+| ADMIN-07 | Phase 11 | Pending |
+| ADMIN-08 | Phase 11 | Pending |
+| ADMIN-09 | Phase 11 | Pending |
+| ADMIN-10 | Phase 11 | Pending |
+| ADMIN-11 | Phase 11 | Pending |
+| ADMIN-12 | Phase 11 | Pending |
+| ADMIN-13 | Phase 11 | Pending |
+| ADMIN-14 | Phase 11 | Pending |
+| ADMIN-15 | Phase 11 | Pending |
+| ADMIN-16 | Phase 11 | Pending |
+| ADMIN-17 | Phase 11 | Pending |
+| ADMIN-18 | Phase 12 | Pending |
+| MFE-03 | Phase 12 | Pending |
+| MFE-04 | Phase 12 | Pending |
+| MFE-05 | Phase 12 | Pending |
 
 **Coverage v1.1:**
-- v1.1 requirements: 33 total
-- Mapped to phases: TBD (roadmapper will finalize)
-- Unmapped: TBD
+- v1.1 requirements: 32 total
+- Mapped to phases: 32/32 ✓
+- Unmapped: 0
