@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: UI Parity + Micro-Frontend + Admin
-status: Ready to plan
-stopped_at: Completed discuss-phase 10 — context captured
-last_updated: "2026-03-24T21:00:00.000Z"
+status: Ready to execute
+stopped_at: Completed 10-01-PLAN.md
+last_updated: "2026-03-24T22:25:24.944Z"
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 8
+  completed_plans: 7
 ---
 
 # Project State
@@ -23,8 +23,8 @@ See: .planning/PROJECT.md (updated 2026-03-24)
 
 ## Current Position
 
-Phase: 10
-Plan: Not started
+Phase: 10 (micro-frontend-dev-proxy-admin-scaffold) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -46,6 +46,7 @@ Plan: Not started
 | Phase 09-ui-parity P04 | 8 | 2 tasks | 2 files |
 | Phase 09-ui-parity P03 | 3 | 1 tasks | 1 files |
 | Phase 09-ui-parity P01 | 15 | 2 tasks | 6 files |
+| Phase 10-micro-frontend-dev-proxy-admin-scaffold P01 | 190s | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -69,12 +70,15 @@ v1.1 key constraints:
 - [Phase 09-ui-parity]: Challenge detail back button uses Button ghost asChild wrapping Link (not raw Link with manual classes)
 - [Phase 09-ui-parity]: TableOfContentsClient merged into single file — no separate client wrapper needed in TanStack Router
 - [Phase 09-ui-parity]: Blog category filter uses useState in route component, derived from post list (no URL search params)
+- [Phase 10-micro-frontend-dev-proxy-admin-scaffold]: @tanstack/router-plugin pinned to 1.167.4 matching lockfile (compatible with react-router 1.168.3)
+- [Phase 10-micro-frontend-dev-proxy-admin-scaffold]: admin auth-client baseURL defaults to localhost:3024 (MFE proxy) not localhost:3001 — browser cookies use same origin
 
 ### Pending Todos
 
 - Phase 11 start: audit `apps/api/src/routes/admin/` to confirm which Hono admin endpoints already exist vs. need adding before writing UI
 
 ### Phase 10 Key Decisions
+
 - [Phase 10]: Turborepo built-in proxy for unified localhost:3024 — researcher to investigate exact 2.x API
 - [Phase 10]: apps/admin = pure Vite CSR SPA + TanStack Router (no SSR)
 - [Phase 10]: Admin auth guard client-side in __root.tsx via Better Auth useSession(), redirects to VITE_WEB_URL
@@ -87,6 +91,6 @@ None — v1.0 in production, v1.1 scope defined.
 
 ## Session Continuity
 
-Last session: 2026-03-24T19:25:38.801Z
-Stopped at: Completed 09-ui-parity-01-PLAN.md
+Last session: 2026-03-24T22:25:24.942Z
+Stopped at: Completed 10-01-PLAN.md
 Resume file: None
