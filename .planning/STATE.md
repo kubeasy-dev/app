@@ -2,15 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: UI Parity + Micro-Frontend + Admin
-status: planning
-last_updated: "2026-03-24"
-last_activity: "2026-03-24 - Roadmap created for v1.1 (Phases 8–12)"
+status: Ready to execute
+stopped_at: Completed 08-shared-ui-package 08-01-PLAN.md
+last_updated: "2026-03-24T17:57:20.744Z"
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 2
+  completed_plans: 1
 ---
 
 # Project State
@@ -20,20 +19,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** API Hono source de vérité unique, web TanStack Start client hybride, BullMQ découplé pour extraction future
-**Current focus:** v1.1 — Phase 8: Shared UI Package (ready to plan)
+**Current focus:** Phase 08 — shared-ui-package
 
 ## Current Position
 
-Phase: 8 of 12 (Shared UI Package)
-Plan: — (not yet planned)
-Status: Ready to plan
-Last activity: 2026-03-24 — Roadmap v1.1 created, Phases 8–12 defined
-
-Progress: [░░░░░░░░░░] 0%
+Phase: 08 (shared-ui-package) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
 **Velocity (v1.0):**
+
 - Total plans completed: 34
 - v1.0 phases: 9 phases (including 2 inserted)
 
@@ -44,6 +40,7 @@ Progress: [░░░░░░░░░░] 0%
 | — | — | — | — |
 
 *Updated after each plan completion*
+| Phase 08-shared-ui-package P01 | 12 | 2 tasks | 22 files |
 
 ## Accumulated Context
 
@@ -52,9 +49,12 @@ Progress: [░░░░░░░░░░] 0%
 All v1.0 decisions archived in PROJECT.md Key Decisions table.
 
 v1.1 key constraints:
+
 - DB schema: no changes this milestone — pure UI/infra work
 - CLI API compatibility: admin endpoints must not break existing CLI routes
 - Caddy DNS cutover is highest-risk step — keep `api.kubeasy.dev` active until Caddy routing confirmed stable
+- [Phase 08-shared-ui-package]: JIT pattern for @kubeasy/ui: export .tsx source directly, no build step, sub-path exports only (no barrel)
+- [Phase 08-shared-ui-package]: react/react-dom declared as peerDependencies in @kubeasy/ui to avoid duplicate React instances per consuming app
 
 ### Pending Todos
 
@@ -66,6 +66,6 @@ None — v1.0 in production, v1.1 scope defined.
 
 ## Session Continuity
 
-Last session: 2026-03-24
-Stopped at: Roadmap created, ready to plan Phase 8
+Last session: 2026-03-24T17:57:20.741Z
+Stopped at: Completed 08-shared-ui-package 08-01-PLAN.md
 Resume file: None

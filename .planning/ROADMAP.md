@@ -48,7 +48,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
   5. Tailwind generates CSS classes from the shared package — a component class defined only in `packages/ui` appears in the built CSS of `apps/web`
 **Plans:** 2 plans
 Plans:
-- [ ] 08-01-PLAN.md — Create packages/ui with all 17 components, tokens, utils, and package config
+- [x] 08-01-PLAN.md — Create packages/ui with all 17 components, tokens, utils, and package config
 - [ ] 08-02-PLAN.md — Rewire apps/web imports to @kubeasy/ui, update deps, delete local ui/
 **UI hint**: yes
 

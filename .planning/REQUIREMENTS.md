@@ -176,10 +176,10 @@ Scope: UI parity restoration, shared shadcn/ui package, Turborepo micro-frontend
 
 ### Shared UI Package
 
-- [ ] **UI-01**: L'utilisateur peut utiliser n'importe quel composant shadcn depuis `@kubeasy/ui` — les 17 composants sont migrés depuis `apps/web/src/components/ui/`, exportés en TypeScript source (JIT, pas de build step)
-- [ ] **UI-02**: Chaque app consommatrice importe les design tokens CSS depuis `packages/ui/src/styles/tokens.css` — les variables `:root` (couleurs, radius, etc.) sont définies une seule fois
+- [x] **UI-01**: L'utilisateur peut utiliser n'importe quel composant shadcn depuis `@kubeasy/ui` — les 17 composants sont migrés depuis `apps/web/src/components/ui/`, exportés en TypeScript source (JIT, pas de build step)
+- [x] **UI-02**: Chaque app consommatrice importe les design tokens CSS depuis `packages/ui/src/styles/tokens.css` — les variables `:root` (couleurs, radius, etc.) sont définies une seule fois
 - [ ] **UI-03**: `apps/web` importe tous ses composants UI depuis `@kubeasy/ui` — le dossier `apps/web/src/components/ui/` est supprimé
-- [ ] **UI-04**: `react` et `react-dom` sont déclarés en `peerDependencies` dans `packages/ui/package.json` — `pnpm ls react` confirme une seule instance React par app
+- [x] **UI-04**: `react` et `react-dom` sont déclarés en `peerDependencies` dans `packages/ui/package.json` — `pnpm ls react` confirme une seule instance React par app
 - [ ] **UI-05**: La config Tailwind v4 de `apps/web` et `apps/admin` inclut `@source` pointant vers `packages/ui/src` — les classes Tailwind du package partagé apparaissent dans le CSS généré
 
 ### UI Parity
@@ -244,10 +244,10 @@ Scope: UI parity restoration, shared shadcn/ui package, Turborepo micro-frontend
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UI-01 | Phase 8 | Pending |
-| UI-02 | Phase 8 | Pending |
+| UI-01 | Phase 8 | Complete |
+| UI-02 | Phase 8 | Complete |
 | UI-03 | Phase 8 | Pending |
-| UI-04 | Phase 8 | Pending |
+| UI-04 | Phase 8 | Complete |
 | UI-05 | Phase 8 | Pending |
 | PARITY-01 | Phase 9 | Pending |
 | PARITY-02 | Phase 9 | Pending |
