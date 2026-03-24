@@ -10,7 +10,7 @@ const queryClient = new QueryClient();
 
 const router = createRouter({
   routeTree,
-  basePath: "/admin",
+  basepath: "/admin",
   context: { queryClient },
 });
 
