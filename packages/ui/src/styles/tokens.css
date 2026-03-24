@@ -1,6 +1,5 @@
 /* Hard neo-brutalism shadows - override Tailwind defaults */
 @theme {
-  --shadow-xs: 1px 1px 0px 0px oklch(0.15 0 0);
   --shadow-sm: 2px 2px 0px 0px oklch(0.15 0 0);
   --shadow: 4px 4px 0px 0px oklch(0.15 0 0);
   --shadow-md: 5px 5px 0px 0px oklch(0.15 0 0);

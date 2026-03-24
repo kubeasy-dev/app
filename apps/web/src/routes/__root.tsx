@@ -6,6 +6,7 @@ import {
   HeadContent,
   Outlet,
   Scripts,
+  useRouterState,
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Footer } from "@/components/footer";
@@ -50,14 +51,17 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const isLogin = useRouterState({
+    select: (s) => s.location.pathname === "/login",
+  });
   return (
     <RootDocument>
       <QueryClientProvider client={queryClient}>
-        <Header />
-        <main className="pt-32 pb-20">
+        {!isLogin && <Header />}
+        <main className={isLogin ? undefined : "pt-32 pb-20"}>
           <Outlet />
         </main>
-        <Footer />
+        {!isLogin && <Footer />}
       </QueryClientProvider>
     </RootDocument>
   );

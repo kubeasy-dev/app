@@ -1,5 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import { and, eq, ilike, sql } from "drizzle-orm";
+import { and, asc, eq, ilike, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../db/index";
 import {
@@ -94,7 +94,8 @@ challenges.get("/", zValidator("query", challengeFiltersSchema), async (c) => {
     .innerJoin(challengeType, eq(challenge.typeSlug, challengeType.slug))
     .leftJoin(userProgress, userProgressConditions)
     .where(and(...filters))
-    .groupBy(challenge.id, challengeTheme.name, challengeType.name);
+    .groupBy(challenge.id, challengeTheme.name, challengeType.name)
+    .orderBy(asc(challenge.createdAt));
 
   return c.json({ challenges: results, count: results.length });
 });

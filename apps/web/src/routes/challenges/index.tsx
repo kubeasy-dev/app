@@ -1,4 +1,5 @@
 import type { ChallengeListInput } from "@kubeasy/api-schemas/challenges";
+import { Button } from "@kubeasy/ui/button";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
@@ -7,7 +8,6 @@ import { z } from "zod";
 import { ChallengesFilters } from "@/components/challenges-filters";
 import { ChallengesGrid } from "@/components/challenges-grid";
 import { ChallengesQuickStartCTA } from "@/components/challenges-quick-start-cta";
-import { Button } from "@kubeasy/ui/button";
 import { authClient } from "@/lib/auth-client";
 import {
   challengeListOptions,
@@ -77,7 +77,7 @@ function ChallengesView() {
                   showCompleted: !filters.showCompleted,
                 })
               }
-              className="neo-border-thick font-black neo-shadow hover:neo-shadow-lg transition-shadow px-6 py-6 text-base"
+              className="neo-border-thick neo-shadow font-black h-14 px-6 text-base"
             >
               {filters.showCompleted ? "Hide Completed" : "Show Completed"}
             </Button>

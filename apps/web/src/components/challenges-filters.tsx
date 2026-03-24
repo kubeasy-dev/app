@@ -1,7 +1,4 @@
 import type { ChallengeListInput } from "@kubeasy/api-schemas/challenges";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
-import { useState } from "react";
 import { Input } from "@kubeasy/ui/input";
 import {
   Select,
@@ -10,6 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@kubeasy/ui/select";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Search } from "lucide-react";
+import { useState } from "react";
 import type { ChallengeTypeItem } from "@/lib/api-client";
 import { difficulties } from "@/lib/constants";
 import { themeListOptions, typeListOptions } from "@/lib/query-options";
@@ -78,11 +78,11 @@ export function ChallengesFilters({
           placeholder="Search challenges..."
           value={search}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="pl-12 pr-4 py-6 neo-border-thick neo-shadow font-bold text-base focus:neo-shadow-lg transition-shadow"
+          className="pl-12 pr-4 h-14 neo-border-thick neo-shadow font-bold text-base"
         />
       </div>
       <Select value={theme} onValueChange={handleThemeChange}>
-        <SelectTrigger className="w-full md:w-[160px] neo-border-thick neo-shadow font-bold py-6 text-base">
+        <SelectTrigger className="w-full md:w-[160px] data-[size=default]:h-14 neo-border-thick neo-shadow font-bold text-base">
           <SelectValue placeholder="Theme" />
         </SelectTrigger>
         <SelectContent className="neo-border-thick neo-shadow">
@@ -97,7 +97,7 @@ export function ChallengesFilters({
         </SelectContent>
       </Select>
       <Select value={type} onValueChange={handleTypeChange}>
-        <SelectTrigger className="w-full md:w-[160px] neo-border-thick neo-shadow font-bold py-6 text-base">
+        <SelectTrigger className="w-full md:w-[160px] data-[size=default]:h-14 neo-border-thick neo-shadow font-bold text-base">
           <SelectValue placeholder="Type" />
         </SelectTrigger>
         <SelectContent className="neo-border-thick neo-shadow">
@@ -112,7 +112,7 @@ export function ChallengesFilters({
         </SelectContent>
       </Select>
       <Select value={difficulty} onValueChange={handleDifficultyChange}>
-        <SelectTrigger className="w-full md:w-[160px] neo-border-thick neo-shadow font-bold py-6 text-base">
+        <SelectTrigger className="w-full md:w-[160px] data-[size=default]:h-14 neo-border-thick neo-shadow font-bold text-base">
           <SelectValue placeholder="Difficulty" />
         </SelectTrigger>
         <SelectContent className="neo-border-thick neo-shadow">
