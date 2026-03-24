@@ -46,7 +46,10 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
   3. CSS design tokens (colors, radius, etc.) are defined once in `packages/ui/src/styles/tokens.css` and imported by each consuming app
   4. `pnpm ls react` shows exactly one React instance per app — no duplicate React from wrong peer dep config
   5. Tailwind generates CSS classes from the shared package — a component class defined only in `packages/ui` appears in the built CSS of `apps/web`
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 08-01-PLAN.md — Create packages/ui with all 17 components, tokens, utils, and package config
+- [ ] 08-02-PLAN.md — Rewire apps/web imports to @kubeasy/ui, update deps, delete local ui/
 **UI hint**: yes
 
 ### Phase 9: UI Parity
@@ -110,7 +113,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 | 5.2 Dashboard & Profile | v1.0 | 3/3 | Complete | 2026-03-20 |
 | 6. Observability | v1.0 | 4/4 | Complete | 2026-03-21 |
 | 7. Railway Deployment | v1.0 | 3/3 | Complete | 2026-03-23 |
-| 8. Shared UI Package | v1.1 | 0/? | Not started | — |
+| 8. Shared UI Package | v1.1 | 0/2 | Planning | — |
 | 9. UI Parity | v1.1 | 0/? | Not started | — |
 | 10. Micro-Frontend Dev Proxy + Admin Scaffold | v1.1 | 0/? | Not started | — |
 | 11. Admin Features | v1.1 | 0/? | Not started | — |
