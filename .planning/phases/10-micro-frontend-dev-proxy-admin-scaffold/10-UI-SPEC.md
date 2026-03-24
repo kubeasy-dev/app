@@ -55,15 +55,15 @@ Source: 8-point scale standard; 44px touch target from WCAG 2.5.5 (AAA guideline
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body | 16px (1rem) | 400 (regular) | 1.5 |
-| Label | 14px (0.875rem) | 500 (medium) | 1.4 |
+| Label | 14px (0.875rem) | 400 (regular) | 1.4 |
 | Heading | 20px (1.25rem) | 700 (bold) | 1.2 |
-| Display | 28px (1.75rem) | 900 (black) | 1.1 |
+| Display | 28px (1.75rem) | 700 (bold) | 1.1 |
 
 Font family: `'Geist Variable', sans-serif` via `--font-sans` token.
 
 Notes:
 - Body at 16px/400/1.5 — used for placeholder page copy and future table cells.
-- Label at 14px/500/1.4 — used for nav link text, badge text, user avatar name.
+- Label at 14px/400/1.4 — used for nav link text, badge text, user avatar name.
 - Heading at 20px/700/1.2 — used for placeholder page section titles ("Challenges", "Users").
 - Display is declared for future Phase 11 page headers; not used in Phase 10 scaffold.
 
