@@ -15,8 +15,8 @@ L'API Hono est la source de vérité unique (auth, données, temps réel). Le we
 **Goal:** Restaurer la parité visuelle avec l'ancienne version, restructurer le monorepo en micro-frontends avec une lib shadcn partagée, et migrer la partie admin en SPA Vite/React.
 
 **Target features:**
-- Phase 8 — UI Parity : audit composant par composant entre apps/web et ../website, corriger toutes les différences visuelles
-- Phase 9 — Micro-Frontend + Shared UI : Turborepo micro-frontend (kubeasy.dev/{api,admin,…}), Caddy Railway en prod, packages/ui avec shadcn commun
+- ~~Phase 8 — Shared UI Package~~ ✓ Validated in Phase 8: packages/ui created with 17 shadcn components, CSS design tokens, sub-path exports; apps/web migrated to @kubeasy/ui
+- Phase 9 — UI Parity : audit composant par composant entre apps/web et ../website, corriger toutes les différences visuelles
 - Phase 10 — Admin App : nouvelle app Vite + React client-side dans apps/admin, consommant apps/api, migration de l'interface admin existante
 
 ---
