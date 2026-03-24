@@ -38,7 +38,7 @@ export function DashboardChart() {
     : null;
 
   return (
-    <div className="bg-secondary neo-border-thick neo-shadow p-8 mb-12">
+    <div className="bg-secondary neo-border-thick neo-shadow p-8">
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-primary neo-border-thick neo-shadow rounded-lg">
           <TrendingUp className="w-5 h-5 text-primary-foreground" />
@@ -71,16 +71,15 @@ export function DashboardChart() {
         </ResponsiveContainer>
       )}
 
-      <div className="mt-4 p-4 bg-background neo-border-thick">
+      <div className="mt-4 p-4 bg-secondary neo-border-thick rounded-xl">
         {bestThemeName && bestTheme && bestTheme.percentageCompleted > 0 ? (
-          <p className="font-bold">
+          <p className="text-sm font-bold text-center">
             Your best theme is{" "}
-            <span className="text-primary font-black">{bestThemeName}</span> at{" "}
-            <span className="font-black">{bestTheme.percentageCompleted}%</span>
-            !
+            <span className="text-primary">{bestThemeName}</span> at{" "}
+            {bestTheme.percentageCompleted}%!
           </p>
         ) : (
-          <p className="font-bold text-muted-foreground">
+          <p className="text-sm font-bold text-center">
             Master all themes to become a Kubernetes expert!
           </p>
         )}
