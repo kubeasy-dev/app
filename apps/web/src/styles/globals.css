@@ -1,102 +1,11 @@
 @import "tailwindcss" source("../");
+@source "../../../packages/ui/src";
+@import "@kubeasy/ui/styles/tokens";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
-
-/* Hard neo-brutalism shadows - override Tailwind defaults */
-@theme {
-  --shadow-xs: 1px 1px 0px 0px oklch(0.15 0 0);
-  --shadow-sm: 2px 2px 0px 0px oklch(0.15 0 0);
-  --shadow: 4px 4px 0px 0px oklch(0.15 0 0);
-  --shadow-md: 5px 5px 0px 0px oklch(0.15 0 0);
-  --shadow-lg: 6px 6px 0px 0px oklch(0.15 0 0);
-  --shadow-xl: 8px 8px 0px 0px oklch(0.15 0 0);
-  --shadow-2xl: 10px 10px 0px 0px oklch(0.15 0 0);
-  --shadow-danger: 4px 4px 0px 0px oklch(0.55 0.22 29);
-}
-
-:root {
-  /* Neobrutalism theme with vibrant purple from logo */
-  --background: oklch(0.98 0.01 90); /* Cream/off-white background */
-  --foreground: oklch(0.15 0 0); /* Black text */
-  --card: oklch(1 0 0); /* White cards */
-  --card-foreground: oklch(0.15 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0 0);
-  --primary: oklch(0.55 0.25 280); /* Vibrant purple from logo */
-  --primary-foreground: oklch(1 0 0); /* White text on purple */
-  --primary-light: oklch(0.75 0.20 280); /* Light purple variant */
-  --primary-light-foreground: oklch(0.15 0 0); /* Dark text on light purple */
-  --primary-dark: oklch(0.40 0.28 280); /* Dark purple variant */
-  --primary-dark-foreground: oklch(1 0 0); /* White text on dark purple */
-  --secondary: oklch(0.95 0.05 85); /* Light yellow accent */
-  --secondary-foreground: oklch(0.15 0 0);
-  --muted: oklch(0.92 0.01 90);
-  --muted-foreground: oklch(0.35 0 0); /* Improved contrast ratio for WCAG AA compliance */
-  --accent: oklch(0.75 0.2 150); /* Cyan accent */
-  --accent-foreground: oklch(0.15 0 0);
-  --destructive: oklch(0.6 0.25 25);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.15 0 0); /* Black borders for neobrutalism */
-  --input: oklch(1 0 0);
-  --ring: oklch(0.55 0.25 280);
-  --chart-1: oklch(0.55 0.25 280);
-  --chart-2: oklch(0.75 0.2 150);
-  --chart-3: oklch(0.7 0.22 50);
-  --chart-4: oklch(0.65 0.23 330);
-  --chart-5: oklch(0.6 0.2 200);
-  --radius: 0.5rem;
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.15 0 0);
-  --sidebar-primary: oklch(0.55 0.25 280);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.95 0.05 85);
-  --sidebar-accent-foreground: oklch(0.15 0 0);
-  --sidebar-border: oklch(0.15 0 0);
-  --sidebar-ring: oklch(0.55 0.25 280);
-}
-
-.dark {
-  /* Keep light theme for neobrutalism */
-  --background: oklch(0.98 0.01 90);
-  --foreground: oklch(0.15 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0 0);
-  --primary: oklch(0.55 0.25 280);
-  --primary-foreground: oklch(1 0 0);
-  --primary-light: oklch(0.75 0.20 280);
-  --primary-light-foreground: oklch(0.15 0 0);
-  --primary-dark: oklch(0.40 0.28 280);
-  --primary-dark-foreground: oklch(1 0 0);
-  --secondary: oklch(0.95 0.05 85);
-  --secondary-foreground: oklch(0.15 0 0);
-  --muted: oklch(0.92 0.01 90);
-  --muted-foreground: oklch(0.35 0 0); /* Improved contrast ratio for WCAG AA compliance */
-  --accent: oklch(0.75 0.2 150);
-  --accent-foreground: oklch(0.15 0 0);
-  --destructive: oklch(0.6 0.25 25);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.15 0 0);
-  --input: oklch(1 0 0);
-  --ring: oklch(0.55 0.25 280);
-  --chart-1: oklch(0.55 0.25 280);
-  --chart-2: oklch(0.75 0.2 150);
-  --chart-3: oklch(0.7 0.22 50);
-  --chart-4: oklch(0.65 0.23 330);
-  --chart-5: oklch(0.6 0.2 200);
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.15 0 0);
-  --sidebar-primary: oklch(0.55 0.25 280);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.95 0.05 85);
-  --sidebar-accent-foreground: oklch(0.15 0 0);
-  --sidebar-border: oklch(0.15 0 0);
-  --sidebar-ring: oklch(0.55 0.25 280);
-}
 
 @theme inline {
   --color-background: var(--background);
