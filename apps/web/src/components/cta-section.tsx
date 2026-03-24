@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { Button } from "@kubeasy/ui/button";
 import { siteConfig } from "@/lib/constants";
 
 export function CTASection() {
@@ -15,21 +16,30 @@ export function CTASection() {
               local machine.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <a
-                href="/get-started"
-                className="inline-flex items-center justify-center h-9 gap-1.5 px-2.5 rounded-lg text-base font-bold bg-white text-primary hover:bg-white/90 neo-border-thick neo-shadow-lg"
+              <Button
+                size="lg"
+                className="text-base font-bold bg-white text-primary hover:bg-white/90 neo-border-thick neo-shadow-lg"
+                asChild
               >
-                Get Started
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
-              <a
-                href={siteConfig.links.docs}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center h-9 gap-1.5 px-2.5 rounded-lg text-base font-bold bg-secondary text-foreground hover:bg-secondary/90 neo-border-thick neo-shadow-lg border-foreground border"
+                <a href="/get-started">
+                  Get Started
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </a>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-base font-bold bg-secondary text-foreground hover:bg-secondary/90 neo-border-thick neo-shadow-lg border-foreground"
+                asChild
               >
-                View Documentation
-              </a>
+                <a
+                  href={siteConfig.links.docs}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View Documentation
+                </a>
+              </Button>
             </div>
           </div>
         </div>

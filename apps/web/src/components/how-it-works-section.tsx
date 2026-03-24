@@ -119,7 +119,13 @@ export function HowItWorksSection() {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <div className="relative w-full text-left">
+          <div
+            className="relative w-full text-left"
+            onMouseEnter={() => setIsAutoPlaying(false)}
+            onMouseLeave={() => setIsAutoPlaying(true)}
+            role="group"
+            aria-label="Interactive steps carousel"
+          >
             <div className="relative bg-card neo-border neo-shadow p-8 md:p-12 rounded-xl transition-all duration-500 min-h-[400px] flex flex-col justify-between">
               <div className="absolute -top-4 -left-4 w-16 h-16 bg-foreground text-background rounded-full flex items-center justify-center font-black text-2xl neo-border neo-shadow-lg">
                 {currentStep + 1}
