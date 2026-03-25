@@ -3,6 +3,7 @@ import { requireAdmin } from "../../middleware/admin";
 import { apiKeyMiddleware } from "../../middleware/api-key";
 import { adminChallenges } from "./challenges";
 import { challengesSync } from "./challenges-sync";
+import { adminUsers } from "./users";
 
 /**
  * Admin routes — all require API key auth + admin role.
@@ -21,5 +22,6 @@ admin.use("/*", requireAdmin);
 
 admin.route("/challenges/sync", challengesSync);
 admin.route("/challenges", adminChallenges);
+admin.route("/users", adminUsers);
 
 export { admin };
