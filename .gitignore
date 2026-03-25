@@ -5,7 +5,7 @@ node_modules/
 .pnp
 .pnp.*
 .yarn/
-.pnpm_store/
+.pnpm-store/
 
 # ========================
 # Build outputs
