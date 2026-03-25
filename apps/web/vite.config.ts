@@ -27,7 +27,7 @@ export default defineConfig(async () => {
           { path: "/challenges", prerender: { enabled: true } },
         ],
       }),
-      nitro({ preset: "node-server" }),
+      nitro({ preset: "node-server", noExternals: ["tslib"] }),
       viteReact(),
       tailwindcss(),
     ],
