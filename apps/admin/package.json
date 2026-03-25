@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fontsource-variable/geist": "5.2.8",
+    "@kubeasy/api-schemas": "workspace:*",
     "@kubeasy/ui": "workspace:*",
     "@tanstack/react-query": "5.95.2",
     "@tanstack/react-router": "1.168.3",
