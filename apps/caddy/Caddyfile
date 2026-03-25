@@ -3,7 +3,6 @@
 # Local dev uses Turborepo MFE proxy (microfrontends.json), not this file.
 
 kubeasy.dev {
-    auto_https off
 
     # API routes — SSE requires immediate flush for real-time validation updates
     handle /api/* {
