@@ -1,26 +1,14 @@
-# Kubeasy — Monorepo v1.1 (In Progress)
+# Kubeasy — v1.1 Shipped
 
 ## What This Is
 
-Monorepo TypeScript avec Turborepo hébergeant deux apps distinctes — une API Hono REST long-lived (`apps/api`) et un frontend TanStack Start (`apps/web`) — plus des packages partagés pour les contrats d'API, les jobs BullMQ, le logger et la config TypeScript. Déployé sur Railway.
+Monorepo TypeScript avec Turborepo hébergeant trois apps — une API Hono REST long-lived (`apps/api`), un frontend TanStack Start (`apps/web`), et une SPA admin Vite + React (`apps/admin`) — plus des packages partagés (`@kubeasy/ui` shadcn, api-schemas, jobs, logger, typescript-config). Routage unifié en production via un reverse proxy Caddy sur Railway.
 
-Les fonctionnalités restent identiques au monolithe Next.js original : apprentissage Kubernetes par challenges interactifs, suivi de progression, XP, blog Notion, et validation en temps réel des soumissions CLI.
+Les fonctionnalités couvrent l'apprentissage Kubernetes par challenges interactifs, suivi de progression, XP, blog Notion, validation en temps réel des soumissions CLI, et interface d'administration complète (gestion challenges + utilisateurs).
 
 ## Core Value
 
 L'API Hono est la source de vérité unique (auth, données, temps réel). Le web TanStack Start est un client hybride qui la consomme. BullMQ est assez découplé (`packages/jobs`) pour migrer vers un worker dédié sans refacto majeur.
-
-## Current Milestone: v1.1 UI Parity + Micro-Frontend + Admin
-
-**Goal:** Restaurer la parité visuelle avec l'ancienne version, restructurer le monorepo en micro-frontends avec une lib shadcn partagée, et migrer la partie admin en SPA Vite/React.
-
-**Target features:**
-- ~~Phase 8 — Shared UI Package~~ ✓ Validated in Phase 8: packages/ui created with 17 shadcn components, CSS design tokens, sub-path exports; apps/web migrated to @kubeasy/ui
-- ~~Phase 9 — UI Parity~~ ✓ Validated in Phase 9: blog components (BlogCard, ToC, AuthorCard, RelatedPosts), landing page button parity, challenges/themes/types routes verified, dashboard stat cards + chart fixed
-- ~~Phase 10 — Admin App~~ ✓ Validated in Phase 10: apps/admin Vite + React SPA, TanStack Router, Better Auth admin client, protected routes
-- ~~Phase 11 — Admin Features~~ ✓ Validated in Phase 11: 5 Hono admin endpoints with Drizzle aggregates, challenges page (stats + optimistic toggle table), users page (paginated + role/ban actions via Better Auth adminClient)
-
----
 
 ## Requirements
 
@@ -43,13 +31,23 @@ L'API Hono est la source de vérité unique (auth, données, temps réel). Le we
 - ✓ Railway production — PostgreSQL + Redis plugins, smoke test ✅ — v1.0
 - ✓ Suppression dépendances Vercel/Upstash serverless/Neon serverless — v1.0
 
-### Active (v1.1)
+### Validated (v1.1)
 
-- [ ] Parité visuelle complète entre apps/web et ../website (blog, landing, challenges, dashboard)
-- [ ] Turborepo micro-frontend : proxy unifié dev (kubeasy.dev/{api,admin,site})
-- [ ] Caddy reverse proxy Railway en prod pour routing multi-app sous kubeasy.dev
-- [ ] packages/ui : bibliothèque shadcn/ui partagée entre apps/web et apps/admin
-- [ ] apps/admin : nouvelle SPA Vite + React client-side, migration interface admin existante
+- ✓ `packages/ui` (`@kubeasy/ui`) — 17 composants shadcn JIT, CSS tokens neobrutalism, peerDeps React — v1.1
+- ✓ `apps/web` migré vers `@kubeasy/ui` — dossier `components/ui/` supprimé, 32 imports mis à jour — v1.1
+- ✓ Parité visuelle complète — blog, landing, challenges, dashboard identiques à `../website` — v1.1
+- ✓ Turborepo micro-frontend proxy — `localhost:3024` unifie web/api/admin, `$TURBO_MFE_PORT` — v1.1
+- ✓ `apps/admin` SPA Vite + React, TanStack Router, `base: "/admin/"`, auth guard, top-nav shell — v1.1
+- ✓ Admin challenges page — 4 stats cards, table + optimistic toggle — v1.1
+- ✓ Admin users page — 4 stats cards, pagination 50/page, role/ban actions via Better Auth adminClient — v1.1
+- ✓ 5 Hono admin REST endpoints avec Drizzle aggregates et middleware admin — v1.1
+- ✓ Caddy reverse proxy Railway — Caddyfile routing web/api/admin, `flush_interval -1` SSE, DOCKERFILE builder — v1.1
+- ✓ Admin servi depuis container Caddy (build statique multi-stage nginx) — pas de service Railway séparé — v1.1
+- ✓ Production déployée sur `v2.kubeasy.dev` — OAuth end-to-end fonctionnel — v1.1
+
+### Active
+
+- [ ] **MFE-05**: DNS cutover `kubeasy.dev` → Caddy (transférer custom domain depuis service `web`) + mettre à jour `API_URL` et OAuth redirect URIs (GitHub/Google/Microsoft) — délibérément différé post-v1.1
 
 ### Out of Scope
 
@@ -60,44 +58,54 @@ L'API Hono est la source de vérité unique (auth, données, temps réel). Le we
 - App worker BullMQ séparée — architecture préparée dans `packages/jobs`, extraction future
 - Migration blog Notion → MDX — évaluation post-v1.0
 - OpenAPI / génération client Go — v2
+- Admin submissions view — trop de complexité pour v1.1 (ADMIN-DEF-01)
+- Admin analytics dashboard PostHog — v2 (ADMIN-DEF-02)
+- Challenge import UI depuis GitHub — v2 (ADMIN-DEF-03)
 
-## Current State (post-v1.0)
+## Current State (post-v1.1)
 
 **Stack en production :**
 - `apps/api` — Hono 4.x + @hono/node-server, Better Auth 1.5, Drizzle ORM + pg, ioredis, BullMQ, pino, OTel SDK
-- `apps/web` — TanStack Start 1.166.x, TanStack Router, TanStack Query, shadcn/ui, Tailwind CSS 4, pino, OTel SDK
+- `apps/web` — TanStack Start 1.166.x, TanStack Router, TanStack Query, @kubeasy/ui, Tailwind CSS 4, pino, OTel SDK
+- `apps/admin` — Vite SPA, React 19, TanStack Router, @kubeasy/ui, Better Auth adminClient, @kubeasy/api-schemas
+- `apps/caddy` — caddy:alpine Dockerfile, Caddyfile reverse proxy, admin SPA statique (nginx multi-stage)
+- `packages/ui` — 17 shadcn/ui components JIT, CSS tokens, cn() utility
 - `packages/api-schemas` — Zod schemas JIT (no build step)
 - `packages/jobs` — BullMQ queue definitions JIT
 - `packages/logger` — pino wrapper
 - `packages/typescript-config` — tsconfig partagées
 
 **Infra production (Railway) :**
-- Service `api` — Hono, port 3001, `api.kubeasy.dev`
-- Service `web` — TanStack Start SSR/SSG, port 3000, `kubeasy.dev`
+- Service `caddy` — reverse proxy, custom domain `v2.kubeasy.dev` (kubeasy.dev cutover pending)
+- Service `api` — Hono, port 8080, Railway internal (`api.railway.internal`)
+- Service `web` — TanStack Start SSR/SSG, port 8080, Railway internal (`web.railway.internal`)
 - PostgreSQL plugin Railway → `DATABASE_URL`
 - Redis plugin Railway → `REDIS_URL`, `maxmemory-policy noeviction`
-- SigNoz template Railway — OTel traces/logs des deux services
+- SigNoz template Railway — OTel traces/logs
 
-**Infra locale (docker-compose) :**
+**Infra locale (docker-compose + Turborepo MFE proxy) :**
 - PostgreSQL, Redis (`noeviction`), OTel Collector
+- `localhost:3024` → proxy Turborepo unifie web:3000, api:3001, admin:3002
 
-**LOC :** ~14 900 TypeScript
+**LOC :** ~17 000 TypeScript (estimation post-v1.1, +2 100 depuis v1.0)
 
 ## Context
 
-**Décisions architecturales confirmées en v1.0 :**
-- API Hono REST + @kubeasy/api-schemas remplace tRPC — contrats partagés sans couplage framework
-- SSE cache-invalidation channel (invalidate-cache:{userId}) — générique, extensible
-- BullMQ workers dans `apps/api` avec définitions dans `packages/jobs` — ready pour extraction
-- pg Pool à la place de postgres.js — nécessaire pour OTel pg auto-instrumentation
-- turbo prune --docker 3-stage pattern — images minimales pour Railway
+**Décisions architecturales confirmées en v1.1 :**
+- `@kubeasy/ui` pattern JIT — export `.tsx` source directement, pas de build step, sub-path exports uniquement (pas de barrel)
+- `react`/`react-dom` en `peerDependencies` dans `@kubeasy/ui` — évite les instances React dupliquées
+- Admin servi depuis container Caddy (multi-stage avec nginx) — ADMIN-18 change d'architecture vs spec initiale (service Railway séparé) — simplifie le déploiement
+- Better Auth `adminClient()` pour toutes les mutations utilisateurs (ban/unban/setRole) — pas d'endpoints Hono custom ADMIN-15/16/17
+- Redirections cross-app via `window.location.href` — admin et web sont des SPAs séparées sur des ports différents
+- DNS cutover `kubeasy.dev` → Caddy délibérément différé — `v2.kubeasy.dev` validé en prod d'abord
 
-**Problèmes rencontrés et résolus :**
-- TanStack Start v1.166.x : `createStartHandler` prend un callback direct (pas `{createRouter}`)
-- Vinxi output path : `dist/` (pas `.output/`) — corrigé dans Dockerfiles et railway.json
-- Prerender Docker build : `crawlLinks:false` obligatoire — routes API-dépendantes crashent sans backend
-- tsconfig `noEmit:false` override requis dans apps/api — base.json hérite `noEmit:true`
-- RAILWAY_CONFIG_PATH service variable nécessaire par service — Railway n'auto-découvre pas les sous-répertoires
+**Problèmes rencontrés et résolus (v1.1) :**
+- `@tanstack/router-plugin` épinglé à 1.167.4 pour correspondre au lockfile (compatible avec react-router 1.168.3)
+- Admin auth-client baseURL vers `localhost:3024` (proxy MFE) — les cookies partagent le même origin
+- Caddyfile syntaxe env vars : `{$VAR_NAME}` (accolades simples) et non `${VAR_NAME}` (style shell)
+- nginx `alias` (pas `root`) pour `/admin/` SPA — Vite dist/ n'a pas de sous-dossier admin/
+- RAILWAY_CONFIG_PATH nécessaire par service — Railway n'auto-découvre pas les sous-répertoires de Dockerfiles
+- `VITE_API_URL` doit être passé comme `--build-arg` Docker pour le build statique admin
 
 ## Constraints
 
@@ -119,6 +127,11 @@ L'API Hono est la source de vérité unique (auth, données, temps réel). Le we
 | OTel Collector → SigNoz Railway template | Flexibilité observabilité + UI traces intégrée | ✓ Good — traces visibles dès le smoke test |
 | pg Pool remplace postgres.js | OTel pg auto-instrumentation requiert le driver pg officiel | ✓ Good — DB spans visibles dans SigNoz |
 | Refacto in-place dans ce repo | Historique git préservé, transition progressive | ✓ Good — pas de friction de migration |
+| `@kubeasy/ui` JIT sans build step | Sub-path exports source .tsx — apps consomment directement | ✓ Good — pas de compilation, Tailwind @source fonctionne, peerDeps propres |
+| Admin dans container Caddy (vs service Railway séparé) | Simplifie déploiement — 1 service pour proxy + admin static | ✓ Good — moins de services Railway, pas de CORS cross-service |
+| Better Auth adminClient pour mutations users | Évite duplication auth logic dans endpoints custom | ✓ Good — ban/unban/setRole gérés par Better Auth, self-action guard côté UI |
+| DNS cutover `kubeasy.dev` différé | Valider Caddy sur `v2.kubeasy.dev` avant de basculer le domaine principal | — Pending — risque maîtrisé, cutover peut se faire indépendamment |
+| Cross-app redirects via `window.location.href` | Admin et web sont des SPAs séparées — pas de router.navigate cross-app | ✓ Good — correct pour architecture micro-frontend |
 
 ## Evolution
 
@@ -138,4 +151,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-25 — Phase 11 complete: admin features shipped*
+*Last updated: 2026-03-25 — v1.1 milestone complete: UI parity + admin app + Caddy production shipped*
