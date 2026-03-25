@@ -1,14 +1,20 @@
+import { createRequire } from "node:module";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 
+const require = createRequire(import.meta.url);
+
 export default defineConfig(async () => {
   return {
     server: { port: 3000 },
     resolve: {
-      alias: { "@": new URL("./src", import.meta.url).pathname },
+      alias: {
+        "@": new URL("./src", import.meta.url).pathname,
+        tslib: require.resolve("tslib/tslib.es6.mjs"),
+      },
     },
     plugins: [
       tanstackStart({
@@ -27,7 +33,7 @@ export default defineConfig(async () => {
           { path: "/challenges", prerender: { enabled: true } },
         ],
       }),
-      nitro({ preset: "node-server", noExternals: ["tslib"] }),
+      nitro({ preset: "node-server" }),
       viteReact(),
       tailwindcss(),
     ],
