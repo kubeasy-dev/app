@@ -24,9 +24,8 @@
 		header @staticFiles Cache-Control "public, max-age=31536000, immutable"
 
 		# SPA support: try to find file, then directory, finally fallback to index.html
-		file_server {
-			try_files {path} {path}/ /index.html
-		}
+		try_files {path} {path}/ /index.html
+		file_server
 	}
 
 	# Web app — catch-all for all other routes
