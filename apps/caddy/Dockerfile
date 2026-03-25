@@ -7,6 +7,9 @@ RUN sh /build.sh
 
 FROM node:22-alpine AS admin-builder
 
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
