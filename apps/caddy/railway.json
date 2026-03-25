@@ -3,7 +3,10 @@
   "build": {
     "builder": "DOCKERFILE",
     "dockerfilePath": "apps/caddy/Dockerfile",
-    "watchPatterns": ["apps/caddy/**", "apps/admin/**", "packages/**"]
+    "watchPatterns": ["apps/caddy/**", "apps/admin/**", "packages/**"],
+    "buildArgs": {
+      "VITE_API_URL": "${{VITE_API_URL}}"
+    }
   },
   "deploy": {
     "healthcheckPath": "/healthz",
