@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: UI Parity + Micro-Frontend + Admin
-status: Ready to plan
-stopped_at: Phase 12 context gathered
-last_updated: "2026-03-25T07:17:57.533Z"
+status: Ready to execute
+stopped_at: Completed 12-caddy-production-railway-deployment-01-PLAN.md
+last_updated: "2026-03-25T07:54:06.619Z"
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 11
+  total_plans: 13
   completed_plans: 11
 ---
 
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** API Hono source de vérité unique, web TanStack Start client hybride, BullMQ découplé pour extraction future
-**Current focus:** Phase 11 — admin-features
+**Current focus:** Phase 12 — caddy-production-railway-deployment
 
 ## Current Position
 
-Phase: 12
-Plan: Not started
+Phase: 12 (caddy-production-railway-deployment) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Plan: Not started
 | Phase 11-admin-features P01 | 12 | 3 tasks | 5 files |
 | Phase 11-admin-features P02 | 10 | 2 tasks | 6 files |
 | Phase 11-admin-features P03 | 113 | 2 tasks | 6 files |
+| Phase 12-caddy-production-railway-deployment P01 | 2 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,9 @@ v1.1 key constraints:
 - [Phase 11-admin-features]: avgAttempts derived in UI as totalSubmissions/totalStarts — no backend schema change needed, derived in component
 - [Phase 11-admin-features]: query-options.ts includes both challenges and users factories — created as one file since 11-02 and 11-03 run in parallel wave 2
 - [Phase 11-admin-features]: Native textarea used for ban reason input — @kubeasy/ui has no Textarea component
+- [Phase 12-caddy-production-railway-deployment]: Use DOCKERFILE builder for caddy/admin Railway services — RAILPACK is for Node.js processes, not binary configs or static file serving
+- [Phase 12-caddy-production-railway-deployment]: nginx alias not root for /admin/ SPA: Vite dist/ has no admin/ subdirectory; alias strips URL prefix before filesystem lookup
+- [Phase 12-caddy-production-railway-deployment]: Caddy env var syntax {}: dollar sign inside single curly braces, not shell-style ${VAR_NAME}
 
 ### Pending Todos
 
@@ -114,6 +118,6 @@ None — v1.0 in production, v1.1 scope defined.
 
 ## Session Continuity
 
-Last session: 2026-03-25T07:17:57.530Z
-Stopped at: Phase 12 context gathered
-Resume file: .planning/phases/12-caddy-production-railway-deployment/12-CONTEXT.md
+Last session: 2026-03-25T07:54:06.616Z
+Stopped at: Completed 12-caddy-production-railway-deployment-01-PLAN.md
+Resume file: None

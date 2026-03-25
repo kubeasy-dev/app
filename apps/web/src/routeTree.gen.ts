@@ -25,9 +25,6 @@ import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as ProtectedProfileRouteImport } from './routes/_protected/profile'
 import { Route as ProtectedDashboardRouteImport } from './routes/_protected/dashboard'
-import { Route as ProtectedAdminIndexRouteImport } from './routes/_protected/admin/index'
-import { Route as ProtectedAdminUsersRouteImport } from './routes/_protected/admin/users'
-import { Route as ProtectedAdminChallengesRouteImport } from './routes/_protected/admin/challenges'
 
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
@@ -108,22 +105,6 @@ const ProtectedDashboardRoute = ProtectedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => ProtectedRoute,
 } as any)
-const ProtectedAdminIndexRoute = ProtectedAdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => ProtectedRoute,
-} as any)
-const ProtectedAdminUsersRoute = ProtectedAdminUsersRouteImport.update({
-  id: '/admin/users',
-  path: '/admin/users',
-  getParentRoute: () => ProtectedRoute,
-} as any)
-const ProtectedAdminChallengesRoute =
-  ProtectedAdminChallengesRouteImport.update({
-    id: '/admin/challenges',
-    path: '/admin/challenges',
-    getParentRoute: () => ProtectedRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -141,9 +122,6 @@ export interface FileRoutesByFullPath {
   '/challenges/': typeof ChallengesIndexRoute
   '/themes/': typeof ThemesIndexRoute
   '/types/': typeof TypesIndexRoute
-  '/admin/challenges': typeof ProtectedAdminChallengesRoute
-  '/admin/users': typeof ProtectedAdminUsersRoute
-  '/admin/': typeof ProtectedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -161,9 +139,6 @@ export interface FileRoutesByTo {
   '/challenges': typeof ChallengesIndexRoute
   '/themes': typeof ThemesIndexRoute
   '/types': typeof TypesIndexRoute
-  '/admin/challenges': typeof ProtectedAdminChallengesRoute
-  '/admin/users': typeof ProtectedAdminUsersRoute
-  '/admin': typeof ProtectedAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -183,9 +158,6 @@ export interface FileRoutesById {
   '/challenges/': typeof ChallengesIndexRoute
   '/themes/': typeof ThemesIndexRoute
   '/types/': typeof TypesIndexRoute
-  '/_protected/admin/challenges': typeof ProtectedAdminChallengesRoute
-  '/_protected/admin/users': typeof ProtectedAdminUsersRoute
-  '/_protected/admin/': typeof ProtectedAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -205,9 +177,6 @@ export interface FileRouteTypes {
     | '/challenges/'
     | '/themes/'
     | '/types/'
-    | '/admin/challenges'
-    | '/admin/users'
-    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -225,9 +194,6 @@ export interface FileRouteTypes {
     | '/challenges'
     | '/themes'
     | '/types'
-    | '/admin/challenges'
-    | '/admin/users'
-    | '/admin'
   id:
     | '__root__'
     | '/'
@@ -246,9 +212,6 @@ export interface FileRouteTypes {
     | '/challenges/'
     | '/themes/'
     | '/types/'
-    | '/_protected/admin/challenges'
-    | '/_protected/admin/users'
-    | '/_protected/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -382,44 +345,17 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedDashboardRouteImport
       parentRoute: typeof ProtectedRoute
     }
-    '/_protected/admin/': {
-      id: '/_protected/admin/'
-      path: '/admin'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof ProtectedAdminIndexRouteImport
-      parentRoute: typeof ProtectedRoute
-    }
-    '/_protected/admin/users': {
-      id: '/_protected/admin/users'
-      path: '/admin/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof ProtectedAdminUsersRouteImport
-      parentRoute: typeof ProtectedRoute
-    }
-    '/_protected/admin/challenges': {
-      id: '/_protected/admin/challenges'
-      path: '/admin/challenges'
-      fullPath: '/admin/challenges'
-      preLoaderRoute: typeof ProtectedAdminChallengesRouteImport
-      parentRoute: typeof ProtectedRoute
-    }
   }
 }
 
 interface ProtectedRouteChildren {
   ProtectedDashboardRoute: typeof ProtectedDashboardRoute
   ProtectedProfileRoute: typeof ProtectedProfileRoute
-  ProtectedAdminChallengesRoute: typeof ProtectedAdminChallengesRoute
-  ProtectedAdminUsersRoute: typeof ProtectedAdminUsersRoute
-  ProtectedAdminIndexRoute: typeof ProtectedAdminIndexRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedDashboardRoute: ProtectedDashboardRoute,
   ProtectedProfileRoute: ProtectedProfileRoute,
-  ProtectedAdminChallengesRoute: ProtectedAdminChallengesRoute,
-  ProtectedAdminUsersRoute: ProtectedAdminUsersRoute,
-  ProtectedAdminIndexRoute: ProtectedAdminIndexRoute,
 }
 
 const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(

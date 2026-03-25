@@ -193,8 +193,8 @@ Scope: UI parity restoration, shared shadcn/ui package, Turborepo micro-frontend
 
 - [x] **MFE-01**: Un fichier `microfrontends.json` à la racine configure le proxy Turborepo — `apps/web:3000` (catch-all), `apps/api:3001` (`/api`), `apps/admin:3002` (`/admin`) — accessible sur `localhost:3024`
 - [x] **MFE-02**: Les scripts dev de `apps/web`, `apps/api`, `apps/admin` utilisent `$TURBO_MFE_PORT` pour écouter sur le port injecté par le proxy Turborepo
-- [ ] **MFE-03**: Le `Caddyfile` dans `apps/caddy` route `kubeasy.dev/*` → `apps/web`, `/api/*` → `apps/api` (`flush_interval -1` pour SSE), `/admin/*` → `apps/admin`, avec `auto_https off`
-- [ ] **MFE-04**: `apps/caddy` est déployé comme service Railway séparé avec son Dockerfile — le custom domain `kubeasy.dev` est transféré sur ce service
+- [x] **MFE-03**: Le `Caddyfile` dans `apps/caddy` route `kubeasy.dev/*` → `apps/web`, `/api/*` → `apps/api` (`flush_interval -1` pour SSE), `/admin/*` → `apps/admin`, avec `auto_https off`
+- [x] **MFE-04**: `apps/caddy` est déployé comme service Railway séparé avec son Dockerfile — le custom domain `kubeasy.dev` est transféré sur ce service
 - [ ] **MFE-05**: `API_URL` dans `apps/api` est mis à jour vers `https://kubeasy.dev` après cutover Caddy — les OAuth redirect URIs (GitHub, Google, Microsoft) sont mis à jour
 
 ### Admin App — Scaffold & Auth
@@ -228,7 +228,7 @@ Scope: UI parity restoration, shared shadcn/ui package, Turborepo micro-frontend
 
 ### Admin Deployment
 
-- [ ] **ADMIN-18**: `apps/admin` est déployé comme service Railway séparé avec son propre Dockerfile (pattern `turbo prune --docker`)
+- [x] **ADMIN-18**: `apps/admin` est déployé comme service Railway séparé avec son propre Dockerfile (pattern `turbo prune --docker`)
 
 ---
 
@@ -272,9 +272,9 @@ Scope: UI parity restoration, shared shadcn/ui package, Turborepo micro-frontend
 | ADMIN-15 | Phase 11 | Complete |
 | ADMIN-16 | Phase 11 | Complete |
 | ADMIN-17 | Phase 11 | Complete |
-| ADMIN-18 | Phase 12 | Pending |
-| MFE-03 | Phase 12 | Pending |
-| MFE-04 | Phase 12 | Pending |
+| ADMIN-18 | Phase 12 | Complete |
+| MFE-03 | Phase 12 | Complete |
+| MFE-04 | Phase 12 | Complete |
 | MFE-05 | Phase 12 | Pending |
 
 **Coverage v1.1:**

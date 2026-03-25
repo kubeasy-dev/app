@@ -10,24 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ChallengesIndexRouteImport } from './routes/challenges/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
+import { Route as ChallengesIndexRouteImport } from './routes/challenges/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-
-const ChallengesIndexRoute = ChallengesIndexRouteImport.update({
-  id: '/challenges/',
-  path: '/challenges/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
 const UsersIndexRoute = UsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChallengesIndexRoute = ChallengesIndexRouteImport.update({
+  id: '/challenges/',
+  path: '/challenges/',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -70,18 +68,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/challenges/': {
-      id: '/challenges/'
-      path: '/challenges'
-      fullPath: '/challenges/'
-      preLoaderRoute: typeof ChallengesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/users/': {
       id: '/users/'
       path: '/users'
       fullPath: '/users/'
       preLoaderRoute: typeof UsersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/challenges/': {
+      id: '/challenges/'
+      path: '/challenges'
+      fullPath: '/challenges/'
+      preLoaderRoute: typeof ChallengesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -92,7 +90,6 @@ const rootRouteChildren: RootRouteChildren = {
   ChallengesIndexRoute: ChallengesIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
 }
-
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addRouteChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
