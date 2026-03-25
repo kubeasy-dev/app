@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: UI Parity + Micro-Frontend + Admin
 status: Ready to execute
-stopped_at: Phase 11 planned — 3 plans created
-last_updated: "2026-03-25T00:00:00.000Z"
+stopped_at: Completed 11-admin-features/11-01-PLAN.md
+last_updated: "2026-03-25T06:48:12.046Z"
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 11
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -23,8 +23,8 @@ See: .planning/PROJECT.md (updated 2026-03-24)
 
 ## Current Position
 
-Phase: 11
-Plan: Not started (3 plans ready)
+Phase: 11 (admin-features) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Plan: Not started (3 plans ready)
 | Phase 10-micro-frontend-dev-proxy-admin-scaffold P01 | 190s | 2 tasks | 16 files |
 | Phase 10-micro-frontend-dev-proxy-admin-scaffold P02 | 12min | 2 tasks | 7 files |
 | Phase 10-micro-frontend-dev-proxy-admin-scaffold P02 | 35min | 3 tasks | 10 files |
+| Phase 11-admin-features P01 | 12 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -86,6 +87,9 @@ v1.1 key constraints:
 - [Phase 11-admin-features]: avgAttempts stat derived in UI as totalSubmissions/totalStarts — AdminStatsOutputSchema unchanged (no new field needed)
 - [Phase 11-admin-features]: Self-action guard — UI layer enforces it (session.user.id === target.id → disable dropdown items); Better Auth may enforce additionally but UI guard is the primary protection
 - [Phase 11-admin-features]: query-options.ts is additive — plan 11-02 adds challenge factories, plan 11-03 appends user factories to same file (no conflict since sequential wavewise)
+- [Phase 11-admin-features]: sessionMiddleware confirmed global in app.ts on /api/* — no additional wiring needed in admin routes
+- [Phase 11-admin-features]: Correlated subqueries used for per-challenge totalSubmissions/successfulSubmissions to avoid double-groupBy complexity
+- [Phase 11-admin-features]: challenges route registered after challenges/sync in admin index to preserve Hono route priority
 
 ### Pending Todos
 
@@ -104,6 +108,6 @@ None — v1.0 in production, v1.1 scope defined.
 
 ## Session Continuity
 
-Last session: 2026-03-25T00:00:00.000Z
-Stopped at: Phase 11 planned — 3 PLAN.md files written, ROADMAP.md updated
+Last session: 2026-03-25T06:48:12.043Z
+Stopped at: Completed 11-admin-features/11-01-PLAN.md
 Resume file: None
