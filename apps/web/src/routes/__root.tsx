@@ -8,8 +8,7 @@ import {
   Scripts,
   useRouterState,
 } from "@tanstack/react-router";
-import posthog from "posthog-js";
-import { PostHogProvider } from "posthog-js/react";
+import { PostHogProvider, usePostHog } from "posthog-js/react";
 import { type ReactNode, useEffect } from "react";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
@@ -77,11 +76,12 @@ function RootComponent() {
   const isLogin = useRouterState({
     select: (s) => s.location.pathname === "/login",
   });
+  const posthog = usePostHog();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: pathname triggers pageview on route change
   useEffect(() => {
-    posthog.capture("$pageview", { $current_url: window.location.href });
+    posthog?.capture("$pageview", { $current_url: window.location.href });
   }, [pathname]);
 
   return (
@@ -105,20 +105,24 @@ function RootDocument({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <PostHogProvider
-          apiKey={import.meta.env.VITE_POSTHOG_KEY ?? ""}
-          options={{
-            api_host:
-              import.meta.env.VITE_POSTHOG_HOST ?? "https://eu.i.posthog.com",
-            capture_pageview: false,
-            capture_pageleave: true,
-            loaded: (ph) => {
-              if (import.meta.env.DEV) ph.debug();
-            },
-          }}
-        >
-          {children}
-        </PostHogProvider>
+        {import.meta.env.VITE_POSTHOG_KEY ? (
+          <PostHogProvider
+            apiKey={import.meta.env.VITE_POSTHOG_KEY}
+            options={{
+              api_host:
+                import.meta.env.VITE_POSTHOG_HOST ?? "https://eu.i.posthog.com",
+              capture_pageview: false,
+              capture_pageleave: true,
+              loaded: (ph) => {
+                if (import.meta.env.DEV) ph.debug();
+              },
+            }}
+          >
+            {children}
+          </PostHogProvider>
+        ) : (
+          children
+        )}
         <Scripts />
       </body>
     </html>

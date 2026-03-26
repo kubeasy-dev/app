@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { queryKeys } from "@kubeasy/api-schemas/query-keys";
 import { createQueue, QUEUE_NAMES } from "@kubeasy/jobs";
+import { logger } from "@kubeasy/logger";
 import { and, eq, ne } from "drizzle-orm";
 import { Hono } from "hono";
 import { nanoid } from "nanoid";
@@ -151,7 +152,7 @@ submit.post(
     // 7.5 Track submission sent (fire-and-forget)
     trackChallengeSubmissionSent(userId, challengeData.id, challengeSlug).catch(
       (err) => {
-        console.error("[submit] submission_sent tracking failed", {
+        logger.error("[submit] submission_sent tracking failed", {
           error: String(err),
         });
       },
@@ -179,7 +180,7 @@ submit.post(
         failedObjectives.length,
         failedObjectives.map((obj) => obj.id),
       ).catch((err) => {
-        console.error("[submit] validation_failed tracking failed", {
+        logger.error("[submit] validation_failed tracking failed", {
           error: String(err),
         });
       });

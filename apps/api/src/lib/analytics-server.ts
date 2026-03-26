@@ -68,9 +68,9 @@ function toScalarAttributes(
  * Safe wrapper for PostHog server-side operations
  * In development, logs the event details to the console instead of sending to PostHog
  */
-async function safePostHogOperation<T>(
+async function safePostHogOperation(
   operation: string,
-  fn: () => Promise<T>,
+  fn: (client: PostHog) => Promise<void>,
   devLog?: { event: string; properties?: Record<string, unknown> },
 ): Promise<void> {
   // Log in dev regardless of whether posthogClient exists:
@@ -95,7 +95,7 @@ async function safePostHogOperation<T>(
   }
 
   try {
-    await fn();
+    await fn(posthogClient);
   } catch (error) {
     // Log but don't throw - analytics failures shouldn't break the application
     logger.error(`PostHog Server: ${operation} failed`, {
@@ -118,13 +118,13 @@ export async function trackUserSignup(
   const properties = { provider, ...(email && { email }) };
   await safePostHogOperation(
     "trackUserSignup",
-    async () => {
-      posthogClient?.capture({
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "user_signup",
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "user_signup", properties },
   );
@@ -137,13 +137,13 @@ export async function trackUserSignup(
 export async function trackApiTokenCreated(userId: string) {
   await safePostHogOperation(
     "trackApiTokenCreated",
-    async () => {
-      posthogClient?.capture({
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "api_token_created",
         properties: { source: "server" },
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "api_token_created", properties: { source: "server" } },
   );
@@ -170,13 +170,13 @@ export async function trackChallengeStarted(
   };
   await safePostHogOperation(
     "trackChallengeStarted",
-    async () => {
-      posthogClient?.capture({
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "challenge_started",
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "challenge_started", properties },
   );
@@ -209,13 +209,13 @@ export async function trackChallengeCompleted(
   };
   await safePostHogOperation(
     "trackChallengeCompleted",
-    async () => {
-      posthogClient?.capture({
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "challenge_completed",
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "challenge_completed", properties },
   );
@@ -236,13 +236,13 @@ export async function trackChallengeSubmissionSent(
   const properties = { challengeId, challengeSlug, source: "cli" };
   await safePostHogOperation(
     "trackChallengeSubmissionSent",
-    async () => {
-      posthogClient?.capture({
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "challenge_submission_sent",
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "challenge_submission_sent", properties },
   );
@@ -263,12 +263,12 @@ export async function setUserProperties(
 ) {
   await safePostHogOperation(
     "setUserProperties",
-    async () => {
-      posthogClient?.identify({
+    async (client) => {
+      client.identify({
         distinctId: userId,
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "identify", properties: { userId, ...properties } },
   );
@@ -298,13 +298,13 @@ export async function trackChallengeValidationFailed(
   };
   await safePostHogOperation(
     "trackChallengeValidationFailed",
-    async () => {
-      posthogClient?.capture({
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "challenge_validation_failed",
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "challenge_validation_failed", properties },
   );
@@ -327,13 +327,13 @@ export async function trackCliLogin(
   };
   await safePostHogOperation(
     "trackCliLogin",
-    async () => {
-      posthogClient?.capture({
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "cli_login",
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "cli_login", properties },
   );
@@ -356,13 +356,13 @@ export async function trackCliSetup(
   };
   await safePostHogOperation(
     "trackCliSetup",
-    async () => {
-      posthogClient?.capture({
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "cli_setup",
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "cli_setup", properties },
   );
@@ -375,13 +375,13 @@ export async function trackCliSetup(
 export async function trackOnboardingCompleted(userId: string) {
   await safePostHogOperation(
     "trackOnboardingCompleted",
-    async () => {
-      posthogClient?.capture({
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "onboarding_completed",
         properties: { source: "server" },
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "onboarding_completed", properties: { source: "server" } },
   );
@@ -394,13 +394,13 @@ export async function trackOnboardingCompleted(userId: string) {
 export async function trackOnboardingSkipped(userId: string) {
   await safePostHogOperation(
     "trackOnboardingSkipped",
-    async () => {
-      posthogClient?.capture({
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "onboarding_skipped",
         properties: { source: "server" },
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "onboarding_skipped", properties: { source: "server" } },
   );
