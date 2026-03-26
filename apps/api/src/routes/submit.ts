@@ -12,10 +12,7 @@ import {
   userProgress,
   userSubmission,
 } from "../db/schema/index";
-import {
-  trackChallengeSubmissionSent,
-  trackChallengeValidationFailed,
-} from "../lib/analytics-server";
+import { trackChallengeSubmitted } from "../lib/analytics-server";
 import { redis } from "../lib/redis";
 import { slidingWindowRateLimit } from "../middleware/rate-limit";
 import { requireAuth } from "../middleware/session";
@@ -149,14 +146,24 @@ submit.post(
       objectives,
     });
 
-    // 7.5 Track submission sent (fire-and-forget)
-    trackChallengeSubmissionSent(userId, challengeData.id, challengeSlug).catch(
-      (err) => {
-        logger.error("[submit] submission_sent tracking failed", {
-          error: String(err),
-        });
-      },
-    );
+    // 7.5 Track submission with outcome (fire-and-forget)
+    const failedObjectives = objectives.filter((obj) => !obj.passed);
+    trackChallengeSubmitted(
+      userId,
+      challengeData.id,
+      challengeSlug,
+      validated,
+      failedObjectives.length > 0
+        ? {
+            count: failedObjectives.length,
+            ids: failedObjectives.map((o) => o.id),
+          }
+        : undefined,
+    ).catch((err) => {
+      logger.error("[submit] challenge_submitted tracking failed", {
+        error: String(err),
+      });
+    });
 
     // 7.6 Publish generic cache-invalidation SSE event (fire-and-forget — both validated and not-validated paths)
     const sseChannel = `invalidate-cache:${userId}`;
@@ -170,20 +177,8 @@ submit.post(
       });
     });
 
-    // 8. If validation failed, track and return failure response
+    // 8. If validation failed, return failure response
     if (!validated) {
-      const failedObjectives = objectives.filter((obj) => !obj.passed);
-      trackChallengeValidationFailed(
-        userId,
-        challengeData.id,
-        challengeSlug,
-        failedObjectives.length,
-        failedObjectives.map((obj) => obj.id),
-      ).catch((err) => {
-        logger.error("[submit] validation_failed tracking failed", {
-          error: String(err),
-        });
-      });
       return c.json({
         success: false,
         objectives,

@@ -222,34 +222,46 @@ export async function trackChallengeCompleted(
 }
 
 /**
- * Track challenge submission sent event (server-side)
- * Fired on every submission attempt, regardless of pass/fail outcome
+ * Track challenge submission event (server-side)
+ * Fired on every submission attempt with the validation outcome.
  * @param userId - The user ID
  * @param challengeId - The ID of the challenge
  * @param challengeSlug - The slug of the challenge
+ * @param validated - Whether all objectives passed
+ * @param failedObjectives - Failed objective details (only when validated = false)
  */
-export async function trackChallengeSubmissionSent(
+export async function trackChallengeSubmitted(
   userId: string,
   challengeId: number,
   challengeSlug: string,
+  validated: boolean,
+  failedObjectives?: { count: number; ids: string[] },
 ) {
-  const properties = { challengeId, challengeSlug, source: "cli" };
+  const properties = {
+    challengeId,
+    challengeSlug,
+    validated,
+    source: "cli",
+    ...(failedObjectives && {
+      failedObjectiveCount: failedObjectives.count,
+      failedObjectiveIds: failedObjectives.ids,
+    }),
+  };
   await safePostHogOperation(
-    "trackChallengeSubmissionSent",
+    "trackChallengeSubmitted",
     async (client) => {
       client.capture({
         distinctId: userId,
-        event: "challenge_submission_sent",
+        event: "challenge_submitted",
         properties,
       });
       await client.flush();
     },
-    { event: "challenge_submission_sent", properties },
+    { event: "challenge_submitted", properties },
   );
 }
 
 /**
- * Identify a user in PostHog (server-side)
  * @param userId - The unique user ID
  * @param properties - User properties
  */
@@ -271,42 +283,6 @@ export async function setUserProperties(
       await client.flush();
     },
     { event: "identify", properties: { userId, ...properties } },
-  );
-}
-
-/**
- * Track challenge validation failure (server-side)
- * @param userId - The user ID
- * @param challengeId - The ID of the challenge
- * @param challengeSlug - The slug of the challenge
- * @param failedObjectiveCount - Number of failed objectives
- * @param failedObjectiveIds - List of failed objective IDs
- */
-export async function trackChallengeValidationFailed(
-  userId: string,
-  challengeId: number,
-  challengeSlug: string,
-  failedObjectiveCount: number,
-  failedObjectiveIds: string[],
-) {
-  const properties = {
-    challengeId,
-    challengeSlug,
-    failedObjectiveCount,
-    failedObjectiveIds,
-    source: "cli",
-  };
-  await safePostHogOperation(
-    "trackChallengeValidationFailed",
-    async (client) => {
-      client.capture({
-        distinctId: userId,
-        event: "challenge_validation_failed",
-        properties,
-      });
-      await client.flush();
-    },
-    { event: "challenge_validation_failed", properties },
   );
 }
 
