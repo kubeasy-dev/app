@@ -112,7 +112,7 @@ async function safePostHogOperation(
  */
 export async function trackUserSignup(
   userId: string,
-  provider: "github" | "google" | "microsoft",
+  provider: string,
   email?: string,
 ) {
   const properties = { provider, ...(email && { email }) };

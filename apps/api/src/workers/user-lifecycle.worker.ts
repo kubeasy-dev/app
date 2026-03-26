@@ -28,10 +28,7 @@ export function createUserSignupWorker() {
             .from(account)
             .where(eq(account.userId, userId))
             .limit(1);
-          return (userAccount?.providerId ?? "unknown") as
-            | "github"
-            | "google"
-            | "microsoft";
+          return userAccount?.providerId ?? "unknown";
         },
         async resendResult() {
           return createResendContact({ email, userId });
