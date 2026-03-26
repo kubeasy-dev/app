@@ -4,10 +4,7 @@ import { Worker } from "bullmq";
 import { eq } from "drizzle-orm";
 import { db } from "../db/index";
 import { user } from "../db/schema/auth";
-import {
-  setUserPropertiesServer,
-  trackUserSignupServer,
-} from "../lib/analytics-server";
+import { setUserProperties, trackUserSignup } from "../lib/analytics-server";
 import { redisConfig } from "../lib/redis";
 import { createResendContact } from "../lib/resend";
 
@@ -22,7 +19,7 @@ export function createUserSigninWorker() {
       // Run all 3 operations in parallel with better-all
       const { resendResult } = await all({
         async identify() {
-          await setUserPropertiesServer(userId, { email });
+          await setUserProperties(userId, { email });
         },
         async resendResult() {
           try {
@@ -37,7 +34,7 @@ export function createUserSigninWorker() {
           }
         },
         async trackSignup() {
-          await trackUserSignupServer(
+          await trackUserSignup(
             userId,
             provider as "github" | "google" | "microsoft",
             email,

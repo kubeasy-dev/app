@@ -12,7 +12,7 @@ import {
   userXp,
   userXpTransaction,
 } from "../db/schema/index";
-import { trackChallengeStartedServer } from "../lib/analytics-server";
+import { trackChallengeStarted } from "../lib/analytics-server";
 import { requireAuth } from "../middleware/session";
 
 const progress = new Hono();
@@ -229,7 +229,7 @@ progress.post("/:slug/start", requireAuth, async (c) => {
   });
 
   // Track challenge started (fire-and-forget)
-  trackChallengeStartedServer(
+  trackChallengeStarted(
     userId,
     challengeData.id,
     slug,

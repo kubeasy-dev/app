@@ -8,7 +8,7 @@ import { Worker } from "bullmq";
 import { and, count, eq } from "drizzle-orm";
 import { db } from "../db/index";
 import { userXpTransaction } from "../db/schema/index";
-import { trackChallengeCompletedServer } from "../lib/analytics-server";
+import { trackChallengeCompleted } from "../lib/analytics-server";
 import { redisConfig } from "../lib/redis";
 import { calculateStreak, calculateXPGain } from "../services/xp/index";
 import type { ChallengeDifficulty } from "../services/xp/types";
@@ -47,7 +47,7 @@ export function createChallengeSubmissionWorker() {
       });
 
       // 4. Fire analytics (fire-and-forget style, errors logged internally)
-      await trackChallengeCompletedServer(
+      await trackChallengeCompleted(
         userId,
         challengeId,
         challengeSlug,

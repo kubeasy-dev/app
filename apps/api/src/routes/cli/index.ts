@@ -4,10 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db/index";
 import { userOnboarding } from "../../db/schema/onboarding";
-import {
-  trackCliLoginServer,
-  trackCliSetupServer,
-} from "../../lib/analytics-server";
+import { trackCliLogin, trackCliSetup } from "../../lib/analytics-server";
 import { redis } from "../../lib/redis";
 import { apiKeyMiddleware } from "../../middleware/api-key";
 import type { SessionUser } from "../../middleware/session";
@@ -84,7 +81,7 @@ cli.post("/user", zValidator("json", cliMetadataSchema), async (c) => {
   }
 
   // Track in PostHog
-  await trackCliLoginServer(userId, { cliVersion, os, arch });
+  await trackCliLogin(userId, { cliVersion, os, arch });
 
   // Publish SSE invalidation for onboarding query
   const channel = `invalidate-cache:${userId}`;
@@ -124,7 +121,7 @@ cli.post("/track/setup", zValidator("json", cliMetadataSchema), async (c) => {
     });
 
   // Track in PostHog
-  await trackCliSetupServer(userId, { cliVersion, os, arch });
+  await trackCliSetup(userId, { cliVersion, os, arch });
 
   // Publish SSE invalidation for onboarding query
   const channel = `invalidate-cache:${userId}`;
