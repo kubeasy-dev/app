@@ -16,22 +16,19 @@ export function createUserSignupWorker() {
     async (job) => {
       const { userId, email } = job.data;
 
-      // Fetch the OAuth provider from the account table — not available at job
-      // dispatch time (user.create.after fires before the account record is committed)
-      const [userAccount] = await db
-        .select({ providerId: account.providerId })
-        .from(account)
-        .where(eq(account.userId, userId))
-        .limit(1);
-      const provider = (userAccount?.providerId ?? "unknown") as
-        | "github"
-        | "google"
-        | "microsoft";
-
-      // Run all 3 operations in parallel with better-all
+      // fetchProvider and resendResult start immediately in parallel.
+      // identify and trackSignup depend on fetchProvider via this.$.fetchProvider.
       const { resendResult } = await all({
-        async identify() {
-          await setUserProperties(userId, { email, provider });
+        async fetchProvider() {
+          const [userAccount] = await db
+            .select({ providerId: account.providerId })
+            .from(account)
+            .where(eq(account.userId, userId))
+            .limit(1);
+          return (userAccount?.providerId ?? "unknown") as
+            | "github"
+            | "google"
+            | "microsoft";
         },
         async resendResult() {
           try {
@@ -45,7 +42,12 @@ export function createUserSignupWorker() {
             return null;
           }
         },
+        async identify() {
+          const provider = await this.$.fetchProvider;
+          await setUserProperties(userId, { email, provider });
+        },
         async trackSignup() {
+          const provider = await this.$.fetchProvider;
           await trackUserSignup(userId, provider, email);
         },
       });
