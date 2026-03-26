@@ -19,7 +19,6 @@ export interface XpAwardPayload {
 export interface UserSignupPayload {
   userId: string;
   email: string;
-  provider: string;
 }
 
 export type JobPayload = {

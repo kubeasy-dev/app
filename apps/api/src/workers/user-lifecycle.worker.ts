@@ -3,7 +3,7 @@ import { all } from "better-all";
 import { Worker } from "bullmq";
 import { eq } from "drizzle-orm";
 import { db } from "../db/index";
-import { user } from "../db/schema/auth";
+import { account, user } from "../db/schema/auth";
 import { setUserProperties, trackUserSignup } from "../lib/analytics-server";
 import { redisConfig } from "../lib/redis";
 import { createResendContact } from "../lib/resend";
@@ -14,19 +14,31 @@ export function createUserSignupWorker() {
   return new Worker<UserSignupPayload>(
     QUEUE_NAMES.USER_SIGNUP,
     async (job) => {
-      const { userId, email, provider } = job.data;
+      const { userId, email } = job.data;
+
+      // Fetch the OAuth provider from the account table — not available at job
+      // dispatch time (user.create.after fires before the account record is committed)
+      const [userAccount] = await db
+        .select({ providerId: account.providerId })
+        .from(account)
+        .where(eq(account.userId, userId))
+        .limit(1);
+      const provider = (userAccount?.providerId ?? "unknown") as
+        | "github"
+        | "google"
+        | "microsoft";
 
       // Run all 3 operations in parallel with better-all
       const { resendResult } = await all({
         async identify() {
-          await setUserProperties(userId, { email });
+          await setUserProperties(userId, { email, provider });
         },
         async resendResult() {
           try {
             return await createResendContact({ email, userId });
           } catch (err) {
             // Log and continue -- Resend failure should not block other operations
-            console.error("[user-signin] Resend contact creation failed", {
+            console.error("[user-signup] Resend contact creation failed", {
               userId,
               error: String(err),
             });
@@ -34,11 +46,7 @@ export function createUserSignupWorker() {
           }
         },
         async trackSignup() {
-          await trackUserSignup(
-            userId,
-            provider as "github" | "google" | "microsoft",
-            email,
-          );
+          await trackUserSignup(userId, provider, email);
         },
       });
 

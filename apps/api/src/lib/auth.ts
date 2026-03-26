@@ -75,7 +75,6 @@ export const auth = betterAuth({
             userSignupQueue.add("user-signup", {
               userId: user.id,
               email: user.email,
-              provider: "unknown",
             });
           } catch (error) {
             // Never throw — auth must complete regardless of job dispatch failure
