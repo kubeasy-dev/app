@@ -68,9 +68,9 @@ function toScalarAttributes(
  * Safe wrapper for PostHog server-side operations
  * In development, logs the event details to the console instead of sending to PostHog
  */
-async function safePostHogOperation<T>(
+async function safePostHogOperation(
   operation: string,
-  fn: () => Promise<T>,
+  fn: (client: PostHog) => Promise<void>,
   devLog?: { event: string; properties?: Record<string, unknown> },
 ): Promise<void> {
   // Log in dev regardless of whether posthogClient exists:
@@ -95,7 +95,7 @@ async function safePostHogOperation<T>(
   }
 
   try {
-    await fn();
+    await fn(posthogClient);
   } catch (error) {
     // Log but don't throw - analytics failures shouldn't break the application
     logger.error(`PostHog Server: ${operation} failed`, {
@@ -110,21 +110,21 @@ async function safePostHogOperation<T>(
  * @param provider - The authentication provider used (github, google, microsoft)
  * @param email - User email (optional)
  */
-export async function trackUserSignupServer(
+export async function trackUserSignup(
   userId: string,
-  provider: "github" | "google" | "microsoft",
+  provider: string,
   email?: string,
 ) {
   const properties = { provider, ...(email && { email }) };
   await safePostHogOperation(
-    "trackUserSignupServer",
-    async () => {
-      posthogClient?.capture({
+    "trackUserSignup",
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "user_signup",
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "user_signup", properties },
   );
@@ -134,16 +134,16 @@ export async function trackUserSignupServer(
  * Track API token creation event (server-side)
  * @param userId - The user ID who created the token
  */
-export async function trackApiTokenCreatedServer(userId: string) {
+export async function trackApiTokenCreated(userId: string) {
   await safePostHogOperation(
-    "trackApiTokenCreatedServer",
-    async () => {
-      posthogClient?.capture({
+    "trackApiTokenCreated",
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "api_token_created",
         properties: { source: "server" },
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "api_token_created", properties: { source: "server" } },
   );
@@ -156,7 +156,7 @@ export async function trackApiTokenCreatedServer(userId: string) {
  * @param challengeSlug - The slug of the challenge
  * @param challengeTitle - The title of the challenge
  */
-export async function trackChallengeStartedServer(
+export async function trackChallengeStarted(
   userId: string,
   challengeId: number,
   challengeSlug: string,
@@ -169,14 +169,14 @@ export async function trackChallengeStartedServer(
     source: "cli",
   };
   await safePostHogOperation(
-    "trackChallengeStartedServer",
-    async () => {
-      posthogClient?.capture({
+    "trackChallengeStarted",
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "challenge_started",
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "challenge_started", properties },
   );
@@ -191,7 +191,7 @@ export async function trackChallengeStartedServer(
  * @param xpAwarded - XP awarded for completion
  * @param isFirstChallenge - Whether this was the user's first challenge
  */
-export async function trackChallengeCompletedServer(
+export async function trackChallengeCompleted(
   userId: string,
   challengeId: number,
   challengeSlug: string,
@@ -208,25 +208,64 @@ export async function trackChallengeCompletedServer(
     source: "cli",
   };
   await safePostHogOperation(
-    "trackChallengeCompletedServer",
-    async () => {
-      posthogClient?.capture({
+    "trackChallengeCompleted",
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "challenge_completed",
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "challenge_completed", properties },
   );
 }
 
 /**
- * Identify a user in PostHog (server-side)
+ * Track challenge submission event (server-side)
+ * Fired on every submission attempt with the validation outcome.
+ * @param userId - The user ID
+ * @param challengeId - The ID of the challenge
+ * @param challengeSlug - The slug of the challenge
+ * @param validated - Whether all objectives passed
+ * @param failedObjectives - Failed objective details (only when validated = false)
+ */
+export async function trackChallengeSubmitted(
+  userId: string,
+  challengeId: number,
+  challengeSlug: string,
+  validated: boolean,
+  failedObjectives?: { count: number; ids: string[] },
+) {
+  const properties = {
+    challengeId,
+    challengeSlug,
+    validated,
+    source: "cli",
+    ...(failedObjectives && {
+      failedObjectiveCount: failedObjectives.count,
+      failedObjectiveIds: failedObjectives.ids,
+    }),
+  };
+  await safePostHogOperation(
+    "trackChallengeSubmitted",
+    async (client) => {
+      client.capture({
+        distinctId: userId,
+        event: "challenge_submitted",
+        properties,
+      });
+      await client.flush();
+    },
+    { event: "challenge_submitted", properties },
+  );
+}
+
+/**
  * @param userId - The unique user ID
  * @param properties - User properties
  */
-export async function identifyUserServer(
+export async function setUserProperties(
   userId: string,
   properties?: {
     email?: string;
@@ -235,51 +274,15 @@ export async function identifyUserServer(
   },
 ) {
   await safePostHogOperation(
-    "identifyUserServer",
-    async () => {
-      posthogClient?.identify({
+    "setUserProperties",
+    async (client) => {
+      client.identify({
         distinctId: userId,
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "identify", properties: { userId, ...properties } },
-  );
-}
-
-/**
- * Track challenge validation failure (server-side)
- * @param userId - The user ID
- * @param challengeId - The ID of the challenge
- * @param challengeSlug - The slug of the challenge
- * @param failedObjectiveCount - Number of failed objectives
- * @param failedObjectiveIds - List of failed objective IDs
- */
-export async function trackChallengeValidationFailedServer(
-  userId: string,
-  challengeId: number,
-  challengeSlug: string,
-  failedObjectiveCount: number,
-  failedObjectiveIds: string[],
-) {
-  const properties = {
-    challengeId,
-    challengeSlug,
-    failedObjectiveCount,
-    failedObjectiveIds,
-    source: "cli",
-  };
-  await safePostHogOperation(
-    "trackChallengeValidationFailedServer",
-    async () => {
-      posthogClient?.capture({
-        distinctId: userId,
-        event: "challenge_validation_failed",
-        properties,
-      });
-      await posthogClient?.flush();
-    },
-    { event: "challenge_validation_failed", properties },
   );
 }
 
@@ -288,7 +291,7 @@ export async function trackChallengeValidationFailedServer(
  * @param userId - The user ID
  * @param metadata - CLI metadata (version, os, arch)
  */
-export async function trackCliLoginServer(
+export async function trackCliLogin(
   userId: string,
   metadata: { cliVersion: string; os: string; arch: string },
 ) {
@@ -299,14 +302,14 @@ export async function trackCliLoginServer(
     source: "cli",
   };
   await safePostHogOperation(
-    "trackCliLoginServer",
-    async () => {
-      posthogClient?.capture({
+    "trackCliLogin",
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "cli_login",
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "cli_login", properties },
   );
@@ -317,7 +320,7 @@ export async function trackCliLoginServer(
  * @param userId - The user ID
  * @param metadata - CLI metadata (version, os, arch)
  */
-export async function trackCliSetupServer(
+export async function trackCliSetup(
   userId: string,
   metadata: { cliVersion: string; os: string; arch: string },
 ) {
@@ -328,14 +331,14 @@ export async function trackCliSetupServer(
     source: "cli",
   };
   await safePostHogOperation(
-    "trackCliSetupServer",
-    async () => {
-      posthogClient?.capture({
+    "trackCliSetup",
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "cli_setup",
         properties,
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "cli_setup", properties },
   );
@@ -345,16 +348,16 @@ export async function trackCliSetupServer(
  * Track onboarding completed event (server-side)
  * @param userId - The user ID
  */
-export async function trackOnboardingCompletedServer(userId: string) {
+export async function trackOnboardingCompleted(userId: string) {
   await safePostHogOperation(
-    "trackOnboardingCompletedServer",
-    async () => {
-      posthogClient?.capture({
+    "trackOnboardingCompleted",
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "onboarding_completed",
         properties: { source: "server" },
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "onboarding_completed", properties: { source: "server" } },
   );
@@ -364,16 +367,16 @@ export async function trackOnboardingCompletedServer(userId: string) {
  * Track onboarding skipped event (server-side)
  * @param userId - The user ID
  */
-export async function trackOnboardingSkippedServer(userId: string) {
+export async function trackOnboardingSkipped(userId: string) {
   await safePostHogOperation(
-    "trackOnboardingSkippedServer",
-    async () => {
-      posthogClient?.capture({
+    "trackOnboardingSkipped",
+    async (client) => {
+      client.capture({
         distinctId: userId,
         event: "onboarding_skipped",
         properties: { source: "server" },
       });
-      await posthogClient?.flush();
+      await client.flush();
     },
     { event: "onboarding_skipped", properties: { source: "server" } },
   );

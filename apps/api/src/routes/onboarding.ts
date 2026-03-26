@@ -7,8 +7,8 @@ import { apikey } from "../db/schema/auth";
 import { userProgress } from "../db/schema/challenge";
 import { userOnboarding } from "../db/schema/onboarding";
 import {
-  trackOnboardingCompletedServer,
-  trackOnboardingSkippedServer,
+  trackOnboardingCompleted,
+  trackOnboardingSkipped,
 } from "../lib/analytics-server";
 import { redis } from "../lib/redis";
 import { requireAuth } from "../middleware/session";
@@ -116,7 +116,7 @@ onboarding.post("/complete", requireAuth, async (c) => {
       set: { completedAt: new Date(), updatedAt: new Date() },
     });
 
-  await trackOnboardingCompletedServer(userId);
+  await trackOnboardingCompleted(userId);
 
   // Publish SSE invalidation for onboarding query
   const channel = `invalidate-cache:${userId}`;
@@ -144,7 +144,7 @@ onboarding.post("/skip", requireAuth, async (c) => {
       set: { skippedAt: new Date(), updatedAt: new Date() },
     });
 
-  await trackOnboardingSkippedServer(userId);
+  await trackOnboardingSkipped(userId);
 
   // Publish SSE invalidation for onboarding query
   const channel = `invalidate-cache:${userId}`;

@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { queryKeys } from "@kubeasy/api-schemas/query-keys";
 import { createQueue, QUEUE_NAMES } from "@kubeasy/jobs";
+import { logger } from "@kubeasy/logger";
 import { and, eq, ne } from "drizzle-orm";
 import { Hono } from "hono";
 import { nanoid } from "nanoid";
@@ -11,6 +12,7 @@ import {
   userProgress,
   userSubmission,
 } from "../db/schema/index";
+import { trackChallengeSubmitted } from "../lib/analytics-server";
 import { redis } from "../lib/redis";
 import { slidingWindowRateLimit } from "../middleware/rate-limit";
 import { requireAuth } from "../middleware/session";
@@ -144,7 +146,26 @@ submit.post(
       objectives,
     });
 
-    // 7.5 Publish generic cache-invalidation SSE event (fire-and-forget — both validated and not-validated paths)
+    // 7.5 Track submission with outcome (fire-and-forget)
+    const failedObjectives = objectives.filter((obj) => !obj.passed);
+    trackChallengeSubmitted(
+      userId,
+      challengeData.id,
+      challengeSlug,
+      validated,
+      failedObjectives.length > 0
+        ? {
+            count: failedObjectives.length,
+            ids: failedObjectives.map((o) => o.id),
+          }
+        : undefined,
+    ).catch((err) => {
+      logger.error("[submit] challenge_submitted tracking failed", {
+        error: String(err),
+      });
+    });
+
+    // 7.6 Publish generic cache-invalidation SSE event (fire-and-forget — both validated and not-validated paths)
     const sseChannel = `invalidate-cache:${userId}`;
     const ssePayload = JSON.stringify({
       queryKey: queryKeys.submissions.latest(challengeSlug),
@@ -161,13 +182,11 @@ submit.post(
       return c.json({
         success: false,
         objectives,
-        failedObjectives: objectives
-          .filter((obj) => !obj.passed)
-          .map((obj) => ({
-            id: obj.id,
-            name: obj.name,
-            message: obj.message,
-          })),
+        failedObjectives: failedObjectives.map((obj) => ({
+          id: obj.id,
+          name: obj.name,
+          message: obj.message,
+        })),
       });
     }
 
