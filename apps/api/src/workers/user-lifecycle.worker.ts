@@ -1,4 +1,4 @@
-import { QUEUE_NAMES, type UserSigninPayload } from "@kubeasy/jobs";
+import { QUEUE_NAMES, type UserSignupPayload } from "@kubeasy/jobs";
 import { all } from "better-all";
 import { Worker } from "bullmq";
 import { eq } from "drizzle-orm";
@@ -8,11 +8,11 @@ import { setUserProperties, trackUserSignup } from "../lib/analytics-server";
 import { redisConfig } from "../lib/redis";
 import { createResendContact } from "../lib/resend";
 
-export function createUserSigninWorker() {
+export function createUserSignupWorker() {
   const connection = { ...redisConfig, maxRetriesPerRequest: null as null };
 
-  return new Worker<UserSigninPayload>(
-    QUEUE_NAMES.USER_SIGNIN,
+  return new Worker<UserSignupPayload>(
+    QUEUE_NAMES.USER_SIGNUP,
     async (job) => {
       const { userId, email, provider } = job.data;
 

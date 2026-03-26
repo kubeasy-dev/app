@@ -8,7 +8,7 @@ import { db } from "./db";
 import { sdk } from "./instrumentation";
 import { redis } from "./lib/redis";
 import { createChallengeSubmissionWorker } from "./workers/challenge-submission.worker";
-import { createUserSigninWorker } from "./workers/user-lifecycle.worker";
+import { createUserSignupWorker } from "./workers/user-lifecycle.worker";
 import { createXpAwardWorker } from "./workers/xp-award.worker";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -24,7 +24,7 @@ const server = serve({ fetch: app.fetch, port }, (info) => {
 
 // Instantiate BullMQ workers
 const workers = [
-  createUserSigninWorker(),
+  createUserSignupWorker(),
   createChallengeSubmissionWorker(),
   createXpAwardWorker(),
 ];

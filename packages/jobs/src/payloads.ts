@@ -16,7 +16,7 @@ export interface XpAwardPayload {
   description: string;
 }
 
-export interface UserSigninPayload {
+export interface UserSignupPayload {
   userId: string;
   email: string;
   provider: string;
@@ -27,5 +27,5 @@ export type JobPayload = {
 } & {
   [K in typeof QUEUE_NAMES.XP_AWARD]: XpAwardPayload;
 } & {
-  [K in typeof QUEUE_NAMES.USER_SIGNIN]: UserSigninPayload;
+  [K in typeof QUEUE_NAMES.USER_SIGNUP]: UserSignupPayload;
 };

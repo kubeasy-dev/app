@@ -9,7 +9,7 @@ import { allowedOrigins } from "./cors";
 import { env } from "./env";
 import { redisConfig } from "./redis";
 
-const userSigninQueue = createQueue(QUEUE_NAMES.USER_SIGNIN, redisConfig);
+const userSignupQueue = createQueue(QUEUE_NAMES.USER_SIGNUP, redisConfig);
 
 export const auth = betterAuth({
   baseURL: env.API_URL,
@@ -72,14 +72,14 @@ export const auth = betterAuth({
       create: {
         after: async (user) => {
           try {
-            userSigninQueue.add("user-signin", {
+            userSignupQueue.add("user-signup", {
               userId: user.id,
               email: user.email,
               provider: "unknown",
             });
           } catch (error) {
             // Never throw — auth must complete regardless of job dispatch failure
-            console.error("[auth] user-signin job dispatch failed", error);
+            console.error("[auth] user-signup job dispatch failed", error);
           }
         },
       },
