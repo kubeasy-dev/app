@@ -500,15 +500,19 @@ async function fetchBlocks(pageId: string): Promise<NotionBlock[]> {
         page_size: 100,
       });
 
-      for (const block of response.results) {
-        const converted = convertBlock(block);
-        if (converted) {
-          if (converted.has_children) {
-            converted.children = await fetchBlocks(block.id);
-          }
-          blocks.push(converted);
-        }
-      }
+      const converted = response.results
+        .map(convertBlock)
+        .filter((b): b is NotionBlock => b !== null);
+
+      await Promise.all(
+        converted
+          .filter((b) => b.has_children)
+          .map(async (b) => {
+            b.children = await fetchBlocks(b.id);
+          }),
+      );
+
+      blocks.push(...converted);
 
       cursor = response.has_more
         ? (response.next_cursor ?? undefined)
@@ -581,15 +585,11 @@ export async function getBlogPosts(includeDrafts = false): Promise<BlogPost[]> {
     ],
   });
 
-  const posts: BlogPost[] = [];
-  for (const page of response.results) {
-    if (isFullPage(page)) {
-      const post = await pageToPost(page);
-      if (post) posts.push(post);
-    }
-  }
+  const posts = await Promise.all(
+    response.results.filter(isFullPage).map((page) => pageToPost(page)),
+  );
 
-  return posts;
+  return posts.filter((p): p is BlogPost => p !== null);
 }
 
 /**
@@ -682,9 +682,11 @@ export async function getAllCategories(
 export async function getRelatedBlogPosts(
   post: BlogPost,
   limit = 3,
-  includeDrafts = false,
+  allPostsOrIncludeDrafts: BlogPost[] | boolean = false,
 ): Promise<BlogPost[]> {
-  const allPosts = await getBlogPosts(includeDrafts);
+  const allPosts = Array.isArray(allPostsOrIncludeDrafts)
+    ? allPostsOrIncludeDrafts
+    : await getBlogPosts(allPostsOrIncludeDrafts);
 
   const scored = allPosts
     .filter((p) => p.id !== post.id)
