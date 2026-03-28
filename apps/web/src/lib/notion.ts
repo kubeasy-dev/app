@@ -5,6 +5,7 @@ import type {
   PartialBlockObjectResponse,
   RichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints";
+import pLimit from "p-limit";
 
 // ---- Types (inlined from root types/blog.ts) ----
 
@@ -171,6 +172,9 @@ function getNotionClient(): Client {
 const BLOG_DATABASE_ID = process.env.NOTION_BLOG_DATASOURCE_ID ?? "";
 // Reserved for future use when fetching authors independently
 const _PEOPLE_DATABASE_ID = process.env.NOTION_PEOPLE_DATASOURCE_ID ?? "";
+
+// Notion API rate limit is ~3 req/s per integration; cap concurrency to avoid 429s
+const notionLimit = pLimit(3);
 
 const DEFAULT_AUTHOR: Author = {
   id: "default",
@@ -507,9 +511,11 @@ async function fetchBlocks(pageId: string): Promise<NotionBlock[]> {
       await Promise.all(
         converted
           .filter((b) => b.has_children)
-          .map(async (b) => {
-            b.children = await fetchBlocks(b.id);
-          }),
+          .map((b) =>
+            notionLimit(async () => {
+              b.children = await fetchBlocks(b.id);
+            }),
+          ),
       );
 
       blocks.push(...converted);
@@ -586,7 +592,9 @@ export async function getBlogPosts(includeDrafts = false): Promise<BlogPost[]> {
   });
 
   const posts = await Promise.all(
-    response.results.filter(isFullPage).map((page) => pageToPost(page)),
+    response.results
+      .filter(isFullPage)
+      .map((page) => notionLimit(() => pageToPost(page))),
   );
 
   return posts.filter((p): p is BlogPost => p !== null);
@@ -681,12 +689,11 @@ export async function getAllCategories(
  */
 export async function getRelatedBlogPosts(
   post: BlogPost,
-  limit = 3,
-  allPostsOrIncludeDrafts: BlogPost[] | boolean = false,
+  limit?: number,
+  prefetchedPosts?: BlogPost[],
 ): Promise<BlogPost[]> {
-  const allPosts = Array.isArray(allPostsOrIncludeDrafts)
-    ? allPostsOrIncludeDrafts
-    : await getBlogPosts(allPostsOrIncludeDrafts);
+  const allPosts = prefetchedPosts ?? (await getBlogPosts());
+  const maxResults = limit ?? 3;
 
   const scored = allPosts
     .filter((p) => p.id !== post.id)
@@ -701,5 +708,5 @@ export async function getRelatedBlogPosts(
     .filter((s) => s.score > 0)
     .sort((a, b) => b.score - a.score);
 
-  return scored.slice(0, limit).map((s) => s.post);
+  return scored.slice(0, maxResults).map((s) => s.post);
 }
