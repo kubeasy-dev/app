@@ -35,15 +35,6 @@ export const auth = betterAuth({
       },
     },
   },
-  advanced: {
-    crossSubDomainCookies: {
-      // Only enable when API runs on kubeasy.dev (prod + v2 subdomain).
-      // Disabled on Railway .up.railway.app URLs (Public Suffix List).
-      enabled:
-        env.NODE_ENV === "production" && env.API_URL.includes("kubeasy.dev"),
-      domain: ".kubeasy.dev",
-    },
-  },
   session: {
     cookieCache: {
       enabled: true,
