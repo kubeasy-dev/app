@@ -4,6 +4,7 @@ import { Worker } from "bullmq";
 import { sql } from "drizzle-orm";
 import { db } from "../db/index";
 import { userXp, userXpTransaction } from "../db/schema/index";
+import { cacheDel, cacheKey } from "../lib/cache";
 import { redis, redisConfig } from "../lib/redis";
 
 export function createXpAwardWorker() {
@@ -43,6 +44,14 @@ export function createXpAwardWorker() {
           channel,
           error: String(err),
         });
+      });
+
+      // 4. Invalidate server-side XP and streak caches
+      await Promise.all([
+        cacheDel(cacheKey(`u:${userId}:user:xp`)),
+        cacheDel(cacheKey(`u:${userId}:user:streak`)),
+      ]).catch((err) => {
+        console.error("[xp-award] cache invalidation failed", err);
       });
     },
     { connection, concurrency: 5 },

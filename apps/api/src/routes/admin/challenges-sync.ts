@@ -1,7 +1,7 @@
 import { ChallengeDifficultySchema } from "@kubeasy/api-schemas/challenges";
 import type { Objective } from "@kubeasy/api-schemas/objectives";
 import { ObjectiveSchema } from "@kubeasy/api-schemas/objectives";
-import { eq } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 import { db } from "../../db/index";
@@ -10,8 +10,10 @@ import {
   challengeObjective,
   challengeTheme,
   challengeType,
+  userProgress,
 } from "../../db/schema/index";
 import { captureServerException } from "../../lib/analytics-server";
+import { cacheDelPattern, cacheKey, cacheSet, TTL } from "../../lib/cache";
 
 // Schema for a single challenge in the sync request
 const challengeSyncSchema = z.object({
@@ -54,6 +56,124 @@ async function syncChallengeObjectives(
       })),
     );
   }
+}
+
+/**
+ * Re-populates the Redis cache after a sync.
+ * Runs fire-and-forget so it doesn't block the sync response.
+ */
+async function warmCacheAfterSync(): Promise<void> {
+  // Warm themes list + per-slug
+  const allThemes = await db
+    .select()
+    .from(challengeTheme)
+    .orderBy(asc(challengeTheme.name));
+  await Promise.all([
+    cacheSet(cacheKey("themes:list"), allThemes, TTL.STATIC),
+    ...allThemes.map((t) =>
+      cacheSet(cacheKey("themes:detail", { slug: t.slug }), t, TTL.STATIC),
+    ),
+  ]);
+
+  // Warm types list + per-slug
+  const allTypes = await db
+    .select()
+    .from(challengeType)
+    .orderBy(asc(challengeType.name));
+  await Promise.all([
+    cacheSet(cacheKey("types:list"), allTypes, TTL.STATIC),
+    ...allTypes.map((t) =>
+      cacheSet(cacheKey("types:detail", { slug: t.slug }), t, TTL.STATIC),
+    ),
+  ]);
+
+  // Warm challenge detail + objectives for all available challenges
+  const availableChallenges = await db
+    .select({
+      id: challenge.id,
+      slug: challenge.slug,
+      title: challenge.title,
+      description: challenge.description,
+      theme: challengeTheme.name,
+      themeSlug: challenge.theme,
+      difficulty: challenge.difficulty,
+      type: challengeType.name,
+      typeSlug: challenge.typeSlug,
+      estimatedTime: challenge.estimatedTime,
+      initialSituation: challenge.initialSituation,
+      ofTheWeek: challenge.ofTheWeek,
+      available: challenge.available,
+      starterFriendly: challenge.starterFriendly,
+      createdAt: challenge.createdAt,
+      updatedAt: challenge.updatedAt,
+    })
+    .from(challenge)
+    .innerJoin(challengeTheme, eq(challenge.theme, challengeTheme.slug))
+    .innerJoin(challengeType, eq(challenge.typeSlug, challengeType.slug))
+    .where(eq(challenge.available, true));
+
+  await Promise.all(
+    availableChallenges.map(async (ch) => {
+      await cacheSet(
+        cacheKey("challenges:detail", { slug: ch.slug }),
+        ch,
+        TTL.PUBLIC,
+      );
+
+      const objectives = await db
+        .select({
+          id: challengeObjective.id,
+          objectiveKey: challengeObjective.objectiveKey,
+          title: challengeObjective.title,
+          description: challengeObjective.description,
+          category: challengeObjective.category,
+          displayOrder: challengeObjective.displayOrder,
+        })
+        .from(challengeObjective)
+        .where(eq(challengeObjective.challengeId, ch.id))
+        .orderBy(challengeObjective.displayOrder);
+
+      await cacheSet(
+        cacheKey("challenges:objectives", { slug: ch.slug }),
+        { objectives },
+        TTL.PUBLIC,
+      );
+    }),
+  );
+
+  // Warm the anonymous challenge list (no filters, all challenges)
+  const anonList = await db
+    .select({
+      id: challenge.id,
+      slug: challenge.slug,
+      title: challenge.title,
+      description: challenge.description,
+      theme: challengeTheme.name,
+      themeSlug: challenge.theme,
+      difficulty: challenge.difficulty,
+      type: challengeType.name,
+      typeSlug: challenge.typeSlug,
+      estimatedTime: challenge.estimatedTime,
+      initialSituation: challenge.initialSituation,
+      ofTheWeek: challenge.ofTheWeek,
+      createdAt: challenge.createdAt,
+      updatedAt: challenge.updatedAt,
+      completedCount: sql<number>`CAST(COUNT(CASE WHEN ${userProgress.status} = 'completed' THEN 1 END) AS INTEGER)`,
+      userStatus: sql<null>`NULL`,
+    })
+    .from(challenge)
+    .innerJoin(challengeTheme, eq(challenge.theme, challengeTheme.slug))
+    .innerJoin(challengeType, eq(challenge.typeSlug, challengeType.slug))
+    .leftJoin(userProgress, eq(challenge.id, userProgress.challengeId))
+    .where(and(eq(challenge.available, true)))
+    .groupBy(challenge.id, challengeTheme.name, challengeType.name)
+    .orderBy(asc(challenge.createdAt));
+
+  await cacheSet(
+    cacheKey("u:anon:challenges:list", { showCompleted: "undefined" }),
+    { challenges: anonList, count: anonList.length },
+    TTL.PUBLIC,
+  );
 }
 
 export const challengesSync = new Hono();
@@ -189,6 +309,17 @@ challengesSync.post("/", async (c) => {
         deleted.push(existing.slug);
       }
     }
+
+    // Flush stale caches then warm up immediately (fire-and-forget)
+    Promise.all([
+      cacheDelPattern("cache:challenges:*"),
+      cacheDelPattern("cache:themes:*"),
+      cacheDelPattern("cache:types:*"),
+    ])
+      .then(() => warmCacheAfterSync())
+      .catch((err) => {
+        console.error("[challenges-sync] cache warm-up failed", err);
+      });
 
     return c.json({
       success: true,

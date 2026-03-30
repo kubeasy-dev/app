@@ -13,6 +13,7 @@ import {
   userSubmission,
 } from "../db/schema/index";
 import { trackChallengeSubmitted } from "../lib/analytics-server";
+import { cacheDelPattern } from "../lib/cache";
 import { redis } from "../lib/redis";
 import { slidingWindowRateLimit } from "../middleware/rate-limit";
 import { requireAuth } from "../middleware/session";
@@ -175,6 +176,11 @@ submit.post(
         channel: sseChannel,
         error: String(err),
       });
+    });
+
+    // Invalidate all server-side user caches (progress, xp, streak, challenge list)
+    cacheDelPattern(`cache:u:${userId}:*`).catch((err) => {
+      console.error("[submit] cache invalidation failed", err);
     });
 
     // 8. If validation failed, return failure response
