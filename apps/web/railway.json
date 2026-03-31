@@ -6,7 +6,7 @@
     "watchPatterns": ["apps/web/**", "packages/**"]
   },
   "deploy": {
-    "startCommand": "node apps/web/.output/server/index.mjs",
+    "startCommand": "cd apps/web && node .output/server/index.mjs",
     "healthcheckPath": "/",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",

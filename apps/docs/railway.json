@@ -1,13 +1,12 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
-    "builder": "RAILPACK",
-    "buildCommand": "pnpm exec turbo run build --filter=@kubeasy/docs",
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "apps/docs/Dockerfile",
     "watchPatterns": ["apps/docs/**", "packages/**"]
   },
   "deploy": {
-    "startCommand": "cd apps/docs && npx next start -H 0.0.0.0",
-    "healthcheckPath": "/docs",
+    "healthcheckPath": "/docs/api/health",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 3
