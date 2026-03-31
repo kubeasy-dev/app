@@ -17,9 +17,16 @@ WORKDIR /app
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=builder /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
+
+# Astuce : copier source.config.ts avant l'installation pour que le script postinstall de fumadocs ne plante pas
+COPY --from=builder /app/out/full/apps/docs/source.config.ts ./apps/docs/source.config.ts
+
 RUN pnpm install --frozen-lockfile
 
 COPY --from=builder /app/out/full/ .
+
+# On relance la génération maintenant que les fichiers de contenu (.mdx) sont présents
+RUN pnpm --filter=@kubeasy/docs exec fumadocs-mdx
 RUN pnpm turbo run build --filter=@kubeasy/docs
 
 # 3. Production runner (ultra léger)
