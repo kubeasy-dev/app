@@ -80,6 +80,7 @@ export type LogSpec = z.infer<typeof LogSpecSchema>
 export const EventSpecSchema = z.object({
   target: TargetSchema,
   forbiddenReasons: z.string().array().nullable(),
+  requiredReasons: z.string().array().optional(),
   sinceSeconds: z.number().optional(),
 })
 export type EventSpec = z.infer<typeof EventSpecSchema>
