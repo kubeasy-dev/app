@@ -5,7 +5,7 @@
     "watchPatterns": ["apps/docs/**", "packages/**"]
   },
   "deploy": {
-    "startCommand": "pnpm start",
+    "startCommand": "cd apps/docs && npx next start",
     "healthcheckPath": "/docs",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
