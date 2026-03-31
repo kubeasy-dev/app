@@ -15,13 +15,18 @@ RUN pnpm install --frozen-lockfile
 COPY --from=web-prepare /app/out/full/ .
 RUN turbo run build --filter=@kubeasy/web
 
+FROM web-builder AS web-deploy
+
+RUN pnpm --filter @kubeasy/web deploy --prod --legacy /app/deployed
+
 FROM base AS runner
 ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 tanstack
 
 COPY --from=web-builder --chown=tanstack:nodejs /app/apps/web/.output .output
-COPY --from=web-builder --chown=tanstack:nodejs /app/apps/web/package.json ./package.json
+COPY --from=web-deploy --chown=tanstack:nodejs /app/deployed/node_modules node_modules
+COPY --from=web-deploy --chown=tanstack:nodejs /app/deployed/package.json ./package.json
 
 USER tanstack
 CMD ["npm", "start"]
