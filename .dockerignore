@@ -1,0 +1,60 @@
+# ========================
+# Dependencies
+# ========================
+node_modules/
+.pnp
+.pnp.*
+.yarn/
+.pnpm-store
+
+# ========================
+# Build outputs
+# ========================
+dist/
+build/
+out/
+.output/
+.vinxi/
+
+# TanStack Start / Vite
+.vite/
+**/.vite/
+
+# ========================
+# Environment variables
+# ========================
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# ========================
+# Turborepo
+# ========================
+.turbo/
+
+# ========================
+# Editors
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ========================
+# Logs
+# ========================
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# ========================
+# Testing
+# ========================
+coverage/
+
+# ========================
+# Docker
+# ========================
+docker/secrets/

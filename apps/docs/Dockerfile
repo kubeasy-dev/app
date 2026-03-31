@@ -1,51 +1,37 @@
-FROM node:22-alpine AS base
+FROM ghcr.io/kubeasy-dev/app-docker-base@sha256:8383ff3543c7f32217597db2a364b3aee8efcade4beab321ec9e1fba156c06a9 AS base
 
-# 1. Préparation (isole uniquement les paquets nécessaires pour docs)
-FROM base AS builder
-RUN apk add --no-cache libc6-compat
-RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
-RUN npm install -g turbo@2
-WORKDIR /app
+FROM ghcr.io/kubeasy-dev/app-docker-builder@sha256:a633208e8431139b581bed97e7123d60443049eb6effab8e64dbde963aab2f7a AS builder
+
+FROM builder AS docs-prepare
+
 COPY . .
 RUN turbo prune @kubeasy/docs --docker
 
-# 2. Installation et Build
-FROM base AS installer
-RUN apk add --no-cache libc6-compat
-RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
-WORKDIR /app
-COPY --from=builder /app/out/json/ .
-COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=builder /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
+FROM builder AS docs-builder
 
-# Astuce : copier source.config.ts avant l'installation pour que le script postinstall de fumadocs ne plante pas
-COPY --from=builder /app/out/full/apps/docs/source.config.ts ./apps/docs/source.config.ts
+COPY --from=docs-prepare /app/out/json/ .
+COPY --from=docs-prepare /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=docs-prepare /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
+
+COPY --from=docs-prepare /app/out/full/apps/docs/source.config.ts ./apps/docs/source.config.ts
 
 RUN pnpm install --frozen-lockfile
 
-COPY --from=builder /app/out/full/ .
+COPY --from=docs-prepare /app/out/full/ .
 
-# On relance la génération maintenant que les fichiers de contenu (.mdx) sont présents
 RUN pnpm --filter=@kubeasy/docs exec fumadocs-mdx
-RUN pnpm turbo run build --filter=@kubeasy/docs
+RUN turbo run build --filter=@kubeasy/docs
 
-# 3. Production runner (ultra léger)
 FROM base AS runner
-WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Le mode standalone de Next.js préserve la structure du monorepo
-COPY --from=installer --chown=nextjs:nodejs /app/apps/docs/.next/standalone ./
-COPY --from=installer --chown=nextjs:nodejs /app/apps/docs/.next/static ./apps/docs/.next/static
-
-# Copy config files needed by Fumadocs at runtime
-COPY --from=installer --chown=nextjs:nodejs /app/apps/docs/next.config.mjs ./apps/docs/next.config.mjs
-COPY --from=installer --chown=nextjs:nodejs /app/apps/docs/source.config.ts ./apps/docs/source.config.ts
-
-# Si vous avez un dossier public, décommentez la ligne ci-dessous :
-COPY --from=installer --chown=nextjs:nodejs /app/apps/docs/public ./apps/docs/public
+COPY --from=docs-builder --chown=nextjs:nodejs /app/apps/docs/.next/standalone ./
+COPY --from=docs-builder --chown=nextjs:nodejs /app/apps/docs/.next/static ./apps/docs/.next/static
+COPY --from=docs-builder --chown=nextjs:nodejs /app/apps/docs/next.config.mjs ./apps/docs/next.config.mjs
+COPY --from=docs-builder --chown=nextjs:nodejs /app/apps/docs/source.config.ts ./apps/docs/source.config.ts
+COPY --from=docs-builder --chown=nextjs:nodejs /app/apps/docs/public ./apps/docs/public
 
 USER nextjs
 

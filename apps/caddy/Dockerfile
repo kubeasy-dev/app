@@ -1,34 +1,32 @@
-FROM caddy:builder AS builder
+FROM caddy:builder AS caddy-builder
 
 ARG CADDY_PLUGINS=
 
 COPY --chmod=755 apps/caddy/build.sh /build.sh
 RUN sh /build.sh
 
-FROM node:22-alpine AS admin-builder
+FROM ghcr.io/kubeasy-dev/app-docker-builder@sha256:a633208e8431139b581bed97e7123d60443049eb6effab8e64dbde963aab2f7a AS node-builder
+
+FROM node-builder AS admin-prepare
+COPY . .
+RUN turbo prune @kubeasy/admin --docker
+
+FROM node-builder AS admin-builder
+
+COPY --from=admin-prepare /app/out/json/ .
+
+RUN pnpm install --frozen-lockfile
+
+COPY --from=admin-prepare /app/out/full/ .
 
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN turbo run build --filter=@kubeasy/admin
 
-WORKDIR /app
+FROM caddy:alpine AS runner
 
-# Copy workspace config for pnpm install
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
-COPY packages/ packages/
-COPY apps/admin/ apps/admin/
-
-# Install workspace deps needed for admin build
-RUN pnpm install --frozen-lockfile
-
-# Build the SPA (tsc --noEmit && vite build)
-WORKDIR /app/apps/admin
-RUN pnpm build
-
-FROM caddy:alpine
-
-COPY --from=builder /usr/local/bin/caddy-custom /usr/bin/caddy
+COPY --from=caddy-builder /usr/local/bin/caddy-custom /usr/bin/caddy
 COPY apps/caddy/Caddyfile /etc/caddy/Caddyfile
 COPY --from=admin-builder /app/apps/admin/dist /admin
 

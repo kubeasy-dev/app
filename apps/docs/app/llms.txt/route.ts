@@ -2,7 +2,7 @@ import { source } from '@/lib/source';
 
 export const revalidate = false;
 
-const BASE_URL = 'https://docs.kubeasy.dev';
+const BASE_URL = 'https://kubeasy.dev/docs';
 
 export async function GET() {
   const pages = source.getPages();

@@ -14,7 +14,7 @@ export function baseOptions(): BaseLayoutProps {
       title: (
         <>
           <Image
-            src="/logo.png"
+            src="/docs/logo.png"
             alt="Kubeasy Logo"
             width={24}
             height={24}

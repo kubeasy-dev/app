@@ -5,7 +5,7 @@ import { source } from '@/lib/source';
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <DocsLayout tree={source.pageTree} {...baseOptions()}  githubUrl={`https://github.com/kubeasy-dev/documentation/tree/main/content/docs`}>
+    <DocsLayout tree={source.pageTree} {...baseOptions()}  githubUrl={`https://github.com/kubeasy-dev/app/tree/main/apps/docs/content/docs`}>
       {children}
     </DocsLayout>
   );
