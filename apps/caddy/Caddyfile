@@ -18,6 +18,11 @@
 		}
 	}
 
+	# Docs route
+	handle /docs/* {
+		reverse_proxy ${DOCS_UPSTREAM}
+	}
+
 	# Admin SPA — served from static files
 	@admin path /admin /admin/*
 	handle @admin {
