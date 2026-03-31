@@ -1,0 +1,4 @@
+ARG NODE_VERSION=24.13.1
+FROM node:${NODE_VERSION}-slim
+
+WORKDIR /app
