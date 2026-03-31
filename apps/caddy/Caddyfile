@@ -12,15 +12,17 @@
 	}
 
 	# API routes — SSE requires immediate flush for real-time validation updates
-	handle /api/* {
+	@api path /api /api/*
+	handle @api {
 		reverse_proxy {$API_UPSTREAM} {
 			flush_interval -1
 		}
 	}
 
 	# Docs route
-	handle /docs/* {
-		reverse_proxy ${DOCS_UPSTREAM}
+	@docs path /docs /docs/*
+	handle @docs {
+		reverse_proxy {$DOCS_UPSTREAM}
 	}
 
 	# Admin SPA — served from static files
