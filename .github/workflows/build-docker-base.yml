@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - Dockerfile
+      - .github/workflows/build-docker-base.yml
 
 permissions:
   id-token: write
