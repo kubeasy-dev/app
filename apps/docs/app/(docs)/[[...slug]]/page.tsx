@@ -19,11 +19,11 @@ export default async function Page(props: PageProps<'/[[...slug]]'>) {
 
   const MDX = page.data.body;
 
-  const path = `/content/docs/${page.path}`;
-  const branch = process.env.VERCEL_ENV === "preview" ? process.env.VERCEL_GIT_COMMIT_REF : "main";
+  const path = `/apps/docs/content/docs/${page.path}`;
+  const branch = 'main'
   const time = await getGithubLastEdit({
     owner: 'kubeasy-dev',
-    repo: 'documentation',
+    repo: 'monorepo',
     sha: branch,
     path: path,
   });
@@ -34,7 +34,7 @@ export default async function Page(props: PageProps<'/[[...slug]]'>) {
       <DocsDescription>{page.data.description}</DocsDescription>
       <div className='flex flex-row gap-2 items-center mb-8 border-b pb-6'>
         <span className='text-sm text-muted-foreground'>Last updated: {time ? new Date(time).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "Unknown"}</span>
-        <GitHubLink url={`https://github.com/kubeasy-dev/documentation/blob/${branch}/${path}`} />
+        <GitHubLink url={`https://github.com/kubeasy-dev/monorepo/blob/${branch}/${path}`} />
       </div>
       <DocsBody>
         <MDX
