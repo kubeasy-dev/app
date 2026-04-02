@@ -4,8 +4,9 @@ on:
   push:
     branches: [main]
     paths:
-      - 'schemas/cli-api.ts'
-      - 'lib/openapi.ts'
+      - 'apps/api/src/lib/openapi.ts'
+      - 'apps/api/src/schemas/**'
+      - 'packages/api-schemas/src/**'
   workflow_dispatch:
 
 jobs:
@@ -41,7 +42,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          SPEC_B64=$(base64 -w 0 openapi.json)
+          SPEC_B64=$(base64 -w 0 apps/api/openapi.json)
 
           gh api repos/kubeasy-dev/kubeasy-cli/dispatches \
             -f event_type=openapi-spec-updated \
