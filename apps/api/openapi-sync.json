@@ -109,7 +109,10 @@
                                   "condition",
                                   "log",
                                   "event",
-                                  "connectivity"
+                                  "connectivity",
+                                  "rbac",
+                                  "spec",
+                                  "triggered"
                                 ]
                               },
                               "spec": {
@@ -225,6 +228,12 @@
                                       },
                                       "sinceSeconds": {
                                         "type": "number"
+                                      },
+                                      "previous": {
+                                        "type": "boolean"
+                                      },
+                                      "matchMode": {
+                                        "type": "string"
                                       }
                                     },
                                     "required": ["target", "expectedStrings"]
@@ -256,6 +265,12 @@
                                           "type": "string"
                                         }
                                       },
+                                      "requiredReasons": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
                                       "sinceSeconds": {
                                         "type": "number"
                                       }
@@ -265,6 +280,9 @@
                                   {
                                     "type": "object",
                                     "properties": {
+                                      "mode": {
+                                        "type": "string"
+                                      },
                                       "sourcePod": {
                                         "type": "object",
                                         "properties": {
@@ -276,6 +294,9 @@
                                             "additionalProperties": {
                                               "type": "string"
                                             }
+                                          },
+                                          "namespace": {
+                                            "type": "string"
                                           }
                                         }
                                       },
@@ -292,6 +313,23 @@
                                             },
                                             "timeoutSeconds": {
                                               "type": "number"
+                                            },
+                                            "hostHeader": {
+                                              "type": "string"
+                                            },
+                                            "tls": {
+                                              "type": "object",
+                                              "properties": {
+                                                "insecureSkipVerify": {
+                                                  "type": "boolean"
+                                                },
+                                                "validateExpiry": {
+                                                  "type": "boolean"
+                                                },
+                                                "validateSANs": {
+                                                  "type": "boolean"
+                                                }
+                                              }
                                             }
                                           },
                                           "required": [
@@ -302,6 +340,200 @@
                                       }
                                     },
                                     "required": ["sourcePod", "targets"]
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "serviceAccount": {
+                                        "type": "string"
+                                      },
+                                      "namespace": {
+                                        "type": "string"
+                                      },
+                                      "checks": {
+                                        "type": ["array", "null"],
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "verb": {
+                                              "type": "string"
+                                            },
+                                            "resource": {
+                                              "type": "string"
+                                            },
+                                            "subresource": {
+                                              "type": "string"
+                                            },
+                                            "namespace": {
+                                              "type": "string"
+                                            },
+                                            "allowed": {
+                                              "type": "boolean"
+                                            }
+                                          },
+                                          "required": [
+                                            "verb",
+                                            "resource",
+                                            "allowed"
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "serviceAccount",
+                                      "namespace",
+                                      "checks"
+                                    ]
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "target": {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": {
+                                            "type": "string"
+                                          },
+                                          "name": {
+                                            "type": "string"
+                                          },
+                                          "labelSelector": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                              "type": "string"
+                                            }
+                                          }
+                                        },
+                                        "required": ["kind"]
+                                      },
+                                      "checks": {
+                                        "type": ["array", "null"],
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "path": {
+                                              "type": "string"
+                                            },
+                                            "exists": {
+                                              "type": "boolean"
+                                            },
+                                            "value": {},
+                                            "contains": {}
+                                          },
+                                          "required": ["path"]
+                                        }
+                                      }
+                                    },
+                                    "required": ["target", "checks"]
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "trigger": {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string"
+                                          },
+                                          "url": {
+                                            "type": "string"
+                                          },
+                                          "requestsPerSecond": {
+                                            "type": "number"
+                                          },
+                                          "durationSeconds": {
+                                            "type": "number"
+                                          },
+                                          "sourcePod": {
+                                            "type": "object",
+                                            "properties": {
+                                              "name": {
+                                                "type": "string"
+                                              },
+                                              "labelSelector": {
+                                                "type": "object",
+                                                "additionalProperties": {
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "namespace": {
+                                                "type": "string"
+                                              }
+                                            }
+                                          },
+                                          "target": {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string"
+                                              },
+                                              "name": {
+                                                "type": "string"
+                                              },
+                                              "labelSelector": {
+                                                "type": "object",
+                                                "additionalProperties": {
+                                                  "type": "string"
+                                                }
+                                              }
+                                            },
+                                            "required": ["kind"]
+                                          },
+                                          "image": {
+                                            "type": "string"
+                                          },
+                                          "container": {
+                                            "type": "string"
+                                          },
+                                          "replicas": {
+                                            "type": "number"
+                                          },
+                                          "waitSeconds": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": ["type"]
+                                      },
+                                      "waitAfterSeconds": {
+                                        "type": "number"
+                                      },
+                                      "then": {
+                                        "type": ["array", "null"],
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "key": {
+                                              "type": "string"
+                                            },
+                                            "title": {
+                                              "type": "string"
+                                            },
+                                            "description": {
+                                              "type": "string"
+                                            },
+                                            "order": {
+                                              "type": "number"
+                                            },
+                                            "type": {
+                                              "type": "string"
+                                            },
+                                            "spec": {}
+                                          },
+                                          "required": [
+                                            "key",
+                                            "title",
+                                            "description",
+                                            "order",
+                                            "type"
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "trigger",
+                                      "waitAfterSeconds",
+                                      "then"
+                                    ]
                                   }
                                 ]
                               }

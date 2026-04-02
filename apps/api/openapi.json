@@ -658,7 +658,10 @@
                               "condition",
                               "log",
                               "event",
-                              "connectivity"
+                              "connectivity",
+                              "rbac",
+                              "spec",
+                              "triggered"
                             ]
                           },
                           "message": {
@@ -787,7 +790,10 @@
                                   "condition",
                                   "log",
                                   "event",
-                                  "connectivity"
+                                  "connectivity",
+                                  "rbac",
+                                  "spec",
+                                  "triggered"
                                 ]
                               },
                               "message": {
@@ -1451,7 +1457,10 @@
                                     "condition",
                                     "log",
                                     "event",
-                                    "connectivity"
+                                    "connectivity",
+                                    "rbac",
+                                    "spec",
+                                    "triggered"
                                   ]
                                 },
                                 "message": {
@@ -1622,7 +1631,10 @@
                               "condition",
                               "log",
                               "event",
-                              "connectivity"
+                              "connectivity",
+                              "rbac",
+                              "spec",
+                              "triggered"
                             ]
                           },
                           "message": {
@@ -3486,7 +3498,10 @@
                               "condition",
                               "log",
                               "event",
-                              "connectivity"
+                              "connectivity",
+                              "rbac",
+                              "spec",
+                              "triggered"
                             ]
                           },
                           "message": {
@@ -3596,7 +3611,10 @@
                                   "condition",
                                   "log",
                                   "event",
-                                  "connectivity"
+                                  "connectivity",
+                                  "rbac",
+                                  "spec",
+                                  "triggered"
                                 ]
                               },
                               "message": {
@@ -4314,7 +4332,10 @@
                               "condition",
                               "log",
                               "event",
-                              "connectivity"
+                              "connectivity",
+                              "rbac",
+                              "spec",
+                              "triggered"
                             ]
                           },
                           "message": {
@@ -4424,7 +4445,10 @@
                                   "condition",
                                   "log",
                                   "event",
-                                  "connectivity"
+                                  "connectivity",
+                                  "rbac",
+                                  "spec",
+                                  "triggered"
                                 ]
                               },
                               "message": {
