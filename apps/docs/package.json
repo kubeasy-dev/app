@@ -1,0 +1,42 @@
+{
+  "name": "@kubeasy/docs",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev --turbo --port $(turbo get-mfe-port)",
+    "start": "next start",
+    "postinstall": "fumadocs-mdx",
+    "lint": "biome check",
+    "typecheck": "next build && tsc --noEmit",
+    "format": "biome format --write"
+  },
+  "dependencies": {
+    "@fumari/json-schema-ts": "^0.0.2",
+    "@radix-ui/react-slot": "1.2.4",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "fumadocs-core": "16.7.9",
+    "fumadocs-mdx": "14.2.11",
+    "fumadocs-openapi": "^10.6.3",
+    "fumadocs-typescript": "^5.2.1",
+    "fumadocs-ui": "16.7.9",
+    "lucide-react": "0.577.0",
+    "next": "16.1.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "shiki": "^4.0.2",
+    "tailwind-merge": "3.5.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.6",
+    "@tailwindcss/postcss": "4.2.1",
+    "@types/mdx": "2.0.13",
+    "@types/node": "24.12.0",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "postcss": "8.5.8",
+    "tailwindcss": "4.2.1",
+    "typescript": "5.9.3"
+  }
+}

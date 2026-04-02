@@ -20,7 +20,9 @@
         "tailwindcss",
         "tw-animate-css",
         "nitro",
-        "pino-pretty"
+        "pino-pretty",
+        "shadcn",
+        "@fontsource-variable/geist"
       ]
     },
     "apps/api": {

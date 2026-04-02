@@ -13,6 +13,7 @@ import {
   userXpTransaction,
 } from "../db/schema/index";
 import { trackChallengeStarted } from "../lib/analytics-server";
+import { cacheDel, cacheDelPattern, cached, cacheKey, TTL } from "../lib/cache";
 import { requireAuth } from "../middleware/session";
 
 const progress = new Hono();
@@ -36,80 +37,86 @@ progress.get(
     const userId = user.id;
     const { splitByTheme, themeSlug } = c.req.valid("query");
 
-    if (splitByTheme) {
-      // Single optimized query: get total and completed counts by theme
-      const byTheme = await db
-        .select({
-          themeSlug: challenge.theme,
-          totalCount: count(challenge.id),
-          completedCount: sql<number>`CAST(COUNT(CASE WHEN ${userProgress.userId} = ${userId} AND ${userProgress.status} = 'completed' THEN 1 END) AS INTEGER)`,
-        })
+    const key = cacheKey(`u:${userId}:progress:completion`, {
+      splitByTheme: String(splitByTheme),
+      themeSlug,
+    });
+
+    const data = await cached(key, TTL.USER, async () => {
+      if (splitByTheme) {
+        // Single optimized query: get total and completed counts by theme
+        const byTheme = await db
+          .select({
+            themeSlug: challenge.theme,
+            totalCount: count(challenge.id),
+            completedCount: sql<number>`CAST(COUNT(CASE WHEN ${userProgress.userId} = ${userId} AND ${userProgress.status} = 'completed' THEN 1 END) AS INTEGER)`,
+          })
+          .from(challenge)
+          .leftJoin(userProgress, eq(challenge.id, userProgress.challengeId))
+          .groupBy(challenge.theme)
+          .then((results) =>
+            results.map((theme) => ({
+              themeSlug: theme.themeSlug,
+              completedCount: theme.completedCount,
+              totalCount: theme.totalCount,
+              percentageCompleted:
+                theme.totalCount > 0
+                  ? Math.round((theme.completedCount / theme.totalCount) * 100)
+                  : 0,
+            })),
+          );
+
+        // Calculate global stats from theme stats
+        const totalCount = byTheme.reduce(
+          (sum, theme) => sum + theme.totalCount,
+          0,
+        );
+        const completedCount = byTheme.reduce(
+          (sum, theme) => sum + theme.completedCount,
+          0,
+        );
+        const percentageCompleted =
+          totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+        return { byTheme, completedCount, totalCount, percentageCompleted };
+      }
+
+      // Standard mode: single theme or all themes
+      const themeFilter = themeSlug
+        ? eq(challenge.theme, themeSlug)
+        : undefined;
+
+      // Get total challenges (optionally filtered by theme)
+      const [totalResult] = await db
+        .select({ count: count() })
         .from(challenge)
-        .leftJoin(userProgress, eq(challenge.id, userProgress.challengeId))
-        .groupBy(challenge.theme)
-        .then((results) =>
-          results.map((theme) => ({
-            themeSlug: theme.themeSlug,
-            completedCount: theme.completedCount,
-            totalCount: theme.totalCount,
-            percentageCompleted:
-              theme.totalCount > 0
-                ? Math.round((theme.completedCount / theme.totalCount) * 100)
-                : 0,
-          })),
+        .where(themeFilter);
+
+      // Get completed challenges (optionally filtered by theme)
+      const [completedResult] = await db
+        .select({ count: count() })
+        .from(userProgress)
+        .innerJoin(challenge, eq(userProgress.challengeId, challenge.id))
+        .where(
+          and(
+            eq(userProgress.userId, userId),
+            eq(userProgress.status, "completed"),
+            themeFilter,
+          ),
         );
 
-      // Calculate global stats from theme stats
-      const totalCount = byTheme.reduce(
-        (sum, theme) => sum + theme.totalCount,
-        0,
-      );
-      const completedCount = byTheme.reduce(
-        (sum, theme) => sum + theme.completedCount,
-        0,
-      );
-      const percentageCompleted =
-        totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+      const totalCount = totalResult?.count ?? 0;
+      const completedCount = completedResult?.count ?? 0;
 
-      return c.json({
-        byTheme,
+      return {
         completedCount,
         totalCount,
-        percentageCompleted,
-      });
-    }
-
-    // Standard mode: single theme or all themes
-    const themeFilter = themeSlug ? eq(challenge.theme, themeSlug) : undefined;
-
-    // Get total challenges (optionally filtered by theme)
-    const [totalResult] = await db
-      .select({ count: count() })
-      .from(challenge)
-      .where(themeFilter);
-
-    // Get completed challenges (optionally filtered by theme)
-    const [completedResult] = await db
-      .select({ count: count() })
-      .from(userProgress)
-      .innerJoin(challenge, eq(userProgress.challengeId, challenge.id))
-      .where(
-        and(
-          eq(userProgress.userId, userId),
-          eq(userProgress.status, "completed"),
-          themeFilter,
-        ),
-      );
-
-    const totalCount = totalResult?.count ?? 0;
-    const completedCount = completedResult?.count ?? 0;
-
-    return c.json({
-      completedCount,
-      totalCount,
-      percentageCompleted:
-        totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0,
+        percentageCompleted:
+          totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0,
+      };
     });
+
+    return c.json(data);
   },
 );
 
@@ -120,40 +127,48 @@ const handleGetStatus: Handler = async (c) => {
   const slug = c.req.param("slug");
   if (!slug) return c.json({ error: "Missing slug" }, 400);
 
-  const [challengeData] = await db
-    .select({ id: challenge.id })
-    .from(challenge)
-    .where(eq(challenge.slug, slug))
-    .limit(1);
+  const data = await cached(
+    cacheKey(`u:${userId}:progress:status`, { slug }),
+    TTL.USER,
+    async () => {
+      const [challengeData] = await db
+        .select({ id: challenge.id })
+        .from(challenge)
+        .where(eq(challenge.slug, slug))
+        .limit(1);
 
-  if (!challengeData) {
+      if (!challengeData) return null;
+
+      const [progressRecord] = await db
+        .select({
+          status: userProgress.status,
+          startedAt: userProgress.startedAt,
+          completedAt: userProgress.completedAt,
+        })
+        .from(userProgress)
+        .where(
+          and(
+            eq(userProgress.userId, userId),
+            eq(userProgress.challengeId, challengeData.id),
+          ),
+        )
+        .limit(1);
+
+      if (!progressRecord) return { status: "not_started" as const };
+
+      return {
+        status: progressRecord.status,
+        startedAt: progressRecord.startedAt,
+        completedAt: progressRecord.completedAt,
+      };
+    },
+  );
+
+  if (data === null) {
     return c.json({ error: "Challenge not found" }, 404);
   }
 
-  const [progressRecord] = await db
-    .select({
-      status: userProgress.status,
-      startedAt: userProgress.startedAt,
-      completedAt: userProgress.completedAt,
-    })
-    .from(userProgress)
-    .where(
-      and(
-        eq(userProgress.userId, userId),
-        eq(userProgress.challengeId, challengeData.id),
-      ),
-    )
-    .limit(1);
-
-  if (!progressRecord) {
-    return c.json({ status: "not_started" as const });
-  }
-
-  return c.json({
-    status: progressRecord.status,
-    startedAt: progressRecord.startedAt,
-    completedAt: progressRecord.completedAt,
-  });
+  return c.json(data);
 };
 
 progress.get("/:slug", requireAuth, handleGetStatus);
@@ -240,6 +255,15 @@ progress.post("/:slug/start", requireAuth, async (c) => {
     });
   });
 
+  // Invalidate affected caches
+  Promise.all([
+    cacheDel(cacheKey(`u:${userId}:progress:status`, { slug })),
+    cacheDelPattern(`cache:u:${userId}:progress:completion:*`),
+    cacheDelPattern(`cache:u:${userId}:challenges:list:*`),
+  ]).catch((err) => {
+    console.error("[progress/start] cache invalidation failed", err);
+  });
+
   return c.json({
     status: "in_progress" as const,
     startedAt: now,
@@ -305,6 +329,11 @@ const handleReset: Handler = async (c) => {
     .update(userXp)
     .set({ totalXp: xpResult?.totalXp ?? 0 })
     .where(eq(userXp.userId, userId));
+
+  // Invalidate all user caches (progress, xp, streak, challenge list)
+  cacheDelPattern(`cache:u:${userId}:*`).catch((err) => {
+    console.error("[progress/reset] cache invalidation failed", err);
+  });
 
   return c.json({
     success: true,

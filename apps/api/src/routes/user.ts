@@ -10,6 +10,7 @@ import {
   userXp,
   userXpTransaction,
 } from "../db/schema/challenge";
+import { cacheDelPattern, cached, cacheKey, TTL } from "../lib/cache";
 import { requireAuth } from "../middleware/session";
 import { calculateLevel, calculateStreak } from "../services/xp/index";
 
@@ -25,24 +26,28 @@ userRouter.get("/xp", requireAuth, async (c) => {
   const sessionUser = c.get("user");
   const userId = sessionUser.id;
 
-  // Get total XP from transactions (source of truth)
-  const result = await db
-    .select({
-      totalXp: sql<number>`COALESCE(SUM(${userXpTransaction.xpAmount}), 0)`,
-    })
-    .from(userXpTransaction)
-    .where(eq(userXpTransaction.userId, userId));
+  const data = await cached(
+    cacheKey(`u:${userId}:user:xp`),
+    TTL.USER,
+    async () => {
+      // Get total XP from transactions (source of truth)
+      const result = await db
+        .select({
+          totalXp: sql<number>`COALESCE(SUM(${userXpTransaction.xpAmount}), 0)`,
+        })
+        .from(userXpTransaction)
+        .where(eq(userXpTransaction.userId, userId));
 
-  const xpEarned = result[0]?.totalXp ?? 0;
+      const xpEarned = result[0]?.totalXp ?? 0;
 
-  // Use calculateLevel to get rank info
-  const rankInfo = await calculateLevel(userId);
+      // Use calculateLevel to get rank info
+      const rankInfo = await calculateLevel(userId);
 
-  return c.json({
-    xpEarned,
-    rank: rankInfo.name,
-    rankInfo,
-  });
+      return { xpEarned, rank: rankInfo.name, rankInfo };
+    },
+  );
+
+  return c.json(data);
 });
 
 // GET /user/streak -- get current streak count
@@ -50,12 +55,16 @@ userRouter.get("/streak", requireAuth, async (c) => {
   const sessionUser = c.get("user");
   const userId = sessionUser.id;
 
-  const streak = await calculateStreak(userId);
+  const data = await cached(
+    cacheKey(`u:${userId}:user:streak`),
+    TTL.USER,
+    async () => {
+      const streak = await calculateStreak(userId);
+      return { currentStreak: streak, lastActivityDate: null };
+    },
+  );
 
-  return c.json({
-    currentStreak: streak,
-    lastActivityDate: null,
-  });
+  return c.json(data);
 });
 
 // PATCH /user/name -- update user name
@@ -92,6 +101,11 @@ userRouter.delete("/progress", requireAuth, async (c) => {
   ]);
 
   const deletedXp = deletedTransactions.reduce((sum, t) => sum + t.xpAmount, 0);
+
+  // Invalidate all user caches
+  cacheDelPattern(`cache:u:${userId}:*`).catch((err) => {
+    console.error("[user/progress] cache invalidation failed", err);
+  });
 
   return c.json({
     success: true,

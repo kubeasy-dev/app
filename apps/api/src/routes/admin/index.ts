@@ -13,6 +13,7 @@ const admin = new Hono();
 
 // /challenges/sync is called by CI/CD scripts with an API key (not a session cookie).
 // Register apiKeyMiddleware BEFORE requireAdmin (Hono executes middleware in order).
+admin.use("/challenges/sync", apiKeyMiddleware);
 admin.use("/challenges/sync/*", apiKeyMiddleware);
 
 // Enforce admin role on all /admin routes.

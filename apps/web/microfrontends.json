@@ -31,6 +31,18 @@
           "paths": ["/admin", "/admin/:path*"]
         }
       ]
+    },
+    "@kubeasy/docs": {
+      "development": {
+        "local": {
+          "port": 3003
+        }
+      },
+      "routing": [
+        {
+          "paths": ["/docs", "/docs/:path*"]
+        }
+      ]
     }
   }
 }
