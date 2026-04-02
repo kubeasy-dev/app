@@ -1,8 +1,6 @@
-import { eq } from "drizzle-orm";
 import { createMiddleware } from "hono/factory";
-import { db } from "../db/index";
-import { user as userTable } from "../db/schema/auth";
 import { auth } from "../lib/auth";
+import { lookupUserByApiKey } from "../lib/lookup-user";
 
 export type SessionUser = typeof auth.$Infer.Session.user;
 export type SessionData = typeof auth.$Infer.Session.session;
@@ -36,20 +34,12 @@ export const sessionMiddleware = createMiddleware<{
     : undefined;
 
   if (key) {
-    const result = await auth.api.verifyApiKey({ body: { key } });
-    if (result.valid && result.key) {
-      const [foundUser] = await db
-        .select()
-        .from(userTable)
-        .where(eq(userTable.id, result.key.referenceId))
-        .limit(1);
-
-      if (foundUser) {
-        c.set("user", foundUser as SessionUser);
-        c.set("session", null);
-        await next();
-        return;
-      }
+    const foundUser = await lookupUserByApiKey(key);
+    if (foundUser) {
+      c.set("user", foundUser);
+      c.set("session", null);
+      await next();
+      return;
     }
   }
 

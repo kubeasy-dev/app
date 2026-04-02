@@ -86,7 +86,8 @@ const getChallengesRoute = createRoute({
   operationId: "listChallenges",
   summary: "List challenges",
   tags: ["Challenges"],
-  security: sessionOrBearerAuth,
+  // Auth is optional: unauthenticated requests return userStatus: null
+  security: [{ SessionAuth: [] }, { BearerAuth: [] }, {}],
   request: {
     query: z.object({
       difficulty: challengeDifficultySchema.optional(),
@@ -115,14 +116,13 @@ const getChallengeRoute = createRoute({
   request: { params: slugParam },
   responses: {
     200: {
-      description: "Challenge details",
+      description: "Challenge details, or null if not found or unavailable",
       content: {
         "application/json": {
-          schema: z.object({ challenge: ChallengeDetailSchema }),
+          schema: z.object({ challenge: ChallengeDetailSchema.nullable() }),
         },
       },
     },
-    404: notFound,
     ...commonErrors,
   },
 });
@@ -133,6 +133,7 @@ const getChallengeObjectivesRoute = createRoute({
   operationId: "getChallengeObjectives",
   summary: "Get challenge objectives",
   tags: ["Challenges"],
+  security: [],
   request: { params: slugParam },
   responses: {
     200: {
