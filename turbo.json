@@ -32,10 +32,6 @@
     },
     "openapi:generate": {
       "outputs": ["openapi.json", "openapi-sync.json"]
-    },
-    "@kubeasy/docs#build": {
-      "dependsOn": ["@kubeasy/api#openapi:generate", "^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
     }
   }
 }
