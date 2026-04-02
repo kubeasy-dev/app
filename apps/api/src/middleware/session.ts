@@ -61,7 +61,7 @@ export const sessionMiddleware = createMiddleware<{
 export const requireAuth = createMiddleware<{
   Variables: {
     user: SessionUser;
-    session: SessionData;
+    session: SessionData | null;
   };
 }>(async (c, next) => {
   const user = c.get("user");

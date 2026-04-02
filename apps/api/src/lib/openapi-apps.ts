@@ -4,6 +4,7 @@ import {
   ChallengeGetObjectivesOutputSchema,
   ChallengeListOutputSchema,
 } from "@kubeasy/api-schemas/challenges";
+import { EmailTopicSchema } from "@kubeasy/api-schemas/email";
 import { OnboardingStatusSchema } from "@kubeasy/api-schemas/onboarding";
 import {
   CompletionPercentageOutputSchema,
@@ -110,6 +111,7 @@ const getChallengeRoute = createRoute({
   operationId: "getChallenge",
   summary: "Get challenge details",
   tags: ["Challenges"],
+  security: [],
   request: { params: slugParam },
   responses: {
     200: {
@@ -407,14 +409,6 @@ const deleteUserProgressRoute = createRoute({
   },
 });
 
-const emailTopicSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string().nullable(),
-  defaultSubscription: z.string(),
-  subscribed: z.boolean(),
-});
-
 const getEmailTopicsRoute = createRoute({
   method: "get",
   path: "/api/user/email-topics",
@@ -426,7 +420,7 @@ const getEmailTopicsRoute = createRoute({
     200: {
       description: "Email topics",
       content: {
-        "application/json": { schema: z.array(emailTopicSchema) },
+        "application/json": { schema: z.array(EmailTopicSchema) },
       },
     },
     ...commonErrors,
@@ -823,7 +817,8 @@ apiApp.openAPIRegistry.registerComponent("securitySchemes", "SessionAuth", {
 apiApp.openAPIRegistry.registerComponent("securitySchemes", "BearerAuth", {
   type: "http",
   scheme: "bearer",
-  description: "API key obtained via `kubeasy login` (deprecated CLI auth)",
+  description:
+    "API key obtained via `kubeasy login`. Used by the CLI and accepted on all public API routes.",
 });
 
 // Stub handler: these routes are never served — the app is only used for
