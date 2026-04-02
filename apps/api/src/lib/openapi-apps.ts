@@ -612,6 +612,8 @@ const getThemesRoute = createRoute({
 // Deprecated CLI routes
 // ---------------------------------------------------------------------------
 
+const cliSlugParam = z.object({ slug: z.string() });
+
 const userNameSchema = z.object({
   firstName: z.string(),
   lastName: z.string().nullable(),
@@ -657,6 +659,152 @@ const deprecatedLoginUserRoute = createRoute({
         },
       },
     },
+    ...commonErrors,
+  },
+});
+
+const deprecatedSubmitChallengeRoute = createRoute({
+  method: "post",
+  path: "/api/cli/challenges/{slug}/submit",
+  operationId: "cliSubmitChallenge",
+  summary: "Submit challenge (CLI current path)",
+  deprecated: true,
+  tags: ["Deprecated"],
+  security: bearerAuth,
+  request: {
+    params: cliSlugParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: submitBodySchema } },
+    },
+  },
+  responses: {
+    200: {
+      description: "All objectives passed",
+      content: { "application/json": { schema: submitSuccessSchema } },
+    },
+    422: {
+      description: "Some objectives failed",
+      content: {
+        "application/json": {
+          schema: z.union([submitFailureSchema, errorSchema]),
+        },
+      },
+    },
+    404: notFound,
+    ...commonErrors,
+  },
+});
+
+const deprecatedGetChallengeRoute = createRoute({
+  method: "get",
+  path: "/api/cli/challenge/{slug}",
+  operationId: "cliGetChallenge",
+  summary: "Get challenge details (legacy singular path)",
+  deprecated: true,
+  tags: ["Deprecated"],
+  security: bearerAuth,
+  request: { params: cliSlugParam },
+  responses: {
+    200: {
+      description: "Challenge details",
+      content: {
+        "application/json": {
+          schema: z.object({ challenge: ChallengeDetailSchema.nullable() }),
+        },
+      },
+    },
+    404: notFound,
+    ...commonErrors,
+  },
+});
+
+const deprecatedGetChallengeStatusRoute = createRoute({
+  method: "get",
+  path: "/api/cli/challenge/{slug}/status",
+  operationId: "cliGetChallengeStatus",
+  summary: "Get challenge progress (legacy singular path)",
+  deprecated: true,
+  tags: ["Deprecated"],
+  security: bearerAuth,
+  request: { params: cliSlugParam },
+  responses: {
+    200: {
+      description: "Challenge progress",
+      content: { "application/json": { schema: GetStatusOutputSchema } },
+    },
+    404: notFound,
+    ...commonErrors,
+  },
+});
+
+const deprecatedStartChallengeRoute = createRoute({
+  method: "post",
+  path: "/api/cli/challenge/{slug}/start",
+  operationId: "cliStartChallenge",
+  summary: "Start a challenge (legacy singular path)",
+  deprecated: true,
+  tags: ["Deprecated"],
+  security: bearerAuth,
+  request: { params: cliSlugParam },
+  responses: {
+    200: {
+      description: "Challenge started",
+      content: { "application/json": { schema: StartChallengeOutputSchema } },
+    },
+    404: notFound,
+    ...commonErrors,
+  },
+});
+
+const deprecatedResetChallengeRoute = createRoute({
+  method: "post",
+  path: "/api/cli/challenge/{slug}/reset",
+  operationId: "cliResetChallenge",
+  summary: "Reset challenge progress (legacy singular path)",
+  deprecated: true,
+  tags: ["Deprecated"],
+  security: bearerAuth,
+  request: { params: cliSlugParam },
+  responses: {
+    200: {
+      description: "Progress reset",
+      content: { "application/json": { schema: ResetChallengeOutputSchema } },
+    },
+    404: notFound,
+    ...commonErrors,
+  },
+});
+
+const deprecatedSubmitChallengeLegacyRoute = createRoute({
+  method: "post",
+  path: "/api/cli/challenge/{slug}/submit",
+  operationId: "cliSubmitChallengeLegacy",
+  summary: "Submit challenge (legacy singular path)",
+  deprecated: true,
+  tags: ["Deprecated"],
+  security: bearerAuth,
+  request: {
+    params: cliSlugParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: submitBodySchema } },
+    },
+  },
+  responses: {
+    200: {
+      description: "All objectives passed",
+      content: { "application/json": { schema: submitSuccessSchema } },
+    },
+    422: {
+      description: "Some objectives failed",
+      content: {
+        "application/json": {
+          schema: z.union([submitFailureSchema, errorSchema]),
+        },
+      },
+    },
+    404: notFound,
     ...commonErrors,
   },
 });
@@ -745,6 +893,12 @@ apiApp.openapi(getThemesRoute, stub);
 apiApp.openapi(deprecatedGetUserRoute, stub);
 apiApp.openapi(deprecatedLoginUserRoute, stub);
 apiApp.openapi(deprecatedTrackSetupRoute, stub);
+apiApp.openapi(deprecatedSubmitChallengeRoute, stub);
+apiApp.openapi(deprecatedGetChallengeRoute, stub);
+apiApp.openapi(deprecatedGetChallengeStatusRoute, stub);
+apiApp.openapi(deprecatedStartChallengeRoute, stub);
+apiApp.openapi(deprecatedResetChallengeRoute, stub);
+apiApp.openapi(deprecatedSubmitChallengeLegacyRoute, stub);
 
 // ---------------------------------------------------------------------------
 // Sync API — route definitions
