@@ -7,7 +7,6 @@ const config = {
   basePath: "/docs",
   output: "standalone",
   reactStrictMode: true,
-  eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
 };
 
