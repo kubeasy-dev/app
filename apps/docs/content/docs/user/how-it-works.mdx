@@ -54,7 +54,7 @@ Built with Go and [Cobra](https://cobra.dev/), it ships as a single binary with 
 [Kind](https://kind.sigs.k8s.io/) (Kubernetes in Docker) runs a real Kubernetes cluster inside Docker containers. When you run `kubeasy setup`, the CLI:
 
 1. Creates a single-node cluster named `kubeasy` running **Kubernetes v1.35.0**
-2. Configures port mappings (ports 80 and 443 forwarded for Ingress)
+2. Configures port mappings: host `8080` → cluster `80` (HTTP) and host `8443` → cluster `443` (HTTPS), used by the nginx-ingress controller
 3. Configures `kubectl` to point to the cluster
 
 Kind clusters are fast to create, isolated from your system, and behave like real Kubernetes. You can use any standard Kubernetes tooling against them.
@@ -90,9 +90,10 @@ For example, a policy might prevent you from swapping the broken application ima
 ```yaml
 # Example: prevents changing the container image
 apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+kind: Policy
 metadata:
   name: protect-app-image
+  namespace: pod-evicted   # matches the challenge slug
 spec:
   validationFailureAction: Enforce
   rules:
@@ -100,7 +101,6 @@ spec:
       match:
         resources:
           kinds: ["Deployment"]
-          namespaces: ["challenge-*"]
       validate:
         message: "Cannot change the container image"
         pattern:

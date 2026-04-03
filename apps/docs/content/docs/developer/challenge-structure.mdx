@@ -156,7 +156,7 @@ spec:
 
 Contains Kyverno policies that **prevent bypasses** — stopping users from taking shortcuts that avoid solving the actual problem.
 
-Policies must match the challenge namespace (typically `challenge-*`) to avoid affecting other parts of the cluster.
+Policies use `kind: Policy` (namespace-scoped) with `metadata.namespace` set to the challenge slug. A namespace-scoped Policy enforces only within its own namespace, so it never affects the rest of the cluster.
 
 **What to protect:**
 - Container images (prevent swapping the broken app for a working one)
@@ -172,9 +172,10 @@ Policies must match the challenge namespace (typically `challenge-*`) to avoid a
 ```yaml
 # policies/protect.yaml
 apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+kind: Policy
 metadata:
   name: protect-data-processor
+  namespace: pod-evicted   # must match the challenge slug (the namespace name)
 spec:
   validationFailureAction: Enforce
   rules:
@@ -183,7 +184,6 @@ spec:
         resources:
           kinds: ["Deployment"]
           names: ["data-processor"]
-          namespaces: ["challenge-*"]
       validate:
         message: "Cannot change the container image"
         pattern:
@@ -194,6 +194,10 @@ spec:
                   - name: processor
                     image: "python:3.11-slim"
 ```
+
+<Callout type="info">
+Use `kind: Policy` (namespace-scoped), not `kind: ClusterPolicy`. Set `metadata.namespace` to the challenge slug — this is the namespace where the challenge is deployed. A namespace-scoped Policy automatically enforces only within its own namespace.
+</Callout>
 
 ## 4. image/ directory (optional)
 
