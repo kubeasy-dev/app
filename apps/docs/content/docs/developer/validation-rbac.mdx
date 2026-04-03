@@ -104,7 +104,7 @@ Some Kubernetes operations require permissions on subresources (e.g., `pods/exec
         resource: pods
         subresource: exec
         allowed: true
-      - verb: create
+      - verb: get
         resource: pods
         subresource: log
         allowed: false
@@ -140,9 +140,9 @@ A challenge where the user must create a ServiceAccount with exactly the right p
 
 ```yaml
 objectives:
-  - key: sa-exists
-    title: "ServiceAccount Created"
-    description: "The required ServiceAccount must exist"
+  - key: pod-running
+    title: "Pod Running"
+    description: "The job-runner pod is up, confirming the ServiceAccount is configured correctly"
     order: 1
     type: condition
     spec:

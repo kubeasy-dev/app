@@ -83,7 +83,7 @@ kubectl get clusterpolicies
 kubectl describe clusterpolicy <policy-name>
 ```
 
-Policies must match the `challenge-*` namespace pattern to avoid affecting the rest of the cluster.
+Policies use `kind: Policy` (namespace-scoped) with `metadata.namespace` set to the challenge slug. This ensures they only enforce within that specific namespace and don't affect the rest of the cluster.
 
 ## Step 4: Apply the fix and verify validations pass
 

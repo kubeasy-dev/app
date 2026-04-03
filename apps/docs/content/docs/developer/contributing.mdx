@@ -192,9 +192,10 @@ Every challenge must include Kyverno policies to prevent at minimum:
 
 ```yaml
 apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+kind: Policy
 metadata:
   name: protect-<challenge-slug>
+  namespace: <challenge-slug>   # matches the challenge namespace (same as the slug)
 spec:
   validationFailureAction: Enforce
   rules:
@@ -203,7 +204,6 @@ spec:
         resources:
           kinds: ["Deployment"]
           names: ["<deployment-name>"]
-          namespaces: ["challenge-*"]
       validate:
         message: "Cannot change the container image"
         pattern:

@@ -165,9 +165,10 @@ Create `memory-pressure/policies/protect.yaml` to prevent users from swapping th
 
 ```yaml
 apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+kind: Policy
 metadata:
   name: protect-memory-pressure
+  namespace: memory-pressure   # must match the challenge slug
 spec:
   validationFailureAction: Enforce
   rules:
@@ -176,7 +177,6 @@ spec:
         resources:
           kinds: ["Deployment"]
           names: ["data-processor"]
-          namespaces: ["challenge-*"]
       validate:
         message: "Cannot change the container image"
         pattern:
