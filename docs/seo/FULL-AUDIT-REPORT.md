@@ -290,10 +290,6 @@ The H1 heading on the homepage is the most likely LCP element. Because `hero-sec
 `app/layout.tsx` renders `<ReactQueryDevtools>` unconditionally.
 - Fix: `{process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}`
 
-**[HIGH] `RealtimeProvider` mounted on every page**
-`components/providers.tsx` wraps all children in `<RealtimeProvider>` from `@upstash/realtime/client`. This opens a persistent connection (WebSocket or SSE) on every page, including the homepage and blog — pages that don't need real-time features.
-- Fix: Scope to only routes that use real-time (challenge status page, dashboard)
-
 **[HIGH] `full-logo.png` is 100KB in `/public/`**
 Images in `/public/` bypass Next.js image optimization. If this image is used in any render path, it contributes ~100KB of unoptimized weight.
 

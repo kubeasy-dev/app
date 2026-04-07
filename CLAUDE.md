@@ -102,3 +102,7 @@ Packages are referenced via workspace protocol:
 ```
 
 No build step is needed for packages — apps import TypeScript source directly.
+
+## Rules
+
+NEVER look documentation in node_modules folder, use context7 instead

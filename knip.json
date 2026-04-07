@@ -14,7 +14,7 @@
     "apps/web": {
       "entry": ["src/**/*.{ts,tsx}", "*.config.{js,ts,mjs}", "app.config.ts"],
       "project": ["src/**/*.{ts,tsx}", "*.{ts,js,mjs,cjs}"],
-      "ignore": ["src/routeTree.gen.ts"],
+      "ignore": ["src/routeTree.gen.ts", "otel.mjs"],
       "ignoreDependencies": [
         "@tailwindcss/vite",
         "tailwindcss",
@@ -29,6 +29,16 @@
       "entry": ["src/**/*.{ts,tsx}", "*.config.{js,ts,mjs}"],
       "project": ["src/**/*.{ts,tsx}", "*.{ts,js,mjs,cjs}"],
       "ignoreDependencies": ["tsx"]
+    },
+    "apps/docs": {
+      "entry": [
+        "app/**/*.{ts,tsx}",
+        "components/**/*.{ts,tsx}",
+        "*.config.{js,ts,mjs}",
+        "source.config.ts"
+      ],
+      "project": ["**/*.{ts,tsx}", "*.{ts,js,mjs,cjs}"],
+      "ignoreDependencies": ["tailwindcss"]
     },
     "packages/*": {
       "entry": ["src/index.{ts,tsx}", "index.{ts,tsx}"],
