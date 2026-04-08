@@ -25,20 +25,25 @@ export function createChallengeSubmissionWorker() {
     async (job) => {
       const { userId, challengeSlug, challengeId, difficulty } = job.data;
 
-      // 1. Check if this is the user's first completed challenge
-      const [completedTransactions] = await db
-        .select({ count: count() })
-        .from(userXpTransaction)
-        .where(
-          and(
-            eq(userXpTransaction.userId, userId),
-            eq(userXpTransaction.action, "challenge_completed"),
-          ),
-        );
+      // 1 & 2. Check first challenge + calculate streak in parallel (independent DB queries)
+      const { completedTransactions, currentStreak } = await all({
+        async completedTransactions() {
+          const [row] = await db
+            .select({ count: count() })
+            .from(userXpTransaction)
+            .where(
+              and(
+                eq(userXpTransaction.userId, userId),
+                eq(userXpTransaction.action, "challenge_completed"),
+              ),
+            );
+          return row;
+        },
+        async currentStreak() {
+          return calculateStreak(userId);
+        },
+      });
       const isFirstChallenge = (completedTransactions?.count ?? 0) === 0;
-
-      // 2. Calculate streak
-      const currentStreak = await calculateStreak(userId);
 
       // 3. Calculate XP amounts
       const xpGain = calculateXPGain({

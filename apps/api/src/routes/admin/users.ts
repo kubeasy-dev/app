@@ -41,7 +41,7 @@ adminUsers.get("/", async (c) => {
         .offset(offset);
     },
   });
-  const [{ total }] = countRows;
+  const total = countRows[0]?.total ?? 0;
 
   return c.json({ users, total, page, limit });
 });
