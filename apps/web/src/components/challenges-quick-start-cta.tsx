@@ -1,17 +1,27 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Terminal } from "lucide-react";
+import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 
 /**
- * Quick start CTA shown only to unauthenticated users
+ * Quick start CTA shown only to unauthenticated users.
+ * Uses a mounted guard to avoid SSR/client hydration mismatch,
+ * since authClient.useSession() returns different state on server vs client.
  */
 export function ChallengesQuickStartCTA() {
+  const [mounted, setMounted] = useState(false);
   const { data: session, isPending } = authClient.useSession();
 
-  // Don't show while loading or if user is authenticated
-  if (isPending || session) {
-    return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Reserve space during SSR and session loading to avoid layout shift
+  if (!mounted || isPending) {
+    return <div className="mb-8 h-[72px]" />;
   }
+
+  if (session) return null;
 
   return (
     <div className="mb-8 p-4 bg-secondary neo-border-thick neo-shadow flex flex-col sm:flex-row items-center justify-between gap-4">

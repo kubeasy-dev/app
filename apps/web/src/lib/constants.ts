@@ -5,6 +5,14 @@ export const difficulties = [
   { value: "hard", label: "Advanced" },
 ];
 
+import type { ChallengeDifficulty } from "@kubeasy/api-schemas/challenges";
+
+export const difficultyLabels: Record<ChallengeDifficulty, string> = {
+  easy: "Beginner",
+  medium: "Intermediate",
+  hard: "Advanced",
+};
+
 const githubOwner = "kubeasy-dev";
 
 export const siteConfig = {
