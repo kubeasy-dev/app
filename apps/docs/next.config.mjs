@@ -8,6 +8,14 @@ const config = {
   output: "standalone",
   reactStrictMode: true,
   typescript: { ignoreBuildErrors: true },
+  async rewrites() {
+    return [
+      {
+        source: "/:path*.mdx",
+        destination: "/llms.mdx/docs/:path*",
+      },
+    ];
+  },
 };
 
 export default withMDX(config);
