@@ -23,7 +23,6 @@ connectors:
       - name: db.system
       - name: db.operation
       - name: db.statement
-      - name: service.name
 
 processors:
   batch:
