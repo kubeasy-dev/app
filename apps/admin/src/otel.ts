@@ -29,7 +29,12 @@ registerInstrumentations({
   instrumentations: [
     new XMLHttpRequestInstrumentation(),
     new FetchInstrumentation({
-      propagateTraceHeaderCorsUrls: [/localhost:3001/, /api\.kubeasy\.com/],
+      propagateTraceHeaderCorsUrls: [
+        /localhost:3001/,
+        /localhost:3000/,
+        /kubeasy\.dev/,
+        window.location.origin,
+      ],
     }),
   ],
 });

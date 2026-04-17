@@ -1,4 +1,4 @@
-import "./instrumentation";
+import "../instrumentation";
 import {
   createStartHandler,
   defaultStreamHandler,

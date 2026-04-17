@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev --port $(turbo get-mfe-port)",
+    "dev": "NODE_OPTIONS='--import ./instrumentation.ts' vite dev --port $(turbo get-mfe-port)",
     "build": "vite build",
-    "start": "node .output/server/index.mjs",
+    "start": "node --import ./instrumentation.ts .output/server/index.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
