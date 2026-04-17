@@ -1,7 +1,7 @@
-import { httpInstrumentationMiddleware } from "@hono/otel";
+import { context, propagation, trace } from "@opentelemetry/api";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
+import { logger as honoLogger } from "hono/logger";
 import { auth } from "./lib/auth";
 import { isAllowedOrigin } from "./lib/cors";
 import { sessionMiddleware } from "./middleware/session";
@@ -9,7 +9,20 @@ import { routes } from "./routes/index";
 
 const app = new Hono();
 
-app.use("*", httpInstrumentationMiddleware({ serviceName: "kubeasy-api" }));
+// Custom OTel Middleware for better correlation
+app.use("*", async (c, next) => {
+  const carrier = c.req.header();
+  const parentContext = propagation.extract(context.active(), carrier);
+
+  return context.with(parentContext, async () => {
+    const span = trace.getSpan(context.active());
+    if (span) {
+      // Annotate existing span with Hono info
+      span.setAttribute("http.route", c.req.path);
+    }
+    await next();
+  });
+});
 
 // CORS before everything (Better Auth reads Origin header)
 app.use(
@@ -22,7 +35,7 @@ app.use(
   }),
 );
 
-app.use("*", logger());
+app.use("*", honoLogger());
 
 // Session middleware on all /api routes (sets c.var.user, c.var.session)
 app.use("/api/*", sessionMiddleware);

@@ -1,3 +1,4 @@
+import { W3CTraceContextPropagator } from "@opentelemetry/core";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
@@ -25,6 +26,7 @@ const sdk = new NodeSDK({
     "deployment.environment": process.env.NODE_ENV ?? "development",
   }),
   resourceDetectors: [envDetector, processDetector],
+  textMapPropagator: new W3CTraceContextPropagator(),
   traceExporter: new OTLPTraceExporter({ url: `${otlpEndpoint}/v1/traces` }),
   logRecordProcessor: new BatchLogRecordProcessor(
     new OTLPLogExporter({ url: `${otlpEndpoint}/v1/logs` }),
@@ -37,12 +39,15 @@ const sdk = new NodeSDK({
     new RuntimeNodeInstrumentation(),
     new PgInstrumentation({
       enhancedDatabaseReporting: true,
-      requireParentSpan: false,
     }),
-    new IORedisInstrumentation({
-      requireParentSpan: false,
+    new IORedisInstrumentation(),
+    new PinoInstrumentation({
+      logKeys: {
+        traceId: "trace_id",
+        spanId: "span_id",
+        traceFlags: "trace_flags",
+      },
     }),
-    new PinoInstrumentation(),
   ],
 });
 
