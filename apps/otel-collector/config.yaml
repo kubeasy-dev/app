@@ -58,24 +58,26 @@ processors:
         - 'attributes["http.target"] == "/healthz"'
         - 'attributes["http.target"] == "/api/healthz"'
 
-exporters:  
+exporters:
+  debug:
+    verbosity: basic
   otlphttp/grafana_cloud:
     endpoint: "${env:GRAFANA_CLOUD_OTLP_ENDPOINT}"
     auth:
       authenticator: basicauth/grafana_cloud
 
 service:
-  extensions: [basicauth/grafana_cloud]
+  extensions: [health_check, basicauth/grafana_cloud]
   pipelines:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, resourcedetection, filter/healthcheck, transform/postgres, transform/redis, batch]
-      exporters: [otlphttp/grafana_cloud]
+      exporters: [debug, otlphttp/grafana_cloud]
     metrics:
       receivers: [otlp]
       processors: [memory_limiter, resourcedetection, batch]
-      exporters: [otlphttp/grafana_cloud]
+      exporters: [debug, otlphttp/grafana_cloud]
     logs:
       receivers: [otlp]
       processors: [memory_limiter, resourcedetection, transform/correlation, batch]
-      exporters: [otlphttp/grafana_cloud]
+      exporters: [debug, otlphttp/grafana_cloud]
