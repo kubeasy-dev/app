@@ -14,6 +14,17 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
 
+connectors:
+  spanmetrics:
+    histogram:
+      explicit:
+        buckets: [1ms, 5ms, 10ms, 20ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s]
+    dimensions:
+      - name: db.system
+      - name: db.operation
+      - name: db.statement
+      - name: service.name
+
 processors:
   batch:
   
@@ -26,15 +37,6 @@ processors:
     detectors: [env, system]
     timeout: 2s
     override: false
-
-  spanmetrics:
-    metrics_exporter: otlphttp/grafana_cloud
-    latency_histogram_buckets: [1ms, 5ms, 10ms, 20ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s]
-    dimensions:
-      - name: db.system
-      - name: db.operation
-      - name: db.statement
-      - name: service.name
 
   transform/correlation:
     error_mode: ignore
@@ -57,7 +59,6 @@ processors:
     trace_statements:
       - context: span
         statements:
-          # Normalise Redis (remplace les IDs dans les clés par ?)
           - replace_pattern(attributes["db.statement"], ":[a-f0-9-]{20,}", ":?") where attributes["db.system"] == "redis"
           - replace_pattern(attributes["db.statement"], ":\\d+", ":?") where attributes["db.system"] == "redis"
 
@@ -81,10 +82,10 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, resourcedetection, filter/healthcheck, transform/postgres, transform/redis, spanmetrics, batch]
-      exporters: [debug, otlphttp/grafana_cloud]
+      processors: [memory_limiter, resourcedetection, filter/healthcheck, transform/postgres, transform/redis, batch]
+      exporters: [debug, otlphttp/grafana_cloud, spanmetrics]
     metrics:
-      receivers: [otlp]
+      receivers: [otlp, spanmetrics]
       processors: [memory_limiter, resourcedetection, batch]
       exporters: [debug, otlphttp/grafana_cloud]
     logs:
