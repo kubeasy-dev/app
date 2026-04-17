@@ -12,16 +12,14 @@ const provider = new WebTracerProvider({
     "service.name": "kubeasy-admin-client",
     "service.version": "0.0.0",
   }),
+  spanProcessors: [
+    new BatchSpanProcessor(
+      new OTLPTraceExporter({
+        url: "/instrumentation/v1/traces",
+      }),
+    ),
+  ],
 });
-
-// Use the standard way to add a processor
-(provider as any).addSpanProcessor(
-  new BatchSpanProcessor(
-    new OTLPTraceExporter({
-      url: "/instrumentation/v1/traces",
-    }),
-  ),
-);
 
 provider.register({
   contextManager: new ZoneContextManager(),
