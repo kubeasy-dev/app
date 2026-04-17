@@ -23,6 +23,9 @@ connectors:
       - name: db.system
       - name: db.operation
       - name: db.statement
+      - name: http.method
+      - name: http.route
+      - name: http.status_code
 
 processors:
   batch:
