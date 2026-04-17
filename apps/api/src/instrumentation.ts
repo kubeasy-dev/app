@@ -1,3 +1,4 @@
+import { BullMQInstrumentation } from "@appsignal/opentelemetry-instrumentation-bullmq";
 import { W3CTraceContextPropagator } from "@opentelemetry/core";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
@@ -41,6 +42,7 @@ const sdk = new NodeSDK({
       enhancedDatabaseReporting: true,
     }),
     new IORedisInstrumentation(),
+    new BullMQInstrumentation(),
     new PinoInstrumentation({
       logKeys: {
         traceId: "trace_id",
