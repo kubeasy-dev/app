@@ -1,4 +1,9 @@
 import { BullMQInstrumentation } from "@appsignal/opentelemetry-instrumentation-bullmq";
+import { DiagConsoleLogger, DiagLogLevel, diag } from "@opentelemetry/api";
+
+// Enable diagnostics for troubleshooting
+diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
+
 import { W3CTraceContextPropagator } from "@opentelemetry/core";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
@@ -40,11 +45,8 @@ const sdk = new NodeSDK({
     new RuntimeNodeInstrumentation(),
     new PgInstrumentation({
       enhancedDatabaseReporting: true,
-      requireParentSpan: true, // Force les spans DB à être enfants d'une span existante (ex: HTTP)
     }),
-    new IORedisInstrumentation({
-      requireParentSpan: true,
-    }),
+    new IORedisInstrumentation(),
     new BullMQInstrumentation(),
     new PinoInstrumentation({
       logKeys: {
