@@ -14,7 +14,7 @@
     "apps/web": {
       "entry": ["src/**/*.{ts,tsx}", "*.config.{js,ts,mjs}", "app.config.ts"],
       "project": ["src/**/*.{ts,tsx}", "*.{ts,js,mjs,cjs}"],
-      "ignore": ["src/routeTree.gen.ts", "otel.mjs"],
+      "ignore": ["src/routeTree.gen.ts", "instrumentation.ts"],
       "ignoreDependencies": [
         "@tailwindcss/vite",
         "tailwindcss",
