@@ -1,4 +1,4 @@
-import { context, trace } from "@opentelemetry/api";
+import { httpInstrumentationMiddleware } from "@hono/otel";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger as honoLogger } from "hono/logger";
@@ -9,15 +9,8 @@ import { routes } from "./routes/index";
 
 const app = new Hono();
 
-// Custom OTel Middleware for better correlation
-app.use("*", async (c, next) => {
-  const span = trace.getSpan(context.active());
-  if (span) {
-    // Annotate existing span with Hono info
-    span.setAttribute("http.route", c.req.path);
-  }
-  await next();
-});
+// Official @hono/otel middleware for framework-native instrumentation
+app.use("*", httpInstrumentationMiddleware());
 
 // CORS before everything (Better Auth reads Origin header)
 app.use(
