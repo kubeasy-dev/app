@@ -32,7 +32,8 @@ processors:
     log_statements:
       - context: log
         statements:
-          - set(attributes["loki.resource.labels"], "service.name, deployment.environment")
+          - set(attributes["loki.resource.labels"], "service_name, deployment_environment")
+          - set(attributes["service_name"], resource.attributes["service.name"])
 
   transform/postgres:
     error_mode: ignore
