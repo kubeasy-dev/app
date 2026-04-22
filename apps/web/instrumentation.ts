@@ -42,7 +42,18 @@ const sdk = new NodeSDK({
   instrumentations: [
     new HttpInstrumentation(),
     new RuntimeNodeInstrumentation(),
-    new UndiciInstrumentation(),
+    new UndiciInstrumentation({
+      requestHook: (span, request) => {
+        const apiUrl = process.env.VITE_API_URL ?? "http://localhost:3001";
+        try {
+          const target = new URL(request.origin);
+          const api = new URL(apiUrl);
+          if (target.hostname === api.hostname && target.port === api.port) {
+            span.setAttribute("peer.service", "kubeasy-api");
+          }
+        } catch {}
+      },
+    }),
     new PinoInstrumentation(),
   ],
 });

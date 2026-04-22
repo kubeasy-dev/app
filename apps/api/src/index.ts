@@ -1,3 +1,4 @@
+import "./instrumentation.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { serve } from "@hono/node-server";
@@ -5,7 +6,6 @@ import { logger } from "@kubeasy/logger";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { app } from "./app";
 import { db } from "./db";
-import { sdk } from "./instrumentation";
 import { redis } from "./lib/redis";
 import { createChallengeSubmissionWorker } from "./workers/challenge-submission.worker";
 import { createUserSignupWorker } from "./workers/user-lifecycle.worker";
@@ -40,6 +40,7 @@ const gracefulShutdown = async (signal: string) => {
   server.close(); // 1. Stop accepting new HTTP/SSE connections
   await Promise.all(workers.map((w) => w.close())); // 2. Drain in-flight BullMQ jobs
   await redis.quit(); // 3. Close shared Redis connection
+  const { sdk } = await import("./instrumentation"); // cached module, no re-init
   await sdk.shutdown(); // 4. Flush remaining spans/logs
   logger.info("Shutdown complete");
   process.exit(0); // 5. Exit

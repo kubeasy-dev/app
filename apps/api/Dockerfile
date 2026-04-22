@@ -36,4 +36,4 @@ COPY --from=api-prepare --chown=hono:nodejs /app/apps/api/drizzle drizzle
 
 USER hono
 
-CMD ["node", "--import", "./dist/instrumentation.js", "dist/index.js"]
+CMD ["node", "dist/index.js"]

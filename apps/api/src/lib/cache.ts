@@ -1,5 +1,8 @@
-import { metrics } from "@opentelemetry/api";
+import { logger } from "@kubeasy/logger";
+import { metrics, SpanKind, SpanStatusCode, trace } from "@opentelemetry/api";
 import { redis } from "./redis";
+
+const tracer = trace.getTracer("kubeasy-api-cache");
 
 const meter = metrics.getMeter("kubeasy-api-cache");
 const cacheCounter = meter.createCounter("cache.operations", {
@@ -28,6 +31,10 @@ export function cacheKey(
   base: string,
   params?: Record<string, string | number | boolean | null | undefined>,
 ): string {
+  logger.debug("Generating cache key", {
+    base,
+    params: JSON.stringify(params),
+  });
   let key = `${PREFIX}${base}`;
   if (params) {
     const sorted = Object.entries(params)
@@ -40,21 +47,41 @@ export function cacheKey(
   return key;
 }
 
+const REDIS_ATTRS = {
+  "db.system": "redis",
+  "peer.service": "redis",
+} as const;
+
 /** Get a cached value. Returns null on miss or parse error. */
 export async function cacheGet<T>(key: string): Promise<T | null> {
   const base = key.split(":")[1] || "unknown";
-  try {
-    const raw = await redis.get(key);
-    if (!raw) {
-      cacheCounter.add(1, { status: "miss", key_prefix: base });
-      return null;
-    }
-    cacheCounter.add(1, { status: "hit", key_prefix: base });
-    return JSON.parse(raw) as T;
-  } catch (_error) {
-    cacheCounter.add(1, { status: "error", key_prefix: base });
-    return null;
-  }
+  logger.debug("Fetching from cache", { key });
+  return tracer.startActiveSpan(
+    "redis GET",
+    {
+      kind: SpanKind.CLIENT,
+      attributes: { ...REDIS_ATTRS, "db.statement": `GET ${key}` },
+    },
+    async (span) => {
+      try {
+        const raw = await redis.get(key);
+        if (!raw) {
+          cacheCounter.add(1, { status: "miss", key_prefix: base });
+          span.end();
+          return null;
+        }
+        cacheCounter.add(1, { status: "hit", key_prefix: base });
+        span.end();
+        return JSON.parse(raw) as T;
+      } catch (error) {
+        span.recordException(error as Error);
+        span.setStatus({ code: SpanStatusCode.ERROR });
+        span.end();
+        cacheCounter.add(1, { status: "error", key_prefix: base });
+        return null;
+      }
+    },
+  );
 }
 
 /** Set a cached value with a mandatory TTL in seconds. */
@@ -64,14 +91,37 @@ export async function cacheSet(
   ttlSeconds: number,
 ): Promise<void> {
   const base = key.split(":")[1] || "unknown";
-  await redis.set(key, JSON.stringify(data), "EX", ttlSeconds);
+  await tracer.startActiveSpan(
+    "redis SET",
+    {
+      kind: SpanKind.CLIENT,
+      attributes: {
+        ...REDIS_ATTRS,
+        "db.statement": `SET ${key} EX ${ttlSeconds}`,
+      },
+    },
+    async (span) => {
+      await redis.set(key, JSON.stringify(data), "EX", ttlSeconds);
+      span.end();
+    },
+  );
   cacheCounter.add(1, { status: "set", key_prefix: base });
 }
 
 /** Delete a single cache key. */
 export async function cacheDel(key: string): Promise<void> {
   const base = key.split(":")[1] || "unknown";
-  await redis.del(key);
+  await tracer.startActiveSpan(
+    "redis DEL",
+    {
+      kind: SpanKind.CLIENT,
+      attributes: { ...REDIS_ATTRS, "db.statement": `DEL ${key}` },
+    },
+    async (span) => {
+      await redis.del(key);
+      span.end();
+    },
+  );
   cacheCounter.add(1, { status: "del", key_prefix: base });
 }
 
@@ -80,20 +130,30 @@ export async function cacheDel(key: string): Promise<void> {
  * Example: cacheDelPattern("cache:u:abc123:*")
  */
 export async function cacheDelPattern(pattern: string): Promise<void> {
-  let cursor = "0";
-  do {
-    const [nextCursor, keys] = await redis.scan(
-      cursor,
-      "MATCH",
-      pattern,
-      "COUNT",
-      100,
-    );
-    cursor = nextCursor;
-    if (keys.length > 0) {
-      await redis.del(...keys);
-    }
-  } while (cursor !== "0");
+  await tracer.startActiveSpan(
+    "redis SCAN+DEL",
+    {
+      kind: SpanKind.CLIENT,
+      attributes: { ...REDIS_ATTRS, "db.statement": `SCAN MATCH ${pattern}` },
+    },
+    async (span) => {
+      let cursor = "0";
+      do {
+        const [nextCursor, keys] = await redis.scan(
+          cursor,
+          "MATCH",
+          pattern,
+          "COUNT",
+          100,
+        );
+        cursor = nextCursor;
+        if (keys.length > 0) {
+          await redis.del(...keys);
+        }
+      } while (cursor !== "0");
+      span.end();
+    },
+  );
 }
 
 /**

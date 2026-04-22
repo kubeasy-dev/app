@@ -3,8 +3,6 @@ import { W3CTraceContextPropagator } from "@opentelemetry/core";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
-import { IORedisInstrumentation } from "@opentelemetry/instrumentation-ioredis";
 import { PgInstrumentation } from "@opentelemetry/instrumentation-pg";
 import { PinoInstrumentation } from "@opentelemetry/instrumentation-pino";
 import { RuntimeNodeInstrumentation } from "@opentelemetry/instrumentation-runtime-node";
@@ -16,15 +14,19 @@ import {
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { NodeSDK } from "@opentelemetry/sdk-node";
+import {
+  ATTR_SERVICE_NAME,
+  ATTR_SERVICE_VERSION,
+} from "@opentelemetry/semantic-conventions";
 
 const otlpEndpoint =
   process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
 
 const sdk = new NodeSDK({
   resource: resourceFromAttributes({
-    "service.name": "kubeasy-api",
-    "service.version": process.env.npm_package_version ?? "0.0.0",
-    "deployment.environment": process.env.NODE_ENV ?? "development",
+    [ATTR_SERVICE_NAME]: "kubeasy-api",
+    [ATTR_SERVICE_VERSION]: process.env.npm_package_version ?? "0.0.0",
+    "deployment.environment.name": process.env.NODE_ENV ?? "development",
   }),
   resourceDetectors: [envDetector, processDetector],
   textMapPropagator: new W3CTraceContextPropagator(),
@@ -40,12 +42,11 @@ const sdk = new NodeSDK({
     }),
   ],
   instrumentations: [
-    new HttpInstrumentation(),
     new RuntimeNodeInstrumentation(),
     new PgInstrumentation({
       enhancedDatabaseReporting: true,
+      requireParentSpan: true,
     }),
-    new IORedisInstrumentation(),
     new BullMQInstrumentation(),
     new PinoInstrumentation({
       logKeys: {

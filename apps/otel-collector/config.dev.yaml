@@ -1,3 +1,7 @@
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
 receivers:
   otlp:
     protocols:
@@ -5,6 +9,14 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins:
+            - "http://localhost:3000"
+            - "http://localhost:3024"
+            - "https://kubeasy.dev"
+            - "https://*.kubeasy.dev"
+          allowed_headers:
+            - "*"
 
 processors:
   batch:
@@ -26,6 +38,15 @@ processors:
         statements:
           - set(attributes["loki.resource.labels"], "service.name, deployment.environment")
 
+  filter/noisy_requests:
+    error_mode: ignore
+    traces:
+      span:
+        - 'attributes["http.method"] == "HEAD"'
+        - 'attributes["http.request.method"] == "HEAD"'
+        - 'IsMatch(attributes["http.target"], ".*\\.(js|css|png|svg|ico|woff2|jpg|jpeg|map)$")'
+        - 'IsMatch(attributes["url.path"], ".*\\.(js|css|png|svg|ico|woff2|jpg|jpeg|map)$")'
+
   transform/postgres:
     error_mode: ignore
     trace_statements:
@@ -34,13 +55,11 @@ processors:
           - replace_pattern(attributes["db.statement"], "\\d+", "?") where attributes["db.system"] == "postgresql"
           - replace_pattern(attributes["db.statement"], "'[^']*'", "?") where attributes["db.system"] == "postgresql"
 
-  transform/redis:
-    error_mode: ignore
-    trace_statements:
-      - context: span
-        statements:
-          - replace_pattern(attributes["db.statement"], ":[a-f0-9-]{20,}", ":?") where attributes["db.system"] == "redis"
-          - replace_pattern(attributes["db.statement"], ":\\d+", ":?") where attributes["db.system"] == "redis"
+  resource/env_override:
+    attributes:
+      - key: deployment.environment.name
+        value: development
+        action: upsert
 
   filter/healthcheck:
     error_mode: ignore
@@ -51,19 +70,18 @@ processors:
 
 exporters:
   debug:
-    verbosity: detailed
+    verbosity: basic
+  otlphttp:
+    endpoint: ${env:OTLP_ENDPOINT}
 
 service:
+  extensions: [health_check]
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, resourcedetection, filter/healthcheck, transform/postgres, transform/redis, batch]
-      exporters: [debug]
-    metrics:
-      receivers: [otlp]
-      processors: [memory_limiter, resourcedetection, batch]
-      exporters: [debug]
+      processors: [memory_limiter, resourcedetection, resource/env_override, filter/healthcheck, filter/noisy_requests, transform/postgres, batch]
+      exporters: [otlphttp]
     logs:
       receivers: [otlp]
-      processors: [memory_limiter, resourcedetection, transform/correlation, batch]
-      exporters: [debug]
+      processors: [memory_limiter, resourcedetection, resource/env_override, transform/correlation, batch]
+      exporters: [otlphttp]

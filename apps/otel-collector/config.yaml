@@ -1,10 +1,6 @@
 extensions:
   health_check:
     endpoint: 0.0.0.0:13133
-  basicauth/grafana_cloud:
-    client_auth:
-      username: "${env:GRAFANA_CLOUD_INSTANCE_ID}"
-      password: "${env:GRAFANA_CLOUD_API_KEY}"
 
 receivers:
   otlp:
@@ -13,19 +9,14 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
-
-connectors:
-  spanmetrics:
-    histogram:
-      explicit:
-        buckets: [1ms, 5ms, 10ms, 20ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s]
-    dimensions:
-      - name: db.system
-      - name: db.operation
-      - name: db.statement
-      - name: http.method
-      - name: http.route
-      - name: http.status_code
+        cors:
+          allowed_origins:
+            - "http://localhost:3000"
+            - "http://localhost:3024"
+            - "https://kubeasy.dev"
+            - "https://*.kubeasy.dev"
+          allowed_headers:
+            - "*"
 
 processors:
   batch:
@@ -64,6 +55,12 @@ processors:
           - replace_pattern(attributes["db.statement"], "\\d+", "?") where attributes["db.system"] == "postgresql"
           - replace_pattern(attributes["db.statement"], "'[^']*'", "?") where attributes["db.system"] == "postgresql"
 
+  resource/env_override:
+    attributes:
+      - key: deployment.environment.name
+        value: production
+        action: upsert
+
   filter/healthcheck:
     error_mode: ignore
     traces:
@@ -74,23 +71,17 @@ processors:
 exporters:
   debug:
     verbosity: basic
-  otlphttp/grafana_cloud:
-    endpoint: "${env:GRAFANA_CLOUD_OTLP_ENDPOINT}"
-    auth:
-      authenticator: basicauth/grafana_cloud
+  otlphttp:
+    endpoint: ${env:OTLP_ENDPOINT}
 
 service:
-  extensions: [health_check, basicauth/grafana_cloud]
+  extensions: [health_check]
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, resourcedetection, filter/healthcheck, filter/noisy_requests, transform/postgres, batch]
-      exporters: [debug, otlphttp/grafana_cloud, spanmetrics]
-    metrics:
-      receivers: [otlp, spanmetrics]
-      processors: [memory_limiter, resourcedetection, batch]
-      exporters: [debug, otlphttp/grafana_cloud]
+      processors: [memory_limiter, resourcedetection, resource/env_override, filter/healthcheck, filter/noisy_requests, transform/postgres, batch]
+      exporters: [otlphttp]
     logs:
       receivers: [otlp]
-      processors: [memory_limiter, resourcedetection, transform/correlation, batch]
-      exporters: [debug, otlphttp/grafana_cloud]
+      processors: [memory_limiter, resourcedetection, resource/env_override, transform/correlation, batch]
+      exporters: [otlphttp]

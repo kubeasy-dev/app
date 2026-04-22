@@ -1,5 +1,6 @@
 {
   "enabledPlugins": {
-    "railway@railway-skills": true
+    "railway@railway-skills": true,
+    "andrej-karpathy-skills@karpathy-skills": true
   }
 }

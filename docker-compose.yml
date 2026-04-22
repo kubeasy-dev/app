@@ -32,13 +32,25 @@ services:
     build:
       context: ./apps/otel-collector
       args:
-        - CONFIG_PATH=config.dev.yaml
+        - CONFIG_FILE=config.dev.yaml
+    environment:
+      - DEPLOYMENT_ENVIRONMENT=development
+      - OTLP_ENDPOINT=http://otel-gui:55681
     ports:
       - "4317:4317" # OTLP gRPC
       - "4318:4318" # OTLP HTTP
     depends_on:
       - postgres
       - redis
+
+  otel-gui:
+    image: ghcr.io/metafab/otel-gui:latest
+    environment:
+      - PORT=55681
+    ports:
+      - "55681:55681"
+    depends_on:
+      - otel-collector
 
 volumes:
   postgres_data:
