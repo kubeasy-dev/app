@@ -615,6 +615,49 @@
                       "required": ["objectiveKey", "passed"]
                     },
                     "minItems": 1
+                  },
+                  "auditEvents": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "timestamp": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "verb": {
+                          "type": "string",
+                          "maxLength": 64
+                        },
+                        "resource": {
+                          "type": "string",
+                          "maxLength": 128
+                        },
+                        "subresource": {
+                          "type": "string",
+                          "maxLength": 128
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 253
+                        },
+                        "namespace": {
+                          "type": "string",
+                          "maxLength": 63
+                        },
+                        "userAgent": {
+                          "type": "string",
+                          "maxLength": 512
+                        },
+                        "responseCode": {
+                          "type": "integer",
+                          "minimum": 100,
+                          "maximum": 599
+                        }
+                      },
+                      "required": ["timestamp", "verb", "resource"]
+                    },
+                    "maxItems": 10000
                   }
                 },
                 "required": ["results"]
@@ -3455,6 +3498,49 @@
                       "required": ["objectiveKey", "passed"]
                     },
                     "minItems": 1
+                  },
+                  "auditEvents": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "timestamp": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "verb": {
+                          "type": "string",
+                          "maxLength": 64
+                        },
+                        "resource": {
+                          "type": "string",
+                          "maxLength": 128
+                        },
+                        "subresource": {
+                          "type": "string",
+                          "maxLength": 128
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 253
+                        },
+                        "namespace": {
+                          "type": "string",
+                          "maxLength": 63
+                        },
+                        "userAgent": {
+                          "type": "string",
+                          "maxLength": 512
+                        },
+                        "responseCode": {
+                          "type": "integer",
+                          "minimum": 100,
+                          "maximum": 599
+                        }
+                      },
+                      "required": ["timestamp", "verb", "resource"]
+                    },
+                    "maxItems": 10000
                   }
                 },
                 "required": ["results"]
@@ -4289,6 +4375,49 @@
                       "required": ["objectiveKey", "passed"]
                     },
                     "minItems": 1
+                  },
+                  "auditEvents": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "timestamp": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "verb": {
+                          "type": "string",
+                          "maxLength": 64
+                        },
+                        "resource": {
+                          "type": "string",
+                          "maxLength": 128
+                        },
+                        "subresource": {
+                          "type": "string",
+                          "maxLength": 128
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 253
+                        },
+                        "namespace": {
+                          "type": "string",
+                          "maxLength": 63
+                        },
+                        "userAgent": {
+                          "type": "string",
+                          "maxLength": 512
+                        },
+                        "responseCode": {
+                          "type": "integer",
+                          "minimum": 100,
+                          "maximum": 599
+                        }
+                      },
+                      "required": ["timestamp", "verb", "resource"]
+                    },
+                    "maxItems": 10000
                   }
                 },
                 "required": ["results"]
