@@ -59,36 +59,36 @@ submit.post(
       return c.json({ error: "Challenge not found" }, 404);
     }
 
-    // 2. Check if already completed (fast-path)
-    const [existingProgress] = await db
-      .select({
-        id: userProgress.id,
-        status: userProgress.status,
-        completedAt: userProgress.completedAt,
-      })
-      .from(userProgress)
-      .where(
-        and(
-          eq(userProgress.userId, userId),
-          eq(userProgress.challengeId, challengeData.id),
-        ),
-      )
-      .limit(1);
+    // 2 & 3. Run independent queries in parallel: check if already completed + fetch objective metadata
+    const [[existingProgress], objectiveMetadata] = await Promise.all([
+      db
+        .select({
+          id: userProgress.id,
+          status: userProgress.status,
+          completedAt: userProgress.completedAt,
+        })
+        .from(userProgress)
+        .where(
+          and(
+            eq(userProgress.userId, userId),
+            eq(userProgress.challengeId, challengeData.id),
+          ),
+        )
+        .limit(1),
+      db
+        .select({
+          objectiveKey: challengeObjective.objectiveKey,
+          title: challengeObjective.title,
+          description: challengeObjective.description,
+          category: challengeObjective.category,
+        })
+        .from(challengeObjective)
+        .where(eq(challengeObjective.challengeId, challengeData.id)),
+    ]);
 
     if (existingProgress?.status === "completed") {
       return c.json({ error: "Challenge already completed" }, 409);
     }
-
-    // 3. Fetch objective metadata
-    const objectiveMetadata = await db
-      .select({
-        objectiveKey: challengeObjective.objectiveKey,
-        title: challengeObjective.title,
-        description: challengeObjective.description,
-        category: challengeObjective.category,
-      })
-      .from(challengeObjective)
-      .where(eq(challengeObjective.challengeId, challengeData.id));
 
     const metadataMap = new Map(
       objectiveMetadata.map((m) => [m.objectiveKey, m]),
