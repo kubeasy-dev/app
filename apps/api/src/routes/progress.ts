@@ -86,24 +86,21 @@ progress.get(
         ? eq(challenge.theme, themeSlug)
         : undefined;
 
-      // Get total challenges (optionally filtered by theme)
-      const [totalResult] = await db
-        .select({ count: count() })
-        .from(challenge)
-        .where(themeFilter);
-
-      // Get completed challenges (optionally filtered by theme)
-      const [completedResult] = await db
-        .select({ count: count() })
-        .from(userProgress)
-        .innerJoin(challenge, eq(userProgress.challengeId, challenge.id))
-        .where(
-          and(
-            eq(userProgress.userId, userId),
-            eq(userProgress.status, "completed"),
-            themeFilter,
+      // Get total and completed challenges in parallel (independent queries)
+      const [[totalResult], [completedResult]] = await Promise.all([
+        db.select({ count: count() }).from(challenge).where(themeFilter),
+        db
+          .select({ count: count() })
+          .from(userProgress)
+          .innerJoin(challenge, eq(userProgress.challengeId, challenge.id))
+          .where(
+            and(
+              eq(userProgress.userId, userId),
+              eq(userProgress.status, "completed"),
+              themeFilter,
+            ),
           ),
-        );
+      ]);
 
       const totalCount = totalResult?.count ?? 0;
       const completedCount = completedResult?.count ?? 0;
