@@ -6,6 +6,7 @@ import {
   index,
   integer,
   json,
+  jsonb,
   pgEnum,
   pgTable,
   serial,
@@ -151,6 +152,10 @@ export const userSubmission = pgTable("user_submission", {
   // Objectives: flat list of validation results enriched from challengeObjective table
   // Structure: {id, name, description, passed, category, message}[]
   objectives: json("objectives"),
+  // Attempt number: increments per (userId, challengeId) across all submissions
+  attemptNumber: integer("attempt_number"),
+  // Raw kubectl audit events captured by the CLI during the attempt
+  auditEvents: jsonb("audit_events"),
 });
 
 export const xpActionEnum = pgEnum("xp_action", [

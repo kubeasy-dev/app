@@ -2,8 +2,9 @@ import { zValidator } from "@hono/zod-validator";
 import { queryKeys } from "@kubeasy/api-schemas/query-keys";
 import { createQueue, QUEUE_NAMES } from "@kubeasy/jobs";
 import { logger } from "@kubeasy/logger";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import { nanoid } from "nanoid";
 import { db } from "../db/index";
 import {
@@ -37,12 +38,13 @@ submit.post(
   "/:slug/submit",
   requireAuth,
   submitRateLimit,
+  bodyLimit({ maxSize: 1024 * 1024 }), // 1 MB
   zValidator("json", submitBodySchema),
   async (c) => {
     const user = c.get("user");
     const userId = user.id;
     const challengeSlug = c.req.param("slug");
-    const { results } = c.req.valid("json");
+    const { results, auditEvents } = c.req.valid("json");
 
     // 1. Find challenge by slug
     const [challengeData] = await db
@@ -138,13 +140,71 @@ submit.post(
     // 6. Determine validation result
     const validated = results.every((r) => r.passed);
 
-    // 7. Always store submission
-    await db.insert(userSubmission).values({
-      id: nanoid(),
-      userId,
-      challengeId: challengeData.id,
-      validated,
-      objectives,
+    // 7. Transaction: store submission + progress update atomically
+    const txResult = await db.transaction(async (tx) => {
+      // 7a. Compute next attempt_number for this (userId, challengeId)
+      const [{ nextAttempt }] = await tx
+        .select({
+          nextAttempt: sql<number>`COALESCE(MAX(${userSubmission.attemptNumber}), 0) + 1`,
+        })
+        .from(userSubmission)
+        .where(
+          and(
+            eq(userSubmission.userId, userId),
+            eq(userSubmission.challengeId, challengeData.id),
+          ),
+        );
+
+      // 7b. Always store submission (with attempt number and audit events)
+      await tx.insert(userSubmission).values({
+        id: nanoid(),
+        userId,
+        challengeId: challengeData.id,
+        validated,
+        objectives,
+        attemptNumber: nextAttempt,
+        auditEvents: auditEvents ?? null,
+      });
+
+      // 7c. If validation failed, no progress update needed
+      if (!validated) {
+        return { progressUpdated: false, failed: true };
+      }
+
+      // 7d. Atomic progress update (race guard)
+      let progressUpdated: boolean;
+      if (existingProgress) {
+        const updated = await tx
+          .update(userProgress)
+          .set({
+            status: "completed",
+            completedAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(userProgress.id, existingProgress.id),
+              ne(userProgress.status, "completed"),
+            ),
+          )
+          .returning({ id: userProgress.id });
+        progressUpdated = updated.length > 0;
+      } else {
+        const inserted = await tx
+          .insert(userProgress)
+          .values({
+            id: nanoid(),
+            userId,
+            challengeId: challengeData.id,
+            status: "completed",
+            completedAt: new Date(),
+          })
+          .onConflictDoNothing()
+          .returning({ id: userProgress.id });
+        progressUpdated = inserted.length > 0;
+      }
+
+      return { progressUpdated, failed: false };
     });
 
     // 7.5 Track submission with outcome (fire-and-forget)
@@ -184,7 +244,7 @@ submit.post(
     });
 
     // 8. If validation failed, return failure response
-    if (!validated) {
+    if (txResult.failed) {
       return c.json({
         success: false,
         objectives,
@@ -196,43 +256,8 @@ submit.post(
       });
     }
 
-    // 9. Atomic progress update (race guard)
-    let progressUpdated: boolean;
-    if (existingProgress) {
-      // Only update if not already completed — if RETURNING is empty, race was lost
-      const updated = await db
-        .update(userProgress)
-        .set({
-          status: "completed",
-          completedAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(userProgress.id, existingProgress.id),
-            ne(userProgress.status, "completed"),
-          ),
-        )
-        .returning({ id: userProgress.id });
-      progressUpdated = updated.length > 0;
-    } else {
-      // onConflictDoNothing + unique index catches concurrent inserts
-      const inserted = await db
-        .insert(userProgress)
-        .values({
-          id: nanoid(),
-          userId,
-          challengeId: challengeData.id,
-          status: "completed",
-          completedAt: new Date(),
-        })
-        .onConflictDoNothing()
-        .returning({ id: userProgress.id });
-      progressUpdated = inserted.length > 0;
-    }
-
-    // 10. If race was lost, return early
-    if (!progressUpdated) {
+    // 9. If race was lost, return early
+    if (!txResult.progressUpdated) {
       return c.json({ success: true, objectives });
     }
 

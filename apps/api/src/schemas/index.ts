@@ -27,12 +27,25 @@ export const objectiveSchema = z.object({
   message: z.string().optional(),
 });
 
+export const auditEventSchema = z.object({
+  timestamp: z.string(),
+  verb: z.string(),
+  resource: z.string(),
+  subresource: z.string().optional(),
+  name: z.string().optional(),
+  namespace: z.string().optional(),
+  userAgent: z.string().optional(),
+  responseCode: z.number().optional(),
+});
+
 export const submitBodySchema = z.object({
   results: z.array(objectiveResultSchema).min(1),
+  auditEvents: z.array(auditEventSchema).optional(),
 });
 
 export type ObjectiveResult = z.infer<typeof objectiveResultSchema>;
 export type Objective = z.infer<typeof objectiveSchema>;
+export type AuditEvent = z.infer<typeof auditEventSchema>;
 export type SubmitBody = z.infer<typeof submitBodySchema>;
 
 // ---- Challenge list filters ----
