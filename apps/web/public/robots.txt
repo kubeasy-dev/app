@@ -5,17 +5,22 @@ Disallow: /auth/
 Disallow: /onboarding
 Disallow: /admin/
 Disallow: /login
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 
 User-agent: GPTBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 
 User-agent: OAI-SearchBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 
 User-agent: ClaudeBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 
 User-agent: PerplexityBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 
 Sitemap: https://kubeasy.dev/sitemap.xml

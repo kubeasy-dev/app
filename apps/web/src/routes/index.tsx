@@ -7,8 +7,16 @@ import { HowItWorksSection } from "@/components/how-it-works-section";
 import { OpenSourceSection } from "@/components/open-source-section";
 import { StatsSection } from "@/components/stats-section";
 import { VideoSection } from "@/components/video-section";
+import { siteConfig } from "@/lib/constants";
 
 export const Route = createFileRoute("/")({
+  headers: () => ({
+    Link: [
+      `<${siteConfig.url}/docs>; rel="service-doc"`,
+      `<${siteConfig.url}/api/openapi/openapi.json>; rel="service-desc"; type="application/json"`,
+      `<${siteConfig.url}/>; rel="canonical"`,
+    ].join(", "),
+  }),
   component: HomePage,
 });
 
