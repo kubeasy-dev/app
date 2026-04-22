@@ -28,19 +28,19 @@ export const objectiveSchema = z.object({
 });
 
 export const auditEventSchema = z.object({
-  timestamp: z.string(),
-  verb: z.string(),
-  resource: z.string(),
-  subresource: z.string().optional(),
-  name: z.string().optional(),
-  namespace: z.string().optional(),
-  userAgent: z.string().optional(),
-  responseCode: z.number().optional(),
+  timestamp: z.string().datetime(),
+  verb: z.string().max(64),
+  resource: z.string().max(128),
+  subresource: z.string().max(128).optional(),
+  name: z.string().max(253).optional(), // k8s name max length
+  namespace: z.string().max(63).optional(), // k8s namespace max length
+  userAgent: z.string().max(512).optional(),
+  responseCode: z.number().int().min(100).max(599).optional(),
 });
 
 export const submitBodySchema = z.object({
   results: z.array(objectiveResultSchema).min(1),
-  auditEvents: z.array(auditEventSchema).optional(),
+  auditEvents: z.array(auditEventSchema).max(10_000).optional(),
 });
 
 export type ObjectiveResult = z.infer<typeof objectiveResultSchema>;

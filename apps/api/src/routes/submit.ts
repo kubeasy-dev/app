@@ -142,7 +142,10 @@ submit.post(
 
     // 7. Transaction: store submission + progress update atomically
     const txResult = await db.transaction(async (tx) => {
-      // 7a. Compute next attempt_number for this (userId, challengeId)
+      // 7a. Compute next attempt_number for this (userId, challengeId).
+      // The CLI is the only submit client and concurrent submits from one user are
+      // practically impossible, so MAX+1 is safe. The UNIQUE index on
+      // (user_id, challenge_id, attempt_number) is a hard guard if that assumption breaks.
       const [{ nextAttempt }] = await tx
         .select({
           nextAttempt: sql<number>`COALESCE(MAX(${userSubmission.attemptNumber}), 0) + 1`,
@@ -232,7 +235,7 @@ submit.post(
       queryKey: queryKeys.submissions.latest(challengeSlug),
     });
     redis.publish(sseChannel, ssePayload).catch((err) => {
-      console.error("Failed to publish SSE event", {
+      logger.error("[submit] SSE publish failed", {
         channel: sseChannel,
         error: String(err),
       });
@@ -240,7 +243,9 @@ submit.post(
 
     // Invalidate all server-side user caches (progress, xp, streak, challenge list)
     cacheDelPattern(`cache:u:${userId}:*`).catch((err) => {
-      console.error("[submit] cache invalidation failed", err);
+      logger.error("[submit] cache invalidation failed", {
+        error: String(err),
+      });
     });
 
     // 8. If validation failed, return failure response
@@ -261,7 +266,7 @@ submit.post(
       return c.json({ success: true, objectives });
     }
 
-    // 11. Dispatch CHALLENGE_SUBMISSION BullMQ job (fire-and-forget)
+    // 10. Dispatch CHALLENGE_SUBMISSION BullMQ job (fire-and-forget)
     challengeSubmissionQueue
       .add("challenge-completed", {
         userId,
@@ -270,10 +275,12 @@ submit.post(
         difficulty: challengeData.difficulty,
       })
       .catch((err) => {
-        console.error("[submit] challenge-submission job dispatch failed", err);
+        logger.error("[submit] challenge-submission job dispatch failed", {
+          error: String(err),
+        });
       });
 
-    // 12. Return success response
+    // 11. Return success response
     return c.json({ success: true, objectives });
   },
 );
