@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { FileText } from "lucide-react";
 import { useState } from "react";
 import { BlogCard } from "@/components/blog-card";
+import { siteConfig } from "@/lib/constants";
 import { blogListOptions } from "@/lib/query-options";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/blog/")({
   headers: () => ({
     "Cache-Control":
       "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+    Link: `<${siteConfig.url}/blog>; rel="alternate"; type="text/markdown"`,
   }),
   loader: async ({ context: { queryClient } }) => {
     await queryClient.ensureQueryData(blogListOptions());

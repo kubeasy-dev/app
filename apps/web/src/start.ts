@@ -1,5 +1,6 @@
 import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { createMiddleware, createStart } from "@tanstack/react-start";
+import { dispatchMarkdown } from "@/lib/markdown";
 
 const tracer = trace.getTracer("kubeasy-web");
 
@@ -39,6 +40,14 @@ const tracingMiddleware = createMiddleware({ type: "request" }).server(
   },
 );
 
+const markdownNegotiationMiddleware = createMiddleware({
+  type: "request",
+}).server(async ({ next, request }) => {
+  const response = await dispatchMarkdown(request);
+  if (response) return response;
+  return next();
+});
+
 export const startInstance = createStart(() => ({
-  requestMiddleware: [tracingMiddleware],
+  requestMiddleware: [markdownNegotiationMiddleware, tracingMiddleware],
 }));

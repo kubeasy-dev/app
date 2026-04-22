@@ -9,6 +9,7 @@ import { ChallengesFilters } from "@/components/challenges-filters";
 import { ChallengesGrid } from "@/components/challenges-grid";
 import { ChallengesQuickStartCTA } from "@/components/challenges-quick-start-cta";
 import { authClient } from "@/lib/auth-client";
+import { siteConfig } from "@/lib/constants";
 import {
   challengeListOptions,
   themeListOptions,
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/challenges/")({
   headers: () => ({
     "Cache-Control":
       "public, max-age=600, s-maxage=600, stale-while-revalidate=3600",
+    Link: `<${siteConfig.url}/challenges>; rel="alternate"; type="text/markdown"`,
   }),
   loader: async ({ context: { queryClient } }) => {
     await serverLog.info("page.load", { page: "challenges.list" });

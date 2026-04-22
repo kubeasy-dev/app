@@ -15,6 +15,7 @@ export const Route = createFileRoute("/")({
       `<${siteConfig.url}/docs>; rel="service-doc"`,
       `<${siteConfig.url}/api/openapi/openapi.json>; rel="service-desc"; type="application/json"`,
       `<${siteConfig.url}/>; rel="canonical"`,
+      `<${siteConfig.url}/>; rel="alternate"; type="text/markdown"`,
     ].join(", "),
   }),
   component: HomePage,
