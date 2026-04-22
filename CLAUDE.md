@@ -10,13 +10,18 @@ Kubeasy is a platform for learning Kubernetes through interactive challenges. Th
 
 ```
 apps/
-  web/          # Frontend — Vite + React 19 + TanStack Router/Start
-  api/          # Backend  — Hono.js + Drizzle ORM + BullMQ
+  web/             # Frontend — Vite + React 19 + TanStack Router/Start
+  api/             # Backend  — Hono.js + Drizzle ORM + BullMQ
+  admin/           # Admin panel — Vite + React 19 + TanStack Router (MFE, port via turbo get-mfe-port)
+  docs/            # Documentation — Next.js + Fumadocs
+  caddy/           # Reverse proxy config (Caddyfile + Dockerfile, no package.json)
+  otel-collector/  # OpenTelemetry Collector config (Dockerfile + YAML config, no package.json)
 
 packages/
   api-schemas/         # Shared Zod schemas and TypeScript types
   jobs/                # BullMQ job definitions (queue names, payloads, factory)
   logger/              # Shared Pino + OpenTelemetry logger
+  ui/                  # Shared shadcn/Radix UI component library (@kubeasy/ui)
   typescript-config/   # Shared tsconfig base files
 ```
 
@@ -28,7 +33,7 @@ Each app/package has its own `CLAUDE.md` with detailed guidance.
 # Install all dependencies
 pnpm install
 
-# Start both apps in dev mode (requires infra running)
+# Start all apps in dev mode (requires infra running)
 pnpm dev
 
 # Start local infrastructure (PostgreSQL + Redis via Docker)
@@ -51,6 +56,9 @@ pnpm test:run           # Run once (no watch mode)
 
 # Detect unused code
 pnpm knip
+
+# Regenerate OpenAPI spec (api app)
+pnpm openapi:generate
 ```
 
 ## Key Rules
@@ -85,23 +93,40 @@ Create `.env` files in each app (see their respective CLAUDE.md). Key variables:
 | `GOOGLE_CLIENT_ID/SECRET` | `apps/api` | Google OAuth |
 | `MICROSOFT_CLIENT_ID/SECRET` | `apps/api` | Microsoft OAuth |
 | `RESEND_API_KEY` | `apps/api` | Transactional email |
+| `POSTHOG_KEY` | `apps/api` | PostHog project API key (analytics) |
+| `POSTHOG_HOST` | `apps/api` | PostHog host (e.g. `https://eu.i.posthog.com`) |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `apps/api`, `apps/web` | OpenTelemetry collector endpoint |
+| `VITE_API_URL` | `apps/web`, `apps/admin` | API base URL for client-side fetch |
+| `NOTION_INTEGRATION_TOKEN` | `apps/web`, `apps/docs` | Notion integration secret (blog content) |
+| `NOTION_BLOG_DATASOURCE_ID` | `apps/web` | Notion DB for blog posts |
+| `NOTION_DIRECTORY_DATASOURCE_ID` | `apps/web` | Notion DB for directory |
+| `NOTION_PEOPLE_DATASOURCE_ID` | `apps/web` | Notion DB for team/people |
 
 ## Turbo Pipeline
 
 Defined in `turbo.json`:
-- `build` — builds packages before apps (topological)
+- `build` — builds packages before apps (topological); caches `.next/**`, `dist/**`, `.output/**`
 - `typecheck` — type-checks packages before apps (topological)
 - `dev` — runs all apps concurrently (persistent, no cache)
-- `start` — runs built apps (depends on `build`)
+- `start` — runs built apps (depends on `build`, persistent, no cache)
+- `openapi:generate` — generates `openapi.json` and `openapi-sync.json`
 
 ## Shared Packages
 
 Packages are referenced via workspace protocol:
 ```json
 "@kubeasy/api-schemas": "workspace:*"
+"@kubeasy/ui": "workspace:*"
 ```
 
 No build step is needed for packages — apps import TypeScript source directly.
+
+## Observability
+
+- **OpenTelemetry** is set up in both `apps/api` and `apps/web` (`src/instrumentation.ts`)
+- Traces, metrics, and logs are exported via OTLP HTTP to `OTEL_EXPORTER_OTLP_ENDPOINT`
+- `apps/otel-collector/` contains the OTel Collector config (two variants: `config.dev.yaml` for local, `config.yaml` for prod)
+- `apps/caddy/` is the reverse proxy sitting in front of all services in production
 
 ## Rules
 
