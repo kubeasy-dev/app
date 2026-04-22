@@ -1,6 +1,6 @@
 // ⚠️ AUTO-GENERATED - DO NOT EDIT
-// Source: github.com/kubeasy-dev/kubeasy-cli/internal/validation
-// Run: go run hack/generate-schema/main.go > path/to/challengeObjectives.ts
+// Source: github.com/kubeasy-dev/registry/pkg/challenges
+// Run: go run . generate-schema
 // biome-ignore-all lint: auto-generated file
 
 import { z } from "zod";
@@ -56,6 +56,22 @@ export const RbacCheckSchema = z.object({
   allowed: z.boolean(),
 })
 export type RbacCheck = z.infer<typeof RbacCheckSchema>
+
+export const ThemeSchema = z.object({
+  slug: z.string(),
+  name: z.string(),
+  description: z.string(),
+  logo: z.string(),
+})
+export type Theme = z.infer<typeof ThemeSchema>
+
+export const ChallengeTypeInfoSchema = z.object({
+  slug: z.string(),
+  name: z.string(),
+  description: z.string(),
+  logo: z.string(),
+})
+export type ChallengeTypeInfo = z.infer<typeof ChallengeTypeInfoSchema>
 
 export const StatusSpecSchema = z.object({
   target: TargetSchema,
@@ -129,7 +145,7 @@ export const TriggerConfigSchema = z.object({
 })
 export type TriggerConfig = z.infer<typeof TriggerConfigSchema>
 
-export const ValidationSchema = z.object({
+export const ObjectiveSchema = z.object({
   key: z.string(),
   title: z.string(),
   description: z.string(),
@@ -137,12 +153,12 @@ export const ValidationSchema = z.object({
   type: z.string(),
   spec: z.any(),
 })
-export type Validation = z.infer<typeof ValidationSchema>
+export type Objective = z.infer<typeof ObjectiveSchema>
 
 export const TriggeredSpecSchema = z.object({
   trigger: TriggerConfigSchema,
   waitAfterSeconds: z.number(),
-  then: ValidationSchema.array().nullable(),
+  then: ObjectiveSchema.array().nullable(),
 })
 export type TriggeredSpec = z.infer<typeof TriggeredSpecSchema>
 
@@ -181,26 +197,43 @@ export const ObjectiveSchema = z.object({
 });
 export type Objective = z.infer<typeof ObjectiveSchema>;
 
-export const challengeYamlDifficultyValues = ["easy", "medium", "hard"] as const;
-export const ChallengeYamlDifficultySchema = z.enum(challengeYamlDifficultyValues);
-export type ChallengeYamlDifficulty = z.infer<typeof ChallengeYamlDifficultySchema>;
+export const challengeDifficultyValues = ["easy", "medium", "hard"] as const;
+export const ChallengeDifficultySchema = z.enum(challengeDifficultyValues);
+export type ChallengeDifficulty = z.infer<typeof ChallengeDifficultySchema>;
 
-export const challengeYamlTypeValues = ["fix", "build", "migrate"] as const;
-export const ChallengeYamlTypeSchema = z.enum(challengeYamlTypeValues);
-export type ChallengeYamlType = z.infer<typeof ChallengeYamlTypeSchema>;
+export const challengeTypeValues = ["fix", "build", "migrate"] as const;
+export const ChallengeTypeSchema = z.enum(challengeTypeValues);
+export type ChallengeType = z.infer<typeof ChallengeTypeSchema>;
 
-// ChallengeYamlSchema is the single source of truth for the challenge.yaml file format.
-// Generated from ChallengeYamlSpec in github.com/kubeasy-dev/kubeasy-cli/internal/validation/vtypes.
-// Required fields map to non-omitempty struct fields; optional fields map to omitempty fields.
-export const ChallengeYamlSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().min(1),
-  theme: z.string().min(1),
-  difficulty: ChallengeYamlDifficultySchema,
-  type: ChallengeYamlTypeSchema.default("fix"),
-  estimatedTime: z.number().int().positive(),
-  initialSituation: z.string().min(1),
+export const challengeThemeValues = ["pods-containers", "resources-scaling", "networking", "volumes-secrets", "rbac-security", "scheduling-affinity", "jobs-cronjobs", "ingress-tls", "monitoring-debugging"] as const;
+export const ChallengeThemeSchema = z.enum(challengeThemeValues);
+export type ChallengeTheme = z.infer<typeof ChallengeThemeSchema>;
+
+// ChallengeSchema mirrors the Challenge struct in pkg/challenges/types.go.
+// difficulty and type are narrowed to enums; objectives uses the typed ObjectiveSchema.
+export const ChallengeSchema = z.object({
+  slug: z.string(),
+  title: z.string(),
+  description: z.string(),
+  theme: ChallengeThemeSchema,
+  difficulty: ChallengeDifficultySchema,
+  type: ChallengeTypeSchema,
+  estimatedTime: z.number().int(),
+  initialSituation: z.string(),
   minRequiredVersion: z.string().optional(),
-  objectives: z.array(ObjectiveSchema).default([]),
+  objectives: z.array(ObjectiveSchema),
 });
+export type Challenge = z.infer<typeof ChallengeSchema>;
+
+// ChallengeYamlSchema is the challenge.yaml file format — same shape as ChallengeSchema
+// minus the slug (which is derived from the folder name by the registry loader).
+export const ChallengeYamlSchema = ChallengeSchema.omit({ slug: true });
 export type ChallengeYaml = z.infer<typeof ChallengeYamlSchema>;
+
+// RegistryMetaSchema mirrors the GET /meta response from the registry.
+export const RegistryMetaSchema = z.object({
+  themes: z.array(ThemeSchema),
+  types: z.array(ChallengeTypeInfoSchema),
+  difficulties: z.array(z.string()),
+});
+export type RegistryMeta = z.infer<typeof RegistryMetaSchema>;
