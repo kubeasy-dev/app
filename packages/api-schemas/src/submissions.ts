@@ -73,7 +73,7 @@ export type ChallengeSubmitOutput = z.infer<typeof ChallengeSubmitOutputSchema>;
 export const SubmissionRecordSchema = z.object({
   id: z.string(),
   userId: z.string(),
-  challengeId: z.number().int(),
+  challengeSlug: z.string(),
   validated: z.boolean(),
   objectives: z.array(ObjectiveSchema).nullable(),
   timestamp: z.string().describe("ISO 8601 date string"),

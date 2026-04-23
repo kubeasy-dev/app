@@ -1,7 +1,6 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import {
   ChallengeDetailSchema,
-  ChallengeGetObjectivesOutputSchema,
   ChallengeListOutputSchema,
 } from "@kubeasy/api-schemas/challenges";
 import { EmailTopicSchema } from "@kubeasy/api-schemas/email";
@@ -15,8 +14,6 @@ import {
   XpAndRankOutputSchema,
 } from "@kubeasy/api-schemas/progress";
 import { SubmissionRecordSchema } from "@kubeasy/api-schemas/submissions";
-import { ThemeSchema } from "@kubeasy/api-schemas/themes";
-import { TypeSchema } from "@kubeasy/api-schemas/types";
 import { XpHistoryItemSchema } from "@kubeasy/api-schemas/xp";
 import { z } from "zod";
 import {
@@ -25,7 +22,6 @@ import {
   objectiveSchema,
   submitBodySchema,
 } from "../schemas/index";
-import { syncRequestSchema } from "../schemas/sync";
 
 // ---------------------------------------------------------------------------
 // Shared helpers
@@ -121,25 +117,6 @@ const getChallengeRoute = createRoute({
         "application/json": {
           schema: z.object({ challenge: ChallengeDetailSchema.nullable() }),
         },
-      },
-    },
-    ...commonErrors,
-  },
-});
-
-const getChallengeObjectivesRoute = createRoute({
-  method: "get",
-  path: "/api/challenges/{slug}/objectives",
-  operationId: "getChallengeObjectives",
-  summary: "Get challenge objectives",
-  tags: ["Challenges"],
-  security: [],
-  request: { params: slugParam },
-  responses: {
-    200: {
-      description: "Challenge objectives",
-      content: {
-        "application/json": { schema: ChallengeGetObjectivesOutputSchema },
       },
     },
     ...commonErrors,
@@ -543,40 +520,6 @@ const skipOnboardingRoute = onboardingActionRoute(
 );
 
 // ---------------------------------------------------------------------------
-// Metadata (no auth)
-// ---------------------------------------------------------------------------
-
-const getTypesRoute = createRoute({
-  method: "get",
-  path: "/api/types",
-  operationId: "getTypes",
-  summary: "List challenge types",
-  tags: ["Metadata"],
-  responses: {
-    200: {
-      description: "Challenge types",
-      content: { "application/json": { schema: z.array(TypeSchema) } },
-    },
-    ...commonErrors,
-  },
-});
-
-const getThemesRoute = createRoute({
-  method: "get",
-  path: "/api/themes",
-  operationId: "getThemes",
-  summary: "List challenge themes",
-  tags: ["Metadata"],
-  responses: {
-    200: {
-      description: "Challenge themes",
-      content: { "application/json": { schema: z.array(ThemeSchema) } },
-    },
-    ...commonErrors,
-  },
-});
-
-// ---------------------------------------------------------------------------
 // Deprecated CLI routes
 // ---------------------------------------------------------------------------
 
@@ -829,7 +772,6 @@ const stub = (() => null) as never;
 // Challenges
 apiApp.openapi(getChallengesRoute, stub);
 apiApp.openapi(getChallengeRoute, stub);
-apiApp.openapi(getChallengeObjectivesRoute, stub);
 apiApp.openapi(submitChallengeRoute, stub);
 // Progress
 apiApp.openapi(getCompletionRoute, stub);
@@ -853,9 +795,6 @@ apiApp.openapi(getOnboardingRoute, stub);
 apiApp.openapi(startOnboardingRoute, stub);
 apiApp.openapi(completeOnboardingRoute, stub);
 apiApp.openapi(skipOnboardingRoute, stub);
-// Metadata
-apiApp.openapi(getTypesRoute, stub);
-apiApp.openapi(getThemesRoute, stub);
 // Deprecated
 apiApp.openapi(deprecatedGetUserRoute, stub);
 apiApp.openapi(deprecatedLoginUserRoute, stub);
@@ -866,59 +805,3 @@ apiApp.openapi(deprecatedGetChallengeStatusRoute, stub);
 apiApp.openapi(deprecatedStartChallengeRoute, stub);
 apiApp.openapi(deprecatedResetChallengeRoute, stub);
 apiApp.openapi(deprecatedSubmitChallengeLegacyRoute, stub);
-
-// ---------------------------------------------------------------------------
-// Sync API — route definitions
-// ---------------------------------------------------------------------------
-
-const syncChallengesRoute = createRoute({
-  method: "post",
-  path: "/api/admin/challenges/sync",
-  operationId: "syncChallenges",
-  summary: "Sync all challenges from source of truth",
-  description:
-    "Full upsert/delete sync of challenges and their objectives. Intended to be called from CI/CD after merging to the challenges repository.",
-  tags: ["Sync"],
-  security: bearerAuth,
-  request: {
-    body: {
-      required: true,
-      content: { "application/json": { schema: syncRequestSchema } },
-    },
-  },
-  responses: {
-    200: {
-      description: "Sync completed",
-      content: {
-        "application/json": {
-          schema: z.object({
-            success: z.boolean(),
-            created: z.number().int(),
-            updated: z.number().int(),
-            deleted: z.number().int(),
-            details: z.object({
-              created: z.array(z.string()),
-              updated: z.array(z.string()),
-              deleted: z.array(z.string()),
-            }),
-          }),
-        },
-      },
-    },
-    ...commonErrors,
-  },
-});
-
-// ---------------------------------------------------------------------------
-// Sync API app — spec-only, never mounted in main router
-// ---------------------------------------------------------------------------
-
-export const syncApiApp = new OpenAPIHono();
-
-syncApiApp.openAPIRegistry.registerComponent("securitySchemes", "BearerAuth", {
-  type: "http",
-  scheme: "bearer",
-  description: "API key with admin privileges",
-});
-
-syncApiApp.openapi(syncChallengesRoute, stub);

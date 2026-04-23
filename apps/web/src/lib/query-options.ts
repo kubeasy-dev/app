@@ -2,6 +2,7 @@ import type { ChallengeListInput } from "@kubeasy/api-schemas/challenges";
 import { queryOptions } from "@tanstack/react-query";
 import { api } from "./api-client";
 import { fetchBlogPostDetailFn, fetchBlogPostsFn } from "./blog.functions";
+import { getRegistryMeta } from "./registry-client";
 
 // --- Challenges ---
 
@@ -36,37 +37,13 @@ export function challengeObjectivesOptions(slug: string) {
   });
 }
 
-// --- Themes ---
+// --- Registry ---
 
-export function themeListOptions() {
+export function registryMetaOptions() {
   return queryOptions({
-    queryKey: ["themes", "list"],
-    queryFn: () => api.themes.list(),
-    staleTime: 5 * 60 * 1000,
-  });
-}
-
-export function themeDetailOptions(slug: string) {
-  return queryOptions({
-    queryKey: ["themes", "detail", slug],
-    queryFn: () => api.themes.getBySlug(slug),
-  });
-}
-
-// --- Types ---
-
-export function typeListOptions() {
-  return queryOptions({
-    queryKey: ["types", "list"],
-    queryFn: () => api.types.list(),
-    staleTime: 5 * 60 * 1000,
-  });
-}
-
-export function typeDetailOptions(slug: string) {
-  return queryOptions({
-    queryKey: ["types", "detail", slug],
-    queryFn: () => api.types.getBySlug(slug),
+    queryKey: ["registry", "meta"],
+    queryFn: () => getRegistryMeta(),
+    staleTime: 60 * 60 * 1000, // 1h — themes/types change rarely
   });
 }
 
@@ -167,12 +144,5 @@ export function adminChallengesOptions() {
   return queryOptions({
     queryKey: ["admin", "challenges"],
     queryFn: () => api.admin.challenges(),
-  });
-}
-
-export function adminStatsOptions() {
-  return queryOptions({
-    queryKey: ["admin", "stats"],
-    queryFn: () => api.admin.stats(),
   });
 }

@@ -22,35 +22,9 @@ export const SlugInputSchema = z.object({
 });
 export type SlugInput = z.infer<typeof SlugInputSchema>;
 
-export const ChallengeDeleteInputSchema = z.object({
-  slug: z.string().min(1),
-});
-export type ChallengeDeleteInput = z.infer<typeof ChallengeDeleteInputSchema>;
-
-export const ChallengeSetAvailabilityInputSchema = z.object({
-  slug: z.string(),
-  available: z.boolean(),
-});
-export type ChallengeSetAvailabilityInput = z.infer<
-  typeof ChallengeSetAvailabilityInputSchema
->;
-
-export const ChallengeCreateInputSchema = z.object({
-  slug: z.string().min(1),
-  title: z.string().min(1),
-  description: z.string().min(1),
-  theme: z.string().min(1),
-  difficulty: ChallengeDifficultySchema,
-  estimatedTime: z.number().int().positive(),
-  initialSituation: z.string().min(1),
-  ofTheWeek: z.boolean().default(false),
-});
-export type ChallengeCreateInput = z.infer<typeof ChallengeCreateInputSchema>;
-
 // ---------- Outputs ----------
 
 export const ChallengeListItemSchema = z.object({
-  id: z.number().int(),
   slug: z.string(),
   title: z.string(),
   description: z.string(),
@@ -62,8 +36,6 @@ export const ChallengeListItemSchema = z.object({
   estimatedTime: z.number().int(),
   initialSituation: z.string(),
   ofTheWeek: z.boolean(),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
   completedCount: z.number().int(),
   userStatus: z.string().nullable(),
 });
@@ -76,7 +48,6 @@ export const ChallengeListOutputSchema = z.object({
 export type ChallengeListOutput = z.infer<typeof ChallengeListOutputSchema>;
 
 export const ChallengeDetailSchema = z.object({
-  id: z.number().int(),
   slug: z.string(),
   title: z.string(),
   description: z.string(),
@@ -90,8 +61,6 @@ export const ChallengeDetailSchema = z.object({
   ofTheWeek: z.boolean(),
   available: z.boolean(),
   starterFriendly: z.boolean(),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
 });
 export type ChallengeDetail = z.infer<typeof ChallengeDetailSchema>;
 
@@ -103,7 +72,6 @@ export type ChallengeGetBySlugOutput = z.infer<
 >;
 
 export const ChallengeObjectiveItemSchema = z.object({
-  id: z.number().int(),
   objectiveKey: z.string(),
   title: z.string(),
   description: z.string(),
@@ -121,23 +89,9 @@ export type ChallengeGetObjectivesOutput = z.infer<
   typeof ChallengeGetObjectivesOutputSchema
 >;
 
-export const ChallengeCreateOutputSchema = z.object({
-  success: z.boolean(),
-  challenge: z.any(),
-  action: z.enum(["created", "updated"]),
-});
-export type ChallengeCreateOutput = z.infer<typeof ChallengeCreateOutputSchema>;
-
-export const ChallengeDeleteOutputSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
-});
-export type ChallengeDeleteOutput = z.infer<typeof ChallengeDeleteOutputSchema>;
-
 // ---------- Admin ----------
 
 export const AdminChallengeItemSchema = z.object({
-  id: z.number().int(),
   slug: z.string(),
   title: z.string(),
   difficulty: ChallengeDifficultySchema,
@@ -145,7 +99,6 @@ export const AdminChallengeItemSchema = z.object({
   type: z.string(),
   available: z.boolean(),
   ofTheWeek: z.boolean(),
-  createdAt: z.coerce.date(),
   starts: z.number().int(),
   completions: z.number().int(),
   totalSubmissions: z.number().int(),
