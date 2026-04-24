@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { CliMetadataSchema } from "@kubeasy/api-schemas/cli";
 import { queryKeys } from "@kubeasy/api-schemas/query-keys";
+import { logger } from "@kubeasy/logger";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import type { z } from "zod";
@@ -76,7 +77,8 @@ async function handleCliOnboarding(
   const channel = `invalidate-cache:${userId}`;
   const payload = JSON.stringify({ queryKey: queryKeys.onboarding() });
   redis.publish(channel, payload).catch((err) => {
-    console.error(`[${source}] SSE publish failed`, {
+    logger.error(`[${source}] SSE publish failed`, {
+      userId,
       channel,
       error: String(err),
     });
@@ -147,7 +149,8 @@ cli.post("/track/setup", zValidator("json", CliMetadataSchema), async (c) => {
   const channel = `invalidate-cache:${userId}`;
   const payload = JSON.stringify({ queryKey: queryKeys.onboarding() });
   redis.publish(channel, payload).catch((err) => {
-    console.error("[cli/track/setup] SSE publish failed", {
+    logger.error("[cli/track/setup] SSE publish failed", {
+      userId,
       channel,
       error: String(err),
     });

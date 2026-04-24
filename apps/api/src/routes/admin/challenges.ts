@@ -1,4 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
+import { logger } from "@kubeasy/logger";
 import { all } from "better-all";
 import { count, sql } from "drizzle-orm";
 import { Hono } from "hono";
@@ -128,7 +129,10 @@ adminChallenges.patch(
       cacheDelPattern(`cache:challenges:objectives:*${slug}*`),
       cacheDelPattern("cache:u:*:challenges:list:*"),
     ]).catch((err) => {
-      console.error("[admin/challenges] cache invalidation failed", err);
+      logger.error("[admin/challenges] cache invalidation failed", {
+        slug,
+        error: String(err),
+      });
     });
 
     return c.json({ success: true });
