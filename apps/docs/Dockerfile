@@ -30,9 +30,8 @@ COPY --from=docs-builder --chown=nextjs:nodejs /app/apps/docs/.next/static ./app
 COPY --from=docs-builder --chown=nextjs:nodejs /app/apps/docs/next.config.mjs ./apps/docs/next.config.mjs
 COPY --from=docs-builder --chown=nextjs:nodejs /app/apps/docs/source.config.ts ./apps/docs/source.config.ts
 COPY --from=docs-builder --chown=nextjs:nodejs /app/apps/docs/public ./apps/docs/public
-COPY --from=docs-builder --chown=nextjs:nodejs /app/apps/api/openapi.json ./apps/api/openapi.json
+COPY --from=docs-builder --chown=nextjs:nodejs /app/apps/docs/openapi-registry.json ./apps/docs/openapi-registry.json
 
 USER nextjs
-
 ENV HOSTNAME="0.0.0.0"
 CMD ["node", "apps/docs/server.js"]
