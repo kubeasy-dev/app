@@ -1,4 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
+import { CliMetadataSchema } from "@kubeasy/api-schemas/cli";
 import { queryKeys } from "@kubeasy/api-schemas/query-keys";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
@@ -8,7 +9,6 @@ import { trackCliLogin, trackCliSetup } from "../../lib/analytics-server";
 import { redis } from "../../lib/redis";
 import { apiKeyMiddleware } from "../../middleware/api-key";
 import type { SessionUser } from "../../middleware/session";
-import { cliMetadataSchema } from "../../schemas/index";
 import { submit } from "../submit";
 import { legacyCli } from "./legacy";
 
@@ -48,7 +48,7 @@ cli.get("/user", async (c) => {
 });
 
 // POST /cli/user -- returns user info + tracks CLI login for onboarding
-cli.post("/user", zValidator("json", cliMetadataSchema), async (c) => {
+cli.post("/user", zValidator("json", CliMetadataSchema), async (c) => {
   const user = c.get("user");
   const userId = user.id;
   const { cliVersion, os, arch } = c.req.valid("json");
@@ -98,7 +98,7 @@ cli.post("/user", zValidator("json", cliMetadataSchema), async (c) => {
 });
 
 // POST /cli/track/setup -- tracks cluster initialization for onboarding
-cli.post("/track/setup", zValidator("json", cliMetadataSchema), async (c) => {
+cli.post("/track/setup", zValidator("json", CliMetadataSchema), async (c) => {
   const user = c.get("user");
   const userId = user.id;
   const { cliVersion, os, arch } = c.req.valid("json");

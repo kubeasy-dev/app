@@ -1,4 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
+import { ChallengeFiltersSchema } from "@kubeasy/api-schemas/challenges";
 import { eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../db/index";
@@ -6,12 +7,11 @@ import { challengeMetadata, userProgress } from "../db/schema/index";
 import { cached, cacheKey, TTL } from "../lib/cache";
 import { getChallenge, getMeta, listChallenges } from "../lib/registry";
 import type { AppEnv } from "../middleware/session";
-import { challengeFiltersSchema } from "../schemas/index";
 
 const challenges = new Hono<AppEnv>();
 
 // GET /challenges -- list with filters (proxied from registry, enriched with DB progress + metadata)
-challenges.get("/", zValidator("query", challengeFiltersSchema), async (c) => {
+challenges.get("/", zValidator("query", ChallengeFiltersSchema), async (c) => {
   const user = c.get("user");
   const userId = user?.id;
   const { difficulty, type, theme, search, showCompleted } =
@@ -106,6 +106,14 @@ challenges.get("/", zValidator("query", challengeFiltersSchema), async (c) => {
   return c.json(result);
 });
 
+// GET /challenges/meta -- proxy registry meta (themes, types)
+challenges.get("/meta", async (c) => {
+  const result = await cached(cacheKey("registry:meta:proxy"), TTL.STATIC, () =>
+    getMeta(),
+  );
+  return c.json(result);
+});
+
 // GET /challenges/:slug -- challenge detail
 challenges.get("/:slug", async (c) => {
   const slug = c.req.param("slug");
@@ -171,7 +179,7 @@ challenges.get("/:slug/objectives", async (c) => {
       if (!detail || !available) {
         return { objectives: [] as typeof objectives };
       }
-      const objectives = detail.objectives.map((o) => ({
+      const objectives = (detail.objectives ?? []).map((o) => ({
         objectiveKey: o.key,
         title: o.title,
         description: o.description,

@@ -30,7 +30,9 @@ export const Route = createFileRoute("/challenges/")({
   loader: async ({ context: { queryClient } }) => {
     await serverLog.info("page.load", { page: "challenges.list" });
     await Promise.all([
-      queryClient.ensureQueryData(challengeListOptions()),
+      queryClient.ensureQueryData(
+        challengeListOptions({ showCompleted: true }),
+      ),
       queryClient.ensureQueryData(registryMetaOptions()),
     ]);
   },
@@ -91,7 +93,9 @@ function ChallengesView() {
 }
 
 function ChallengesListingPage() {
-  const { data } = useSuspenseQuery(challengeListOptions());
+  const { data } = useSuspenseQuery(
+    challengeListOptions({ showCompleted: true }),
+  );
 
   return (
     <div className="container mx-auto px-4 max-w-7xl">

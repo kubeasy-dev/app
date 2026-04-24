@@ -5,6 +5,7 @@ import type {
   ChallengeListInput,
   ChallengeListOutput,
 } from "@kubeasy/api-schemas/challenges";
+import type { RegistryMeta } from "@kubeasy/api-schemas/registry";
 import type { SubmissionRecord } from "@kubeasy/api-schemas/submissions";
 import { createIsomorphicFn } from "@tanstack/react-start";
 
@@ -88,6 +89,7 @@ export const api = {
       apiFetch<ChallengeGetBySlugOutput>(`/challenges/${slug}`),
     getObjectives: (slug: string) =>
       apiFetch<ChallengeGetObjectivesOutput>(`/challenges/${slug}/objectives`),
+    getMeta: () => apiFetch<RegistryMeta>("/challenges/meta"),
   },
 
   progress: {

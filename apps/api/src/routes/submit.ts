@@ -1,5 +1,6 @@
 import { zValidator } from "@hono/zod-validator";
 import { queryKeys } from "@kubeasy/api-schemas/query-keys";
+import { SubmitBodySchema } from "@kubeasy/api-schemas/submissions";
 import { createQueue, QUEUE_NAMES } from "@kubeasy/jobs";
 import { logger } from "@kubeasy/logger";
 import { and, eq, ne, sql } from "drizzle-orm";
@@ -14,7 +15,6 @@ import { redis } from "../lib/redis";
 import { getChallenge } from "../lib/registry";
 import { slidingWindowRateLimit } from "../middleware/rate-limit";
 import { requireAuth } from "../middleware/session";
-import { submitBodySchema } from "../schemas/index";
 
 const challengeSubmissionQueue = createQueue(
   QUEUE_NAMES.CHALLENGE_SUBMISSION,
@@ -35,7 +35,7 @@ submit.post(
   requireAuth,
   submitRateLimit,
   bodyLimit({ maxSize: 1024 * 1024 }), // 1 MB
-  zValidator("json", submitBodySchema),
+  zValidator("json", SubmitBodySchema),
   async (c) => {
     const user = c.get("user");
     const userId = user.id;
@@ -69,12 +69,14 @@ submit.post(
     }
 
     // 3. Enrich results with registry objective metadata
-    const objectiveMap = new Map(detail.objectives.map((o) => [o.key, o]));
+    const objectiveMap = new Map(
+      (detail.objectives ?? []).map((o) => [o.key, o]),
+    );
     const objectives = results.map((r) => {
       const obj = objectiveMap.get(r.objectiveKey);
       return {
-        id: r.objectiveKey,
-        name: obj?.title ?? r.objectiveKey,
+        key: r.objectiveKey,
+        title: obj?.title ?? r.objectiveKey,
         description: obj?.description,
         passed: r.passed,
         category: obj?.type ?? "status",
@@ -179,7 +181,7 @@ submit.post(
       failedObjectives.length > 0
         ? {
             count: failedObjectives.length,
-            ids: failedObjectives.map((o) => o.id),
+            ids: failedObjectives.map((o) => o.key),
           }
         : undefined,
     ).catch((err) => {
@@ -215,8 +217,8 @@ submit.post(
         success: false,
         objectives,
         failedObjectives: failedObjectives.map((obj) => ({
-          id: obj.id,
-          name: obj.name,
+          key: obj.key,
+          title: obj.title,
           message: obj.message,
         })),
       });

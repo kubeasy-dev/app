@@ -11,11 +11,10 @@
     "./xp": "./src/xp.ts",
     "./submissions": "./src/submissions.ts",
     "./auth": "./src/auth.ts",
-    "./objectives": "./src/objectives.ts",
-    "./drizzle": "./src/drizzle.ts",
     "./query-keys": "./src/query-keys.ts",
     "./onboarding": "./src/onboarding.ts",
-    "./registry": "./src/registry.ts"
+    "./registry": "./src/registry.ts",
+    "./cli": "./src/cli.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

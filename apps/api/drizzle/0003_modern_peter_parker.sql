@@ -26,6 +26,25 @@ UPDATE "user_submission" SET "challenge_slug" = c.slug FROM "challenge" c WHERE 
 --> statement-breakpoint
 UPDATE "user_xp_transaction" SET "challenge_slug" = c.slug FROM "challenge" c WHERE c.id = "user_xp_transaction"."challenge_id";
 --> statement-breakpoint
+-- Rename id -> key and name -> title in objectives JSON array
+UPDATE "user_submission"
+SET "objectives" = (
+    SELECT json_agg(
+        json_build_object(
+            'key', obj->>'id',
+            'title', obj->>'name',
+            'description', obj->'description',
+            'passed', (obj->>'passed')::boolean,
+            'category', obj->'category',
+            'message', obj->'message'
+        )
+    )
+    FROM json_array_elements("objectives") AS obj
+)
+WHERE "objectives" IS NOT NULL 
+  AND json_array_length("objectives") > 0
+  AND "objectives"->0 ? 'id';
+--> statement-breakpoint
 -- Enforce NOT NULL now that all rows are backfilled (xp_transaction stays nullable)
 ALTER TABLE "user_progress" ALTER COLUMN "challenge_slug" SET NOT NULL;
 --> statement-breakpoint

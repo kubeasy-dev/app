@@ -1,10 +1,15 @@
 import { z } from "zod";
+import {
+  type ChallengeDifficulty,
+  ChallengeDifficultySchema,
+  challengeDifficultyValues,
+} from "./registry";
 
-// ---------- Enums ----------
-
-export const challengeDifficultyValues = ["easy", "medium", "hard"] as const;
-export const ChallengeDifficultySchema = z.enum(challengeDifficultyValues);
-export type ChallengeDifficulty = z.infer<typeof ChallengeDifficultySchema>;
+export {
+  ChallengeDifficultySchema,
+  type ChallengeDifficulty,
+  challengeDifficultyValues,
+};
 
 // ---------- Inputs ----------
 
@@ -122,3 +127,20 @@ export const AdminStatsOutputSchema = z.object({
   completionRate: z.number(),
 });
 export type AdminStatsOutput = z.infer<typeof AdminStatsOutputSchema>;
+
+// ---------- Filters ----------
+
+export const ChallengeFiltersSchema = z.object({
+  difficulty: ChallengeDifficultySchema.optional(),
+  type: z.string().optional(),
+  theme: z.string().optional(),
+  search: z.string().optional(),
+  // Query strings are always strings; coerce "false" → false, everything else → true
+  showCompleted: z
+    .string()
+    .optional()
+    .transform((v) => v !== "false")
+    .pipe(z.boolean()),
+});
+
+export type ChallengeFilters = z.infer<typeof ChallengeFiltersSchema>;

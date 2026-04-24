@@ -1,10 +1,10 @@
+import type { Objective } from "@kubeasy/api-schemas/submissions";
 import { and, desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../db/index";
 import { userSubmission } from "../db/schema/index";
 import { getChallenge } from "../lib/registry";
 import { requireAuth } from "../middleware/session";
-import type { Objective } from "../schemas/index";
 
 const submissions = new Hono();
 

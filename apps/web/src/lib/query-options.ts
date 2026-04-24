@@ -2,7 +2,6 @@ import type { ChallengeListInput } from "@kubeasy/api-schemas/challenges";
 import { queryOptions } from "@tanstack/react-query";
 import { api } from "./api-client";
 import { fetchBlogPostDetailFn, fetchBlogPostsFn } from "./blog.functions";
-import { getRegistryMeta } from "./registry-client";
 
 // --- Challenges ---
 
@@ -42,7 +41,7 @@ export function challengeObjectivesOptions(slug: string) {
 export function registryMetaOptions() {
   return queryOptions({
     queryKey: ["registry", "meta"],
-    queryFn: () => getRegistryMeta(),
+    queryFn: () => api.challenges.getMeta(),
     staleTime: 60 * 60 * 1000, // 1h — themes/types change rarely
   });
 }

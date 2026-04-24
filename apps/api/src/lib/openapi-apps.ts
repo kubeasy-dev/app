@@ -3,6 +3,7 @@ import {
   ChallengeDetailSchema,
   ChallengeListOutputSchema,
 } from "@kubeasy/api-schemas/challenges";
+import { CliMetadataSchema } from "@kubeasy/api-schemas/cli";
 import { EmailTopicSchema } from "@kubeasy/api-schemas/email";
 import { OnboardingStatusSchema } from "@kubeasy/api-schemas/onboarding";
 import {
@@ -13,15 +14,14 @@ import {
   StreakOutputSchema,
   XpAndRankOutputSchema,
 } from "@kubeasy/api-schemas/progress";
-import { SubmissionRecordSchema } from "@kubeasy/api-schemas/submissions";
+import { ChallengeDifficultySchema } from "@kubeasy/api-schemas/registry";
+import {
+  ObjectiveSchema,
+  SubmissionRecordSchema,
+  SubmitBodySchema,
+} from "@kubeasy/api-schemas/submissions";
 import { XpHistoryItemSchema } from "@kubeasy/api-schemas/xp";
 import { z } from "zod";
-import {
-  challengeDifficultySchema,
-  cliMetadataSchema,
-  objectiveSchema,
-  submitBodySchema,
-} from "../schemas/index";
 
 // ---------------------------------------------------------------------------
 // Shared helpers
@@ -65,14 +65,14 @@ const slugParam = z.object({ slug: z.string() });
 
 const submitSuccessSchema = z.object({
   success: z.literal(true),
-  objectives: z.array(objectiveSchema),
+  objectives: z.array(ObjectiveSchema),
 });
 
 const submitFailureSchema = z.object({
   success: z.literal(false),
-  objectives: z.array(objectiveSchema),
+  objectives: z.array(ObjectiveSchema),
   failedObjectives: z.array(
-    z.object({ id: z.string(), name: z.string(), message: z.string() }),
+    z.object({ key: z.string(), title: z.string(), message: z.string() }),
   ),
 });
 
@@ -86,7 +86,7 @@ const getChallengesRoute = createRoute({
   security: [{ SessionAuth: [] }, { BearerAuth: [] }, {}],
   request: {
     query: z.object({
-      difficulty: challengeDifficultySchema.optional(),
+      difficulty: ChallengeDifficultySchema.optional(),
       type: z.string().optional(),
       theme: z.string().optional(),
       search: z.string().optional(),
@@ -134,7 +134,7 @@ const submitChallengeRoute = createRoute({
     params: slugParam,
     body: {
       required: true,
-      content: { "application/json": { schema: submitBodySchema } },
+      content: { "application/json": { schema: SubmitBodySchema } },
     },
   },
   responses: {
@@ -283,7 +283,7 @@ const getLatestSubmissionRoute = createRoute({
           schema: z.object({
             hasSubmission: z.boolean(),
             validated: z.boolean(),
-            objectives: z.array(objectiveSchema).nullable(),
+            objectives: z.array(ObjectiveSchema).nullable(),
             timestamp: z.string().nullable().describe("ISO 8601 date string"),
           }),
         },
@@ -556,7 +556,7 @@ const deprecatedLoginUserRoute = createRoute({
   request: {
     body: {
       required: true,
-      content: { "application/json": { schema: cliMetadataSchema } },
+      content: { "application/json": { schema: CliMetadataSchema } },
     },
   },
   responses: {
@@ -584,7 +584,7 @@ const deprecatedSubmitChallengeRoute = createRoute({
     params: slugParam,
     body: {
       required: true,
-      content: { "application/json": { schema: submitBodySchema } },
+      content: { "application/json": { schema: SubmitBodySchema } },
     },
   },
   responses: {
@@ -697,7 +697,7 @@ const deprecatedSubmitChallengeLegacyRoute = createRoute({
     params: slugParam,
     body: {
       required: true,
-      content: { "application/json": { schema: submitBodySchema } },
+      content: { "application/json": { schema: SubmitBodySchema } },
     },
   },
   responses: {
@@ -729,7 +729,7 @@ const deprecatedTrackSetupRoute = createRoute({
   request: {
     body: {
       required: true,
-      content: { "application/json": { schema: cliMetadataSchema } },
+      content: { "application/json": { schema: CliMetadataSchema } },
     },
   },
   responses: {
