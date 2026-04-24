@@ -9,6 +9,7 @@ import {
   userProgress,
   userSubmission,
 } from "../../db/schema";
+import { cacheDelPattern } from "../../lib/cache";
 import { getMeta, listChallenges } from "../../lib/registry";
 
 export const adminChallenges = new Hono();
@@ -120,6 +121,16 @@ adminChallenges.patch(
         target: challengeMetadata.slug,
         set: { available },
       });
+
+    // Invalidate caches
+    Promise.all([
+      cacheDelPattern(`cache:challenges:detail:*${slug}*`),
+      cacheDelPattern(`cache:challenges:objectives:*${slug}*`),
+      cacheDelPattern("cache:u:*:challenges:list:*"),
+    ]).catch((err) => {
+      console.error("[admin/challenges] cache invalidation failed", err);
+    });
+
     return c.json({ success: true });
   },
 );

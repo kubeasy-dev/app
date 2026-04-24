@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { CompletionPercentageQuerySchema } from "@kubeasy/api-schemas/progress";
-import { and, count, eq, sql } from "drizzle-orm";
+import { logger } from "@kubeasy/logger";
+import { and, count, eq, inArray, sql } from "drizzle-orm";
 import type { Handler } from "hono";
 import { Hono } from "hono";
 import { nanoid } from "nanoid";
@@ -105,8 +106,8 @@ progress.get(
           and(
             eq(userProgress.userId, userId),
             eq(userProgress.status, "completed"),
-            themeSlug
-              ? sql`${userProgress.challengeSlug} = ANY(${sql.raw(`ARRAY[${filteredSlugs.map((s) => `'${s}'`).join(",")}]`)})`
+            themeSlug && filteredSlugs.length > 0
+              ? inArray(userProgress.challengeSlug, filteredSlugs)
               : undefined,
           ),
         );
@@ -224,7 +225,9 @@ progress.post("/:slug/start", requireAuth, async (c) => {
   });
 
   trackChallengeStarted(userId, slug, detail.title).catch((err) => {
-    console.error("[progress] challenge started tracking failed", {
+    logger.error("[progress] challenge started tracking failed", {
+      userId,
+      slug,
       error: String(err),
     });
   });
@@ -234,7 +237,11 @@ progress.post("/:slug/start", requireAuth, async (c) => {
     cacheDelPattern(`cache:u:${userId}:progress:completion:*`),
     cacheDelPattern(`cache:u:${userId}:challenges:list:*`),
   ]).catch((err) => {
-    console.error("[progress/start] cache invalidation failed", err);
+    logger.error("[progress/start] cache invalidation failed", {
+      userId,
+      slug,
+      error: String(err),
+    });
   });
 
   return c.json({ status: "in_progress" as const, startedAt: now });
@@ -292,7 +299,10 @@ const handleReset: Handler = async (c) => {
     .where(eq(userXp.userId, userId));
 
   cacheDelPattern(`cache:u:${userId}:*`).catch((err) => {
-    console.error("[progress/reset] cache invalidation failed", err);
+    logger.error("[progress/reset] cache invalidation failed", {
+      userId,
+      error: String(err),
+    });
   });
 
   return c.json({

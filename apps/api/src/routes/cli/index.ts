@@ -3,6 +3,7 @@ import { CliMetadataSchema } from "@kubeasy/api-schemas/cli";
 import { queryKeys } from "@kubeasy/api-schemas/query-keys";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
+import type { z } from "zod";
 import { db } from "../../db/index";
 import { userOnboarding } from "../../db/schema/onboarding";
 import { trackCliLogin, trackCliSetup } from "../../lib/analytics-server";
@@ -35,6 +36,55 @@ function parseUserName(fullName: string | null) {
   };
 }
 
+// Helper to handle CLI login onboarding logic
+async function handleCliOnboarding(
+  userId: string,
+  metadata: z.infer<typeof CliMetadataSchema>,
+  source: string,
+) {
+  const { cliVersion, os, arch } = metadata;
+
+  // Atomically determine firstLogin and set cliAuthenticated = true
+  const updateResult = await db
+    .update(userOnboarding)
+    .set({ cliAuthenticated: true, updatedAt: new Date() })
+    .where(
+      and(
+        eq(userOnboarding.userId, userId),
+        eq(userOnboarding.cliAuthenticated, false),
+      ),
+    )
+    .returning({ userId: userOnboarding.userId });
+
+  let firstLogin: boolean;
+
+  if (updateResult.length > 0) {
+    firstLogin = true;
+  } else {
+    const insertResult = await db
+      .insert(userOnboarding)
+      .values({ userId, cliAuthenticated: true })
+      .onConflictDoNothing({ target: userOnboarding.userId })
+      .returning({ userId: userOnboarding.userId });
+    firstLogin = insertResult.length > 0;
+  }
+
+  // Track in PostHog
+  await trackCliLogin(userId, { cliVersion, os, arch });
+
+  // Publish SSE invalidation for onboarding query
+  const channel = `invalidate-cache:${userId}`;
+  const payload = JSON.stringify({ queryKey: queryKeys.onboarding() });
+  redis.publish(channel, payload).catch((err) => {
+    console.error(`[${source}] SSE publish failed`, {
+      channel,
+      error: String(err),
+    });
+  });
+
+  return firstLogin;
+}
+
 // GET /cli/user -- deprecated, returns first/last name
 cli.get("/user", async (c) => {
   const user = c.get("user");
@@ -45,46 +95,9 @@ cli.get("/user", async (c) => {
 // POST /cli/user -- returns user info + tracks CLI login for onboarding
 cli.post("/user", zValidator("json", CliMetadataSchema), async (c) => {
   const user = c.get("user");
-  const userId = user.id;
-  const { cliVersion, os, arch } = c.req.valid("json");
+  const metadata = c.req.valid("json");
 
-  // Atomically determine firstLogin and set cliAuthenticated = true
-  const updateResult = await db
-    .update(userOnboarding)
-    .set({ cliAuthenticated: true, updatedAt: new Date() })
-    .where(
-      and(
-        eq(userOnboarding.userId, userId),
-        eq(userOnboarding.cliAuthenticated, false),
-      ),
-    )
-    .returning({ userId: userOnboarding.userId });
-
-  let firstLogin: boolean;
-
-  if (updateResult.length > 0) {
-    firstLogin = true;
-  } else {
-    const insertResult = await db
-      .insert(userOnboarding)
-      .values({ userId, cliAuthenticated: true })
-      .onConflictDoNothing({ target: userOnboarding.userId })
-      .returning({ userId: userOnboarding.userId });
-    firstLogin = insertResult.length > 0;
-  }
-
-  // Track in PostHog
-  await trackCliLogin(userId, { cliVersion, os, arch });
-
-  // Publish SSE invalidation for onboarding query
-  const channel = `invalidate-cache:${userId}`;
-  const payload = JSON.stringify({ queryKey: queryKeys.onboarding() });
-  redis.publish(channel, payload).catch((err) => {
-    console.error("[cli/user] SSE publish failed", {
-      channel,
-      error: String(err),
-    });
-  });
+  const firstLogin = await handleCliOnboarding(user.id, metadata, "cli/user");
 
   const { firstName, lastName } = parseUserName(user.name);
   return c.json({ firstName, lastName, firstLogin });
@@ -93,46 +106,13 @@ cli.post("/user", zValidator("json", CliMetadataSchema), async (c) => {
 // POST /cli/track/login -- tracks CLI login for onboarding
 cli.post("/track/login", zValidator("json", CliMetadataSchema), async (c) => {
   const user = c.get("user");
-  const userId = user.id;
-  const { cliVersion, os, arch } = c.req.valid("json");
+  const metadata = c.req.valid("json");
 
-  // Atomically determine firstLogin and set cliAuthenticated = true
-  const updateResult = await db
-    .update(userOnboarding)
-    .set({ cliAuthenticated: true, updatedAt: new Date() })
-    .where(
-      and(
-        eq(userOnboarding.userId, userId),
-        eq(userOnboarding.cliAuthenticated, false),
-      ),
-    )
-    .returning({ userId: userOnboarding.userId });
-
-  let firstLogin: boolean;
-
-  if (updateResult.length > 0) {
-    firstLogin = true;
-  } else {
-    const insertResult = await db
-      .insert(userOnboarding)
-      .values({ userId, cliAuthenticated: true })
-      .onConflictDoNothing({ target: userOnboarding.userId })
-      .returning({ userId: userOnboarding.userId });
-    firstLogin = insertResult.length > 0;
-  }
-
-  // Track in PostHog
-  await trackCliLogin(userId, { cliVersion, os, arch });
-
-  // Publish SSE invalidation for onboarding query
-  const channel = `invalidate-cache:${userId}`;
-  const payload = JSON.stringify({ queryKey: queryKeys.onboarding() });
-  redis.publish(channel, payload).catch((err) => {
-    console.error("[cli/track/login] SSE publish failed", {
-      channel,
-      error: String(err),
-    });
-  });
+  const firstLogin = await handleCliOnboarding(
+    user.id,
+    metadata,
+    "cli/track/login",
+  );
 
   return c.json({ firstLogin });
 });

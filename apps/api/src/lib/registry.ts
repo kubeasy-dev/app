@@ -5,8 +5,9 @@ import {
   RegistryMetaSchema,
 } from "@kubeasy/api-schemas/registry";
 import { cached, cacheKey, TTL } from "./cache";
+import { env } from "./env";
 
-const REGISTRY_URL = process.env.REGISTRY_URL ?? "https://registry.kubeasy.dev";
+const REGISTRY_URL = env.REGISTRY_URL;
 
 export class RegistryError extends Error {
   constructor(message: string, options?: ErrorOptions) {
@@ -73,21 +74,31 @@ export async function getMeta(): Promise<RegistryMeta> {
 }
 
 export async function getChallengeYaml(slug: string): Promise<string> {
-  const url = `${REGISTRY_URL}/challenges/${slug}/yaml`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+  const path = `/challenges/${slug}/yaml`;
+  const url = `${REGISTRY_URL}${path}`;
+  let res: Response;
+  try {
+    res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+  } catch (cause) {
+    throw new RegistryError(`Registry request failed: ${url}`, { cause });
+  }
   if (!res.ok) {
-    throw new RegistryError(`Registry returned ${res.status} for ${slug} yaml`);
+    throw new RegistryError(`Registry returned ${res.status} for ${path}`);
   }
   return res.text();
 }
 
 export async function getChallengeManifests(slug: string): Promise<Response> {
-  const url = `${REGISTRY_URL}/challenges/${slug}/manifests`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  const path = `/challenges/${slug}/manifests`;
+  const url = `${REGISTRY_URL}${path}`;
+  let res: Response;
+  try {
+    res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  } catch (cause) {
+    throw new RegistryError(`Registry request failed: ${url}`, { cause });
+  }
   if (!res.ok) {
-    throw new RegistryError(
-      `Registry returned ${res.status} for ${slug} manifests`,
-    );
+    throw new RegistryError(`Registry returned ${res.status} for ${path}`);
   }
   return res;
 }
