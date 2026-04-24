@@ -51,7 +51,7 @@ export const InternalObjectiveSchema = z.object({
   title: z.string(),
   description: z.string(),
   order: z.number(),
-  type: ChallengeTypeSchema,
+  type: z.string(),
   spec: z.any(),
 })
 export type InternalObjective = z.infer<typeof InternalObjectiveSchema>
@@ -61,7 +61,7 @@ export const ObjectiveSchema = z.object({
   title: z.string(),
   description: z.string(),
   order: z.number(),
-  type: ChallengeTypeSchema,
+  type: z.string(),
   spec: z.any(),
 })
 export type Objective = z.infer<typeof ObjectiveSchema>
@@ -95,7 +95,7 @@ export const StatusCheckSchema = z.object({
 export type StatusCheck = z.infer<typeof StatusCheckSchema>
 
 export const ConditionCheckSchema = z.object({
-  type: ChallengeTypeSchema,
+  type: z.string(),
   status: z.string(),
 })
 export type ConditionCheck = z.infer<typeof ConditionCheckSchema>
@@ -141,7 +141,7 @@ export const SpecCheckSchema = z.object({
 export type SpecCheck = z.infer<typeof SpecCheckSchema>
 
 export const TriggerConfigSchema = z.object({
-  type: ChallengeTypeSchema,
+  type: z.string(),
   url: z.string().optional(),
   requestsPerSecond: z.number().optional(),
   durationSeconds: z.number().optional(),
