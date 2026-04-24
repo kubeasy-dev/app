@@ -100,8 +100,8 @@ export function ChallengeMission({ slug }: ChallengeMissionProps) {
     )?.hasSubmission
       ? ((validationStatus as LatestValidationStatusOutput)
           .objectives as Array<{
-          id: string;
-          name: string;
+          key: string;
+          title: string;
           description?: string;
           category: string;
           passed: boolean;
@@ -111,9 +111,9 @@ export function ChallengeMission({ slug }: ChallengeMissionProps) {
 
     if (predefinedObjectives.length === 0 && submissionObjectives) {
       return submissionObjectives.map((obj) => ({
-        id: obj.id,
-        objectiveKey: obj.id,
-        title: obj.name,
+        id: obj.key,
+        objectiveKey: obj.key,
+        title: obj.title,
         description: obj.description ?? null,
         category: obj.category,
         status: obj.passed,
@@ -123,7 +123,7 @@ export function ChallengeMission({ slug }: ChallengeMissionProps) {
 
     return predefinedObjectives.map((predefined) => {
       const submissionResult = submissionObjectives?.find(
-        (sub) => sub.id === predefined.objectiveKey,
+        (sub) => sub.key === predefined.objectiveKey,
       );
 
       return {
