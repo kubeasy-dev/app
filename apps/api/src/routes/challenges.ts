@@ -106,12 +106,9 @@ challenges.get("/", zValidator("query", ChallengeFiltersSchema), async (c) => {
   return c.json(result);
 });
 
-// GET /challenges/meta -- proxy registry meta (themes, types)
+// GET /challenges/meta -- registry meta (themes, types)
 challenges.get("/meta", async (c) => {
-  const result = await cached(cacheKey("registry:meta:proxy"), TTL.STATIC, () =>
-    getMeta(),
-  );
-  return c.json(result);
+  return c.json(await getMeta());
 });
 
 // GET /challenges/:slug -- challenge detail

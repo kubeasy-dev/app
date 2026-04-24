@@ -43,7 +43,7 @@ SET "objectives" = (
 )
 WHERE "objectives" IS NOT NULL 
   AND json_array_length("objectives") > 0
-  AND "objectives"->0 ? 'id';
+  AND "objectives"->0->>'id' IS NOT NULL;
 --> statement-breakpoint
 -- Enforce NOT NULL now that all rows are backfilled (xp_transaction stays nullable)
 ALTER TABLE "user_progress" ALTER COLUMN "challenge_slug" SET NOT NULL;
