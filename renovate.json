@@ -24,9 +24,12 @@
   ],
   "packageRules": [
     {
-      "matchPackageNames": ["ghcr.io/kubeasy-dev/app-docker-base"],
+      "matchPackageNames": [
+        "ghcr.io/kubeasy-dev/app-docker-base",
+        "ghcr.io/kubeasy-dev/app-docker-builder"
+      ],
       "enabled": false,
-      "description": "This image is built by this repo — tracking its digest creates an infinite loop"
+      "description": "These images are built by this repo — tracking their digests creates an infinite loop"
     },
     {
       "matchPackageNames": ["@biomejs/biome"],
