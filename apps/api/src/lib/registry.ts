@@ -71,3 +71,23 @@ export async function getMeta(): Promise<RegistryMeta> {
     fetchRegistry("/meta", (v) => RegistryMetaSchema.parse(v)),
   );
 }
+
+export async function getChallengeYaml(slug: string): Promise<string> {
+  const url = `${REGISTRY_URL}/challenges/${slug}/yaml`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+  if (!res.ok) {
+    throw new RegistryError(`Registry returned ${res.status} for ${slug} yaml`);
+  }
+  return res.text();
+}
+
+export async function getChallengeManifests(slug: string): Promise<Response> {
+  const url = `${REGISTRY_URL}/challenges/${slug}/manifests`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  if (!res.ok) {
+    throw new RegistryError(
+      `Registry returned ${res.status} for ${slug} manifests`,
+    );
+  }
+  return res;
+}

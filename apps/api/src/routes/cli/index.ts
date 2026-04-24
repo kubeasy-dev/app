@@ -23,11 +23,6 @@ cli.use("/*", apiKeyMiddleware);
 cli.route("/challenges", submit); // POST /api/cli/challenges/:slug/submit
 
 // Legacy paths (singular) — aliases for old CLI compatibility
-// GET  /api/cli/challenge/:slug          → challenge detail
-// GET  /api/cli/challenge/:slug/status   → challenge status
-// POST /api/cli/challenge/:slug/start    → start challenge
-// POST /api/cli/challenge/:slug/reset    → reset challenge
-// POST /api/cli/challenge/:slug/submit   → submit challenge
 cli.route("/challenge", legacyCli);
 
 // Helper to parse user name
@@ -54,7 +49,6 @@ cli.post("/user", zValidator("json", CliMetadataSchema), async (c) => {
   const { cliVersion, os, arch } = c.req.valid("json");
 
   // Atomically determine firstLogin and set cliAuthenticated = true
-  // Try to update existing record where cliAuthenticated = false
   const updateResult = await db
     .update(userOnboarding)
     .set({ cliAuthenticated: true, updatedAt: new Date() })
@@ -71,7 +65,6 @@ cli.post("/user", zValidator("json", CliMetadataSchema), async (c) => {
   if (updateResult.length > 0) {
     firstLogin = true;
   } else {
-    // Either record doesn't exist, or cliAuthenticated was already true
     const insertResult = await db
       .insert(userOnboarding)
       .values({ userId, cliAuthenticated: true })
@@ -95,6 +88,53 @@ cli.post("/user", zValidator("json", CliMetadataSchema), async (c) => {
 
   const { firstName, lastName } = parseUserName(user.name);
   return c.json({ firstName, lastName, firstLogin });
+});
+
+// POST /cli/track/login -- tracks CLI login for onboarding
+cli.post("/track/login", zValidator("json", CliMetadataSchema), async (c) => {
+  const user = c.get("user");
+  const userId = user.id;
+  const { cliVersion, os, arch } = c.req.valid("json");
+
+  // Atomically determine firstLogin and set cliAuthenticated = true
+  const updateResult = await db
+    .update(userOnboarding)
+    .set({ cliAuthenticated: true, updatedAt: new Date() })
+    .where(
+      and(
+        eq(userOnboarding.userId, userId),
+        eq(userOnboarding.cliAuthenticated, false),
+      ),
+    )
+    .returning({ userId: userOnboarding.userId });
+
+  let firstLogin: boolean;
+
+  if (updateResult.length > 0) {
+    firstLogin = true;
+  } else {
+    const insertResult = await db
+      .insert(userOnboarding)
+      .values({ userId, cliAuthenticated: true })
+      .onConflictDoNothing({ target: userOnboarding.userId })
+      .returning({ userId: userOnboarding.userId });
+    firstLogin = insertResult.length > 0;
+  }
+
+  // Track in PostHog
+  await trackCliLogin(userId, { cliVersion, os, arch });
+
+  // Publish SSE invalidation for onboarding query
+  const channel = `invalidate-cache:${userId}`;
+  const payload = JSON.stringify({ queryKey: queryKeys.onboarding() });
+  redis.publish(channel, payload).catch((err) => {
+    console.error("[cli/track/login] SSE publish failed", {
+      channel,
+      error: String(err),
+    });
+  });
+
+  return c.json({ firstLogin });
 });
 
 // POST /cli/track/setup -- tracks cluster initialization for onboarding

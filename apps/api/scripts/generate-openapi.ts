@@ -8,4 +8,4 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const apiDoc = generateApiDocument();
 const cliOutputPath = resolve(__dirname, "..", "openapi.json");
 writeFileSync(cliOutputPath, JSON.stringify(apiDoc, null, 2));
-console.log(`API OpenAPI spec written to ${cliOutputPath}`);
+console.log(`CLI OpenAPI spec written to ${cliOutputPath}`);

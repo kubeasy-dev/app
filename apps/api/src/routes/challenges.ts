@@ -5,7 +5,13 @@ import { Hono } from "hono";
 import { db } from "../db/index";
 import { challengeMetadata, userProgress } from "../db/schema/index";
 import { cached, cacheKey, TTL } from "../lib/cache";
-import { getChallenge, getMeta, listChallenges } from "../lib/registry";
+import {
+  getChallenge,
+  getChallengeManifests,
+  getChallengeYaml,
+  getMeta,
+  listChallenges,
+} from "../lib/registry";
 import type { AppEnv } from "../middleware/session";
 
 const challenges = new Hono<AppEnv>();
@@ -174,7 +180,7 @@ challenges.get("/:slug/objectives", async (c) => {
       const m = rows[0] ?? null;
       const available = m?.available ?? true;
       if (!detail || !available) {
-        return { objectives: [] as typeof objectives };
+        return { objectives: [] as any[] };
       }
       const objectives = (detail.objectives ?? []).map((o) => ({
         objectiveKey: o.key,
@@ -188,6 +194,36 @@ challenges.get("/:slug/objectives", async (c) => {
   );
 
   return c.json(result);
+});
+
+// GET /challenges/:slug/yaml -- proxy challenge.yaml from registry
+challenges.get("/:slug/yaml", async (c) => {
+  const slug = c.req.param("slug");
+  try {
+    const yaml = await getChallengeYaml(slug);
+    return c.text(yaml);
+  } catch (_err) {
+    return c.json({ error: "Challenge not found" }, 404);
+  }
+});
+
+// GET /challenges/:slug/manifests -- proxy manifests tar.gz from registry
+challenges.get("/:slug/manifests", async (c) => {
+  const slug = c.req.param("slug");
+  try {
+    const res = await getChallengeManifests(slug);
+    if (!res.body) {
+      return c.json({ error: "Empty response from registry" }, 502);
+    }
+    // Forward the content-type and body
+    c.header(
+      "Content-Type",
+      res.headers.get("Content-Type") || "application/gzip",
+    );
+    return c.body(res.body);
+  } catch (_err) {
+    return c.json({ error: "Challenge manifests not found" }, 404);
+  }
 });
 
 export { challenges };

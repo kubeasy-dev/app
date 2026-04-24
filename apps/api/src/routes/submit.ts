@@ -26,7 +26,7 @@ const submit = new Hono();
 const submitRateLimit = slidingWindowRateLimit(redis, {
   windowMs: 10_000,
   max: 10,
-  keyFn: (c) => `submit:${c.get("user").id}`,
+  keyFn: (c: any) => `submit:${c.get("user").id}`,
 });
 
 // POST /challenges/:slug/submit -- trust CLI results, store submission, dispatch BullMQ job
@@ -213,15 +213,18 @@ submit.post(
     });
 
     if (txResult.failed) {
-      return c.json({
-        success: false,
-        objectives,
-        failedObjectives: failedObjectives.map((obj) => ({
-          key: obj.key,
-          title: obj.title,
-          message: obj.message,
-        })),
-      });
+      return c.json(
+        {
+          success: false,
+          objectives,
+          failedObjectives: failedObjectives.map((obj) => ({
+            key: obj.key,
+            title: obj.title,
+            message: obj.message,
+          })),
+        },
+        422,
+      );
     }
 
     if (!txResult.progressUpdated) {

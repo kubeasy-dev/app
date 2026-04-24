@@ -1,9 +1,9 @@
 import { zValidator } from "@hono/zod-validator";
+import { CompletionPercentageQuerySchema } from "@kubeasy/api-schemas/progress";
 import { and, count, eq, sql } from "drizzle-orm";
 import type { Handler } from "hono";
 import { Hono } from "hono";
 import { nanoid } from "nanoid";
-import { z } from "zod";
 import { db } from "../db/index";
 import {
   userProgress,
@@ -18,20 +18,11 @@ import { requireAuth } from "../middleware/session";
 
 const progress = new Hono();
 
-const completionQuerySchema = z.object({
-  splitByTheme: z
-    .string()
-    .optional()
-    .transform((v) => v === "true")
-    .pipe(z.boolean()),
-  themeSlug: z.string().optional(),
-});
-
 // GET /progress/completion -- get completion percentage (global or by theme)
 progress.get(
   "/completion",
   requireAuth,
-  zValidator("query", completionQuerySchema),
+  zValidator("query", CompletionPercentageQuerySchema),
   async (c) => {
     const user = c.get("user");
     const userId = user.id;
