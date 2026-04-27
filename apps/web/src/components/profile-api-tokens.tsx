@@ -1,7 +1,3 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { AlertCircle, Check, Copy, Key, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 import { Alert, AlertDescription } from "@kubeasy/ui/alert";
 import { Button } from "@kubeasy/ui/button";
 import {
@@ -20,6 +16,10 @@ import {
   EmptyTitle,
 } from "@kubeasy/ui/empty";
 import { Input } from "@kubeasy/ui/input";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { AlertCircle, Check, Copy, Key, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { trackApiTokenCopied, trackApiTokenCreated } from "@/lib/analytics";
 import { authClient } from "@/lib/auth-client";
 
@@ -137,6 +137,7 @@ export function ProfileApiTokens() {
         <Button
           onClick={() => setShowNewTokenDialog(true)}
           size="sm"
+          data-testid="new-token-button"
           className="bg-accent text-white neo-border neo-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-bold"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -154,7 +155,10 @@ export function ProfileApiTokens() {
               again!
             </p>
             <div className="flex items-center gap-2">
-              <code className="font-mono text-sm bg-background px-3 py-2 neo-border flex-1">
+              <code
+                data-testid="created-token-value"
+                className="font-mono text-sm bg-background px-3 py-2 neo-border flex-1"
+              >
                 {newlyCreatedToken}
               </code>
               <Button
@@ -173,6 +177,7 @@ export function ProfileApiTokens() {
               onClick={() => setNewlyCreatedToken(null)}
               size="sm"
               variant="outline"
+              data-testid="token-saved-button"
               className="mt-2 neo-border"
             >
               I've saved my token
@@ -188,6 +193,7 @@ export function ProfileApiTokens() {
           <div className="flex gap-2">
             <Input
               value={newTokenName}
+              data-testid="new-token-name-input"
               onChange={(e) => setNewTokenName(e.target.value)}
               placeholder="Token name (e.g., production-cli)"
               className="neo-border font-bold flex-1"
@@ -196,6 +202,7 @@ export function ProfileApiTokens() {
             />
             <Button
               onClick={handleCreateToken}
+              data-testid="create-token-confirm-button"
               className="bg-accent text-white neo-border font-bold"
               disabled={createMutation.isPending}
             >
@@ -239,6 +246,7 @@ export function ProfileApiTokens() {
           tokens.map((token) => (
             <div
               key={token.id}
+              data-testid={`api-token-item-${token.name || "unnamed"}`}
               className="p-4 bg-background neo-border flex items-center justify-between gap-4"
             >
               <div className="flex-1 min-w-0">
@@ -261,6 +269,7 @@ export function ProfileApiTokens() {
               <button
                 type="button"
                 onClick={() => handleDeleteToken(token)}
+                data-testid={`delete-token-button-${token.name || "unnamed"}`}
                 className="p-2 hover:bg-red-100 neo-border transition-colors"
                 title="Delete token"
                 disabled={deleteMutation.isPending}
@@ -293,6 +302,7 @@ export function ProfileApiTokens() {
             </Button>
             <Button
               onClick={confirmDelete}
+              data-testid="confirm-delete-token-button"
               disabled={deleteMutation.isPending}
               className="bg-red-600 text-white neo-border border-red-800 neo-shadow shadow-red-800 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-bold"
             >

@@ -23,7 +23,12 @@ export function ProfileHeader({ user }: { user: User }) {
 
         {/* User Info */}
         <div className="flex-1">
-          <h1 className="text-4xl font-black mb-1">{user.name}</h1>
+          <h1
+            className="text-4xl font-black mb-1"
+            data-testid="profile-user-name"
+          >
+            {user.name}
+          </h1>
           <p className="text-lg text-muted-foreground">{user.email}</p>
         </div>
       </div>

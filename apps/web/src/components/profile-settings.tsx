@@ -1,11 +1,12 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Save, User } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@kubeasy/ui/button";
 import { Input } from "@kubeasy/ui/input";
 import { Label } from "@kubeasy/ui/label";
-import { api } from "@/lib/api-client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
+import { Save, User } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 interface ProfileSettingsProps {
   initialFirstName: string;
@@ -17,15 +18,26 @@ export function ProfileSettings({
   initialLastName,
 }: ProfileSettingsProps) {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
 
   const updateNameMutation = useMutation({
-    mutationFn: () =>
-      api.user.updateName(firstName.trim(), lastName.trim() || undefined),
-    onSuccess: () => {
+    mutationFn: async () => {
+      const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+      const { data, error } = await authClient.updateUser({
+        name: fullName,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: async () => {
       toast.success("Profile updated successfully!");
+
+      // 1. Invalidate React Query
       queryClient.invalidateQueries({ queryKey: ["user"] });
+      // 2. Invalidate TanStack Router loaders (force refetch session)
+      await router.invalidate();
     },
     onError: (error) => {
       toast.error("Failed to update profile", {
@@ -64,6 +76,7 @@ export function ProfileSettings({
           </Label>
           <Input
             id="firstName"
+            data-testid="first-name-input"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             className="neo-border bg-background font-bold"
@@ -76,6 +89,7 @@ export function ProfileSettings({
           </Label>
           <Input
             id="lastName"
+            data-testid="last-name-input"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             className="neo-border bg-background font-bold"
@@ -85,6 +99,7 @@ export function ProfileSettings({
 
       <Button
         onClick={handleSaveProfile}
+        data-testid="save-profile-button"
         disabled={updateNameMutation.isPending}
         className="bg-primary text-primary-foreground neo-border neo-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed"
       >

@@ -1,7 +1,3 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@kubeasy/ui/button";
 import {
   Dialog,
@@ -11,6 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@kubeasy/ui/dialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { api } from "@/lib/api-client";
 import { authClient } from "@/lib/auth-client";
 
@@ -79,6 +79,7 @@ export function ProfileDangerZone() {
         </p>
         <Button
           onClick={handleResetProgress}
+          data-testid="reset-progress-button"
           disabled={resetProgressMutation.isPending}
           className="bg-red-600 text-white neo-border-destructive shadow-danger hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -137,6 +138,7 @@ export function ProfileDangerZone() {
             </Button>
             <Button
               onClick={confirmReset}
+              data-testid="confirm-reset-progress-button"
               disabled={resetProgressMutation.isPending}
               className="bg-red-600 text-white neo-border-destructive shadow-danger hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-bold"
             >
