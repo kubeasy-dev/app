@@ -1,7 +1,11 @@
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { test as setup } from "@playwright/test";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const authFile = path.join(__dirname, ".auth/user.json");
 
@@ -19,8 +23,7 @@ setup("authenticate", async () => {
     });
 
     // The script saves to apps/web/e2e/.auth/fresh-user.json
-    // We'll copy/symlink it to the expected authFile if needed,
-    // or just ensure we use consistent paths.
+    // We'll copy it to the expected authFile
     const generatedFile = path.join(__dirname, ".auth/fresh-user.json");
     if (fs.existsSync(generatedFile)) {
       fs.copyFileSync(generatedFile, authFile);
