@@ -27,8 +27,17 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
+      name: "setup",
+      testMatch: /auth\.setup\.ts/,
+    },
+    {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        // Tell Playwright to use the saved state for all tests in this project
+        storageState: "./e2e/.auth/user.json",
+      },
+      dependencies: ["setup"],
     },
   ],
 

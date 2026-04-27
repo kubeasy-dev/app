@@ -14,6 +14,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
+    "test:e2e": "turbo run test:e2e --filter=@kubeasy/web",
     "prepare": "husky",
     "knip": "dotenv -e .env.local -- knip",
     "openapi:generate": "turbo run openapi:generate --filter=@kubeasy/api"

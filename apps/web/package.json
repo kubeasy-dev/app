@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "NODE_OPTIONS='--import ./instrumentation.ts' vite dev --port $(turbo get-mfe-port)",
     "build": "vite build",
+    "test:e2e": "playwright test",
     "start": "node --import ./instrumentation.ts .output/server/index.mjs",
     "typecheck": "tsc --noEmit"
   },
