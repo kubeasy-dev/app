@@ -1,76 +1,68 @@
 /**
- * PostHog analytics tracking utilities
+ * Umami analytics tracking utilities
  *
- * This file provides type-safe wrappers around PostHog event tracking
+ * This file provides type-safe wrappers around Umami event tracking
  * to ensure consistent event naming and properties across the application.
  */
 
-import posthog from "posthog-js";
-
 /**
- * Check if PostHog is initialized (regardless of opt-out status)
- * Used for operations that should work even when user has opted out (e.g., reset on logout)
- * @returns true if PostHog is loaded and available
+ * Umami global object type definition
  */
-function isPostHogInitialized(): boolean {
-  try {
-    return posthog && typeof posthog.reset === "function";
-  } catch {
-    return false;
+interface Umami {
+  track: (eventName: string, eventData?: Record<string, unknown>) => void;
+  identify: (properties: Record<string, unknown>) => void;
+}
+
+declare global {
+  interface Window {
+    umami?: Umami;
   }
 }
 
 /**
- * Check if PostHog is ready and enabled for tracking
- * @returns true if PostHog is initialized and not opted out
+ * Check if Umami is ready for tracking
+ * @returns true if Umami is loaded and available
  */
-function isPostHogReady(): boolean {
-  try {
-    return isPostHogInitialized() && !posthog.has_opted_out_capturing();
-  } catch {
-    return false;
-  }
+function isUmamiReady(): boolean {
+  return typeof window !== "undefined" && !!window.umami;
 }
 
 /**
- * Safe wrapper for PostHog capture calls with error handling
+ * Safe wrapper for Umami track calls with error handling
  * @param eventName - The name of the event to track
- * @param properties - Event properties
- * @param options - PostHog options (e.g., transport: "sendBeacon")
+ * @param eventData - Event properties
  */
-function safeCapture(
+function safeTrack(
   eventName: string,
-  properties?: Record<string, unknown>,
-  options?: Record<string, unknown>,
+  eventData?: Record<string, unknown>,
 ): void {
-  if (!isPostHogReady()) {
+  if (!isUmamiReady()) {
     if (process.env.NODE_ENV === "development") {
       console.info(
-        "[PostHog] Event capture skipped (disabled)",
+        "[Umami] Event track skipped (not loaded)",
         eventName,
-        properties,
+        eventData,
       );
     }
     return;
   }
 
   try {
-    posthog.capture(eventName, properties, options);
+    window.umami?.track(eventName, eventData);
   } catch (error) {
-    console.error("[PostHog] Failed to capture event", eventName, error);
+    console.error("[Umami] Failed to track event", eventName, error);
   }
 }
 
 /**
  * Track API token creation event
- * Note: User is already identified via PostHog session, no userId needed
  */
 export function trackApiTokenCreated() {
-  safeCapture("api_token_created");
+  safeTrack("api_token_created");
 }
 
 /**
- * Identify a user in PostHog
+ * Identify a user in Umami
  * This should be called after successful authentication
  * @param userId - The unique user ID
  * @param properties - Additional user properties
@@ -83,34 +75,31 @@ export function identifyUser(
     provider?: string;
   },
 ) {
-  if (!isPostHogReady()) {
+  if (!isUmamiReady()) {
     if (process.env.NODE_ENV === "development") {
-      console.info("[PostHog] User identification skipped (disabled)");
+      console.info("[Umami] User identification skipped (not loaded)");
     }
     return;
   }
 
   try {
-    posthog.identify(userId, properties);
+    window.umami?.identify({
+      userId,
+      ...properties,
+    });
   } catch (error) {
-    console.error("[PostHog] Failed to identify user", error);
+    console.error("[Umami] Failed to identify user", error);
   }
 }
 
 /**
- * Reset PostHog state (call on logout)
- * Note: Uses isPostHogInitialized() instead of isPostHogReady() to ensure
- * reset works even when user has opted out of tracking
+ * Reset analytics state (call on logout)
+ * Umami is session-based and doesn't have a direct reset method.
+ * Session ends when the browser is closed or after inactivity.
  */
 export function resetAnalytics() {
-  if (!isPostHogInitialized()) {
-    return;
-  }
-
-  try {
-    posthog.reset();
-  } catch (error) {
-    console.error("[PostHog] Failed to reset:", error);
+  if (process.env.NODE_ENV === "development") {
+    console.info("[Umami] Reset called (No-op for Umami)");
   }
 }
 
@@ -125,7 +114,7 @@ export function trackChallengeCardClicked(
   difficulty: string,
   fromPage: string,
 ) {
-  safeCapture("challenge_card_clicked", {
+  safeTrack("challenge_card_clicked", {
     challengeSlug,
     difficulty,
     fromPage,
@@ -143,7 +132,7 @@ export function trackCtaClicked(
   ctaLocation: string,
   targetUrl: string,
 ) {
-  safeCapture("cta_clicked", {
+  safeTrack("cta_clicked", {
     ctaText,
     ctaLocation,
     targetUrl,
@@ -161,7 +150,7 @@ export function trackCommandCopied(
   location: string,
   stepNumber?: number,
 ) {
-  safeCapture("command_copied", {
+  safeTrack("command_copied", {
     command,
     location,
     ...(stepNumber !== undefined && { stepNumber }),
@@ -173,49 +162,13 @@ export function trackCommandCopied(
  * @param tokenName - The name of the token that was copied
  */
 export function trackApiTokenCopied(tokenName: string) {
-  safeCapture("api_token_copied", {
+  safeTrack("api_token_copied", {
     tokenName,
   });
 }
 
 /**
- * Sanitize URL by removing sensitive query parameters
- * @param url - The URL to sanitize
- * @returns Sanitized URL without sensitive parameters
- */
-function sanitizeUrl(url: string): string {
-  try {
-    const urlObj = new URL(url);
-    const sensitiveParams = [
-      "token",
-      "api_key",
-      "apikey",
-      "key",
-      "secret",
-      "password",
-      "auth",
-      "session",
-      "sid",
-      "access_token",
-      "refresh_token",
-    ];
-
-    for (const param of sensitiveParams) {
-      if (urlObj.searchParams.has(param)) {
-        urlObj.searchParams.set(param, "[REDACTED]");
-      }
-    }
-
-    return urlObj.toString();
-  } catch {
-    // If URL parsing fails, return just the origin or a safe fallback
-    return url.split("?")[0] ?? url;
-  }
-}
-
-/**
  * Track outbound link click event
- * Uses sendBeacon transport to ensure event delivery before navigation
  * @param url - The external URL clicked
  * @param linkType - Type of link (e.g., "github", "docs", "npm")
  * @param location - Where the link is located (e.g., "footer", "header", "cta_section")
@@ -225,15 +178,11 @@ export function trackOutboundLinkClicked(
   linkType: "github" | "docs" | "npm" | "twitter" | "other",
   location: string,
 ) {
-  safeCapture(
-    "outbound_link_clicked",
-    {
-      url: sanitizeUrl(url),
-      linkType,
-      location,
-    },
-    { transport: "sendBeacon" },
-  );
+  safeTrack("outbound_link_clicked", {
+    url,
+    linkType,
+    location,
+  });
 }
 
 /**
@@ -241,7 +190,7 @@ export function trackOutboundLinkClicked(
  * @param stepNumber - The demo step number completed
  */
 export function trackDemoStepCompleted(stepNumber: number) {
-  safeCapture(`demo_step_${stepNumber}_completed`);
+  safeTrack(`demo_step_${stepNumber}_completed`);
 }
 
 /**
@@ -249,7 +198,7 @@ export function trackDemoStepCompleted(stepNumber: number) {
  * Called when a user starts the demo flow
  */
 export function trackDemoCreated() {
-  safeCapture("demo_created");
+  safeTrack("demo_created");
 }
 
 /**
@@ -257,7 +206,7 @@ export function trackDemoCreated() {
  * Called when a user successfully completes the demo
  */
 export function trackDemoCompleted() {
-  safeCapture("demo_completed");
+  safeTrack("demo_completed");
 }
 
 // Onboarding step types
@@ -275,7 +224,7 @@ export type OnboardingStep =
  * Called when a user begins the onboarding flow
  */
 export function trackOnboardingStarted() {
-  safeCapture("onboarding_started");
+  safeTrack("onboarding_started");
 }
 
 /**
@@ -287,7 +236,7 @@ export function trackOnboardingStepCompleted(
   step: OnboardingStep,
   stepNumber: number,
 ) {
-  safeCapture("onboarding_step_completed", {
+  safeTrack("onboarding_step_completed", {
     step,
     stepNumber,
   });
@@ -298,7 +247,7 @@ export function trackOnboardingStepCompleted(
  * Called when a user successfully completes the entire onboarding
  */
 export function trackOnboardingCompleted() {
-  safeCapture("onboarding_completed");
+  safeTrack("onboarding_completed");
 }
 
 /**
@@ -310,7 +259,7 @@ export function trackOnboardingSkipped(
   atStep: OnboardingStep,
   stepNumber: number,
 ) {
-  safeCapture("onboarding_skipped", {
+  safeTrack("onboarding_skipped", {
     atStep,
     stepNumber,
   });

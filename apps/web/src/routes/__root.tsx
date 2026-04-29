@@ -9,7 +9,6 @@ import {
   Scripts,
   useRouterState,
 } from "@tanstack/react-router";
-import { PostHogProvider, usePostHog } from "posthog-js/react";
 import { type ReactNode, useEffect } from "react";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
@@ -75,10 +74,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
 });
 
-function PostHogIdentify() {
+function AnalyticsIdentity() {
   const { data: session } = authClient.useSession();
-  const posthog = usePostHog();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const userId = session?.user?.id;
   const userEmail = session?.user?.email;
@@ -93,11 +90,6 @@ function PostHogIdentify() {
     }
   }, [userId, userEmail, userName]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: pathname triggers pageview on route change
-  useEffect(() => {
-    posthog?.capture("$pageview", { $current_url: window.location.href });
-  }, [pathname, posthog]);
-
   return null;
 }
 
@@ -110,7 +102,7 @@ function RootComponent() {
   return (
     <RootDocument>
       <QueryClientProvider client={queryClient}>
-        <PostHogIdentify />
+        <AnalyticsIdentity />
         {!isLogin && <Header />}
         <main className={isLogin ? undefined : "pt-32 pb-20"}>
           <Outlet />
@@ -122,32 +114,18 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: { children: ReactNode }) {
+  const umamiUrl = import.meta.env.VITE_UMAMI_URL;
+  const umamiId = import.meta.env.VITE_UMAMI_ID;
+
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
-        {import.meta.env.VITE_POSTHOG_KEY ? (
-          <PostHogProvider
-            apiKey={import.meta.env.VITE_POSTHOG_KEY}
-            options={{
-              api_host:
-                import.meta.env.VITE_POSTHOG_HOST ?? "https://eu.i.posthog.com",
-              ...(import.meta.env.VITE_POSTHOG_UI_HOST && {
-                ui_host: import.meta.env.VITE_POSTHOG_UI_HOST,
-              }),
-              capture_pageview: false,
-              capture_pageleave: true,
-              loaded: (ph) => {
-                if (import.meta.env.DEV) ph.debug();
-              },
-            }}
-          >
-            {children}
-          </PostHogProvider>
-        ) : (
-          children
+        {children}
+        {umamiUrl && umamiId && (
+          <script defer src={umamiUrl} data-website-id={umamiId} />
         )}
         <Scripts />
       </body>

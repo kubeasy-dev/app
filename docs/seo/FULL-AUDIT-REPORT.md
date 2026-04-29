@@ -265,7 +265,7 @@ Both fields can be removed to reduce XML size and maintenance overhead.
 
 ### What's Well-Implemented
 - Vercel edge CDN: TTFB 70ms (homepage), 76ms (blog) — excellent
-- PostHog proxied through same-origin `/ingest/` — no third-party connection cost
+- Umami analytics via stats.kubeasy.io — privacy-friendly and lightweight
 - `next/image` with AVIF/WebP formats configured throughout
 - Geist fonts preloaded via HTTP `Link` response headers — no render-blocking
 - Static assets at `immutable` cache, 1-year TTL

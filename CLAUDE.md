@@ -97,6 +97,10 @@ Create `.env` files in each app (see their respective CLAUDE.md). Key variables:
 | `POSTHOG_HOST` | `apps/api` | PostHog host (e.g. `https://eu.i.posthog.com`) |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | `apps/api`, `apps/web` | OpenTelemetry collector endpoint |
 | `VITE_API_URL` | `apps/web`, `apps/admin` | API base URL for client-side fetch |
+| `VITE_UMAMI_ID` | `apps/web` | Umami website ID (Vite) |
+| `VITE_UMAMI_URL` | `apps/web` | Umami script URL (Vite) |
+| `NEXT_PUBLIC_UMAMI_ID` | `apps/docs` | Umami website ID (Next.js) |
+| `NEXT_PUBLIC_UMAMI_URL` | `apps/docs` | Umami script URL (Next.js) |
 | `NOTION_INTEGRATION_TOKEN` | `apps/web`, `apps/docs` | Notion integration secret (blog content) |
 | `NOTION_BLOG_DATASOURCE_ID` | `apps/web` | Notion DB for blog posts |
 | `NOTION_DIRECTORY_DATASOURCE_ID` | `apps/web` | Notion DB for directory |

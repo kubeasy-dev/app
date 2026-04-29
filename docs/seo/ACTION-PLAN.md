@@ -312,7 +312,7 @@ Add `priority` prop to the `<Image>` in the featured (large) blog card variant. 
 
 Start with report-only mode to avoid breaking the site:
 ```
-Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://eu.i.posthog.com;
+Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://stats.kubeasy.io; connect-src 'self' https://stats.kubeasy.io;
 ```
 
 ---

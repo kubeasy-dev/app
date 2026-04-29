@@ -15,6 +15,9 @@ const inter = Inter({
 });
 
 export default function Layout({ children }: { children: ReactNode }) {
+  const umamiUrl = process.env.NEXT_PUBLIC_UMAMI_URL;
+  const umamiId = process.env.NEXT_PUBLIC_UMAMI_ID;
+
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen">
@@ -27,6 +30,9 @@ export default function Layout({ children }: { children: ReactNode }) {
         >
           {children}
         </RootProvider>
+        {umamiUrl && umamiId && (
+          <script defer src={umamiUrl} data-website-id={umamiId} />
+        )}
       </body>
     </html>
   );
