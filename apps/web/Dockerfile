@@ -10,7 +10,8 @@ RUN turbo prune @kubeasy/web --docker
 FROM builder AS web-builder
 
 COPY --from=web-prepare /app/out/json/ .
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=s/de9c1182-9bc5-434a-9692-73c4d557c102-/root/.local/share/pnpm/store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
 
 COPY --from=web-prepare /app/out/full/ .
 
@@ -31,7 +32,8 @@ ENV NOTION_DIRECTORY_DATASOURCE_ID=$NOTION_DIRECTORY_DATASOURCE_ID
 ARG NOTION_PEOPLE_DATASOURCE_ID
 ENV NOTION_PEOPLE_DATASOURCE_ID=$NOTION_PEOPLE_DATASOURCE_ID
 
-RUN turbo run build --filter=@kubeasy/web
+RUN --mount=type=cache,id=s/de9c1182-9bc5-434a-9692-73c4d557c102-/app/node_modules/.cache/turbo,target=/app/node_modules/.cache/turbo \
+    turbo run build --filter=@kubeasy/web
 
 FROM web-builder AS web-deploy
 
