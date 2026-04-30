@@ -64,6 +64,8 @@ export function trackApiTokenCreated() {
   safeTrack("api_token_created");
 }
 
+let pendingIdentifyIntervalId: number | null = null;
+
 /**
  * Identify a user in Umami
  * This should be called after successful authentication
@@ -85,15 +87,18 @@ export function identifyUser(
       // Umami expects the unique ID as the first positional argument; passing
       // it inside the data object would only set session data without
       // assigning a distinctId.
-      if (properties && Object.keys(properties).length > 0) {
-        window.umami?.identify(userId, properties);
-      } else {
-        window.umami?.identify(userId);
-      }
+      window.umami?.identify(userId, properties);
     } catch (error) {
       console.error("[Umami] Failed to identify user", error);
     }
   };
+
+  // Cancel any in-flight poll so the latest call wins and we don't fire
+  // identify multiple times with stale arguments.
+  if (pendingIdentifyIntervalId !== null) {
+    window.clearInterval(pendingIdentifyIntervalId);
+    pendingIdentifyIntervalId = null;
+  }
 
   if (isUmamiReady()) {
     runIdentify();
@@ -104,14 +109,20 @@ export function identifyUser(
   // session resolves on first paint. Poll briefly until it's available.
   const startedAt = Date.now();
   const maxWaitMs = 10_000;
-  const intervalId = window.setInterval(() => {
+  pendingIdentifyIntervalId = window.setInterval(() => {
     if (isUmamiReady()) {
-      window.clearInterval(intervalId);
+      if (pendingIdentifyIntervalId !== null) {
+        window.clearInterval(pendingIdentifyIntervalId);
+        pendingIdentifyIntervalId = null;
+      }
       runIdentify();
       return;
     }
     if (Date.now() - startedAt > maxWaitMs) {
-      window.clearInterval(intervalId);
+      if (pendingIdentifyIntervalId !== null) {
+        window.clearInterval(pendingIdentifyIntervalId);
+        pendingIdentifyIntervalId = null;
+      }
       if (process.env.NODE_ENV === "development") {
         console.info("[Umami] User identification skipped (load timeout)");
       }
