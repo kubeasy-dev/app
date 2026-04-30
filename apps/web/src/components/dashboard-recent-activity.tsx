@@ -1,7 +1,4 @@
 import type { XpTransaction } from "@kubeasy/api-schemas/xp";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { Clock, History, Trophy, X } from "lucide-react";
 import { Button } from "@kubeasy/ui/button";
 import {
   Dialog,
@@ -10,6 +7,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@kubeasy/ui/dialog";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { Clock, History, Trophy, X } from "lucide-react";
 import { xpTransactionsOptions } from "@/lib/query-options";
 import { cn } from "@/lib/utils";
 

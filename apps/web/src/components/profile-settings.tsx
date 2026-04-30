@@ -1,10 +1,10 @@
+import { Button } from "@kubeasy/ui/button";
+import { Input } from "@kubeasy/ui/input";
+import { Label } from "@kubeasy/ui/label";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Save, User } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@kubeasy/ui/button";
-import { Input } from "@kubeasy/ui/input";
-import { Label } from "@kubeasy/ui/label";
 import { api } from "@/lib/api-client";
 
 interface ProfileSettingsProps {

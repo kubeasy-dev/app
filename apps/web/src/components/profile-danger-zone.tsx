@@ -1,7 +1,3 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@kubeasy/ui/button";
 import {
   Dialog,
@@ -11,6 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@kubeasy/ui/dialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { api } from "@/lib/api-client";
 import { authClient } from "@/lib/auth-client";
 
