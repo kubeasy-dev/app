@@ -1,3 +1,4 @@
+import type { EvlogVariables } from "evlog/hono";
 import { createMiddleware } from "hono/factory";
 import { auth } from "../lib/auth";
 import { lookupUserByApiKey } from "../lib/lookup-user";
@@ -9,15 +10,10 @@ export type AppEnv = {
   Variables: {
     user: SessionUser | null;
     session: SessionData | null;
-  };
+  } & EvlogVariables["Variables"];
 };
 
-export const sessionMiddleware = createMiddleware<{
-  Variables: {
-    user: SessionUser | null;
-    session: SessionData | null;
-  };
-}>(async (c, next) => {
+export const sessionMiddleware = createMiddleware<AppEnv>(async (c, next) => {
   // 1. Try session cookie (web)
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
   if (session) {
@@ -52,7 +48,7 @@ export const requireAuth = createMiddleware<{
   Variables: {
     user: SessionUser;
     session: SessionData | null;
-  };
+  } & EvlogVariables["Variables"];
 }>(async (c, next) => {
   const user = c.get("user");
   if (!user) {

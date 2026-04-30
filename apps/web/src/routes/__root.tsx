@@ -9,6 +9,8 @@ import {
   Scripts,
   useRouterState,
 } from "@tanstack/react-router";
+import { createMiddleware } from "@tanstack/react-start";
+import { evlogErrorHandler } from "evlog/nitro/v3";
 import { type ReactNode, useEffect } from "react";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
@@ -42,6 +44,9 @@ function NotFoundPage() {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+  server: {
+    middleware: [createMiddleware().server(evlogErrorHandler)],
+  },
   notFoundComponent: NotFoundPage,
   head: () => ({
     meta: [

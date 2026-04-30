@@ -1,14 +1,19 @@
 import { httpInstrumentationMiddleware } from "@hono/otel";
+import { parseError } from "evlog";
+import { createAuthMiddleware } from "evlog/better-auth";
+import { evlog } from "evlog/hono";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger as honoLogger } from "hono/logger";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { auth } from "./lib/auth";
 import { isAllowedOrigin } from "./lib/cors";
 import { RegistryError } from "./lib/registry";
+import type { AppEnv } from "./middleware/session";
 import { sessionMiddleware } from "./middleware/session";
 import { routes } from "./routes/index";
 
-const app = new Hono();
+const app = new Hono<AppEnv>();
+const identifyUser = createAuthMiddleware(auth);
 
 // Official @hono/otel middleware for framework-native instrumentation
 app.use("*", httpInstrumentationMiddleware());
@@ -24,7 +29,12 @@ app.use(
   }),
 );
 
-app.use("*", honoLogger());
+app.use("*", evlog());
+
+app.use("*", async (c, next) => {
+  await identifyUser(c.get("log"), c.req.raw.headers, c.req.path);
+  await next();
+});
 
 // Session middleware on all /api routes (sets c.var.user, c.var.session)
 app.use("/api/*", sessionMiddleware);
@@ -38,10 +48,23 @@ app.on(["GET", "POST"], "/api/auth/*", (c) => {
 app.route("/api", routes);
 
 app.onError((err, c) => {
+  const log = c.get("log");
+  log.error(err);
+
   if (err instanceof RegistryError) {
     return c.json({ error: "Registry unavailable" }, 502);
   }
-  throw err;
+
+  const parsed = parseError(err);
+  return c.json(
+    {
+      message: parsed.message,
+      why: parsed.why,
+      fix: parsed.fix,
+      link: parsed.link,
+    },
+    parsed.status as ContentfulStatusCode,
+  );
 });
 
 export { app };

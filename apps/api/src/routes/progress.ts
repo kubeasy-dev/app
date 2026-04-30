@@ -1,6 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
 import { CompletionPercentageQuerySchema } from "@kubeasy/api-schemas/progress";
-import { logger } from "@kubeasy/logger";
 import { and, count, eq, inArray, sql } from "drizzle-orm";
 import type { Handler } from "hono";
 import { Hono } from "hono";
@@ -225,11 +224,8 @@ progress.post("/:slug/start", requireAuth, async (c) => {
   });
 
   trackChallengeStarted(userId, slug, detail.title).catch((err) => {
-    logger.error("[progress] challenge started tracking failed", {
-      userId,
-      slug,
-      error: String(err),
-    });
+    c.get("log").set({ userId, slug, error: String(err) });
+    c.get("log").error("challenge started tracking failed");
   });
 
   Promise.all([
@@ -237,13 +233,9 @@ progress.post("/:slug/start", requireAuth, async (c) => {
     cacheDelPattern(`cache:u:${userId}:progress:completion:*`),
     cacheDelPattern(`cache:u:${userId}:challenges:list:*`),
   ]).catch((err) => {
-    logger.error("[progress/start] cache invalidation failed", {
-      userId,
-      slug,
-      error: String(err),
-    });
+    c.get("log").set({ userId, error: String(err) });
+    c.get("log").error("cache invalidation failed");
   });
-
   return c.json({ status: "in_progress" as const, startedAt: now });
 });
 
@@ -326,10 +318,8 @@ const handleReset: Handler = async (c) => {
   }
 
   cacheDelPattern(`cache:u:${userId}:*`).catch((err) => {
-    logger.error("[progress/reset] cache invalidation failed", {
-      userId,
-      error: String(err),
-    });
+    c.get("log").set({ userId, error: String(err) });
+    c.get("log").error("cache invalidation failed");
   });
 
   return c.json({
