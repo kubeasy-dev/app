@@ -10,7 +10,10 @@
  */
 interface Umami {
   track: (eventName: string, eventData?: Record<string, unknown>) => void;
-  identify: (properties: Record<string, unknown>) => void;
+  identify: {
+    (uniqueId: string, data?: Record<string, unknown>): void;
+    (data: Record<string, unknown>): void;
+  };
 }
 
 declare global {
@@ -75,21 +78,45 @@ export function identifyUser(
     provider?: string;
   },
 ) {
-  if (!isUmamiReady()) {
-    if (process.env.NODE_ENV === "development") {
-      console.info("[Umami] User identification skipped (not loaded)");
+  if (typeof window === "undefined") return;
+
+  const runIdentify = () => {
+    try {
+      // Umami expects the unique ID as the first positional argument; passing
+      // it inside the data object would only set session data without
+      // assigning a distinctId.
+      if (properties && Object.keys(properties).length > 0) {
+        window.umami?.identify(userId, properties);
+      } else {
+        window.umami?.identify(userId);
+      }
+    } catch (error) {
+      console.error("[Umami] Failed to identify user", error);
     }
+  };
+
+  if (isUmamiReady()) {
+    runIdentify();
     return;
   }
 
-  try {
-    window.umami?.identify({
-      userId,
-      ...properties,
-    });
-  } catch (error) {
-    console.error("[Umami] Failed to identify user", error);
-  }
+  // The Umami script is loaded with `defer`, so it may not be ready when the
+  // session resolves on first paint. Poll briefly until it's available.
+  const startedAt = Date.now();
+  const maxWaitMs = 10_000;
+  const intervalId = window.setInterval(() => {
+    if (isUmamiReady()) {
+      window.clearInterval(intervalId);
+      runIdentify();
+      return;
+    }
+    if (Date.now() - startedAt > maxWaitMs) {
+      window.clearInterval(intervalId);
+      if (process.env.NODE_ENV === "development") {
+        console.info("[Umami] User identification skipped (load timeout)");
+      }
+    }
+  }, 100);
 }
 
 /**
