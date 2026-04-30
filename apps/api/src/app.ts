@@ -18,7 +18,15 @@ app.use(
   "/api/*",
   cors({
     origin: (origin) => (isAllowedOrigin(origin) ? origin : null),
-    allowHeaders: ["Content-Type", "Authorization", "User-Agent"],
+    allowHeaders: [
+      "Content-Type",
+      "Authorization",
+      "User-Agent",
+      "X-Kubeasy-CLI-Version",
+      "X-Kubeasy-Run-Token",
+      "X-Kubeasy-Signature",
+      "X-Kubeasy-Timestamp",
+    ],
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   }),

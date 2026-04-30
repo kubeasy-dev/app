@@ -1,4 +1,3 @@
-import { zValidator } from "@hono/zod-validator";
 import { queryKeys } from "@kubeasy/api-schemas/query-keys";
 import { SubmitBodySchema } from "@kubeasy/api-schemas/submissions";
 import { createQueue, QUEUE_NAMES } from "@kubeasy/jobs";
@@ -17,8 +16,11 @@ import { trackChallengeSubmitted } from "../lib/analytics-server";
 import { cacheDelPattern } from "../lib/cache";
 import { redis } from "../lib/redis";
 import { getChallenge } from "../lib/registry";
+import { issueRunToken, revokeRunToken } from "../lib/run-token";
+import { cliVersionMiddleware } from "../middleware/cli-version";
 import { slidingWindowRateLimit } from "../middleware/rate-limit";
 import { requireAuth } from "../middleware/session";
+import { submitGuard } from "../middleware/submit-guard";
 
 const challengeSubmissionQueue = createQueue(
   QUEUE_NAMES.CHALLENGE_SUBMISSION,
@@ -27,24 +29,113 @@ const challengeSubmissionQueue = createQueue(
 
 const submit = new Hono();
 
-const submitRateLimit = slidingWindowRateLimit(redis, {
+const getUserId = (c: any): string => c.get("user").id;
+const getIp = (c: any): string =>
+  c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ||
+  c.req.header("x-real-ip") ||
+  "unknown";
+
+// Burst protection (per-user, short window)
+const submitBurstLimit = slidingWindowRateLimit(redis, {
   windowMs: 10_000,
   max: 10,
-  keyFn: (c: any) => `submit:${c.get("user").id}`,
+  keyFn: (c) => `submit:burst:${getUserId(c)}`,
 });
 
-// POST /challenges/:slug/submit -- trust CLI results, store submission, dispatch BullMQ job
+// Per-(user, challenge) cooldown: at most 1 submit per minute on the same slug
+const submitCooldown = slidingWindowRateLimit(redis, {
+  windowMs: 60_000,
+  max: 1,
+  keyFn: (c) => `submit:cooldown:${getUserId(c)}:${c.req.param("slug")}`,
+});
+
+// Daily cap per user
+const submitDailyCap = slidingWindowRateLimit(redis, {
+  windowMs: 24 * 60 * 60 * 1000,
+  max: 200,
+  keyFn: (c) => `submit:daily:${getUserId(c)}`,
+});
+
+// Per-IP burst protection (defense against credential-stuffing-style abuse
+// from a single host across many accounts)
+const submitIpLimit = slidingWindowRateLimit(redis, {
+  windowMs: 60_000,
+  max: 60,
+  keyFn: (c) => `submit:ip:${getIp(c)}`,
+});
+
+const startBurstLimit = slidingWindowRateLimit(redis, {
+  windowMs: 60_000,
+  max: 30,
+  keyFn: (c) => `start:${getUserId(c)}`,
+});
+
+// POST /challenges/:slug/start -- issue a runToken bound to (user, slug)
+// The CLI must call this before /submit, then sign each /submit body with
+// the returned nonce.
+submit.post(
+  "/:slug/start",
+  requireAuth,
+  cliVersionMiddleware,
+  startBurstLimit,
+  async (c) => {
+    const user = c.get("user");
+    const slug = c.req.param("slug");
+
+    const detail = await getChallenge(slug);
+    if (!detail) {
+      return c.json({ error: "Challenge not found" }, 404);
+    }
+
+    const record = await issueRunToken(redis, user.id, slug);
+    return c.json({
+      runToken: record.runToken,
+      nonce: record.nonce,
+      startedAt: new Date(record.startedAt).toISOString(),
+      expiresAt: new Date(record.expiresAt).toISOString(),
+    });
+  },
+);
+
+// POST /challenges/:slug/submit -- store submission, dispatch BullMQ job
+// Guarded by: requireAuth, cliVersion, rate limits, runToken + HMAC signature.
+// CLI is still trusted for the per-objective `passed` boolean — fraud detection
+// happens post-hoc on auditEvents.
 submit.post(
   "/:slug/submit",
   requireAuth,
-  submitRateLimit,
+  cliVersionMiddleware,
+  submitIpLimit,
+  submitBurstLimit,
+  submitDailyCap,
+  submitCooldown,
   bodyLimit({ maxSize: 1024 * 1024 }), // 1 MB
-  zValidator("json", SubmitBodySchema),
+  submitGuard,
   async (c) => {
     const user = c.get("user");
     const userId = user.id;
     const challengeSlug = c.req.param("slug");
-    const { results, auditEvents } = c.req.valid("json");
+
+    // Manual parse + validate against the raw body that submitGuard already
+    // consumed for HMAC verification.
+    const rawBody = c.get("rawBody") as string;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(rawBody);
+    } catch {
+      return c.json({ error: "Invalid JSON body" }, 400);
+    }
+    const validation = SubmitBodySchema.safeParse(parsed);
+    if (!validation.success) {
+      return c.json(
+        {
+          error: "Invalid submission payload",
+          issues: validation.error.issues,
+        },
+        400,
+      );
+    }
+    const { results, auditEvents } = validation.data;
 
     // 1. Resolve challenge from registry (gets difficulty + objectives for enrichment)
     const detail = await getChallenge(challengeSlug);
@@ -267,6 +358,16 @@ submit.post(
             error: String(err),
           });
         });
+    }
+
+    // 9. Successful completion: invalidate the runToken (single-use on success)
+    const tokenHeader = c.req.header("X-Kubeasy-Run-Token");
+    if (tokenHeader) {
+      revokeRunToken(redis, tokenHeader, userId, challengeSlug).catch((err) => {
+        logger.error("[submit] run token revocation failed", {
+          error: String(err),
+        });
+      });
     }
 
     return c.json({ success: true, objectives });

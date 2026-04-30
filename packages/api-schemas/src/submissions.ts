@@ -88,6 +88,16 @@ export const SubmitBodySchema = z.object({
 });
 export type SubmitBody = z.infer<typeof SubmitBodySchema>;
 
+// ---------- Run token ----------
+
+export const StartChallengeOutputSchema = z.object({
+  runToken: z.string(),
+  nonce: z.string(),
+  startedAt: z.string().describe("ISO 8601 date string"),
+  expiresAt: z.string().describe("ISO 8601 date string"),
+});
+export type StartChallengeOutput = z.infer<typeof StartChallengeOutputSchema>;
+
 // ---------- Submission record (API list/history output) ----------
 
 export const SubmissionRecordSchema = z.object({

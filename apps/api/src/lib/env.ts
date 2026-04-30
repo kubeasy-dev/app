@@ -20,4 +20,6 @@ export const env = {
   API_URL: process.env.API_URL ?? "http://localhost:3001",
   REGISTRY_URL: process.env.REGISTRY_URL ?? "https://registry.kubeasy.dev",
   NODE_ENV: process.env.NODE_ENV ?? "development",
+  MIN_CLI_VERSION: process.env.MIN_CLI_VERSION ?? "0.0.0",
+  SUBMIT_HARDENED: process.env.SUBMIT_HARDENED !== "false",
 };

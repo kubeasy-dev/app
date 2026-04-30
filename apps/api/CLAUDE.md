@@ -201,4 +201,6 @@ POSTHOG_KEY=           # PostHog project API key (analytics disabled if missing)
 POSTHOG_HOST=          # PostHog host (e.g. https://eu.i.posthog.com)
 OTEL_EXPORTER_OTLP_ENDPOINT=  # OpenTelemetry collector endpoint (traces/metrics/logs)
 PORT=3001              # HTTP server port (optional, defaults to 3001)
+MIN_CLI_VERSION=0.0.0  # Minimum accepted CLI version on /submit + /start (semver, default 0.0.0)
+SUBMIT_HARDENED=true   # When false, runToken/HMAC/CLI-version checks log warnings instead of rejecting (default true)
 ```
