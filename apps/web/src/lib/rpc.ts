@@ -35,3 +35,20 @@ const rpcFetch: typeof fetch = async (input, init) => {
 export const rpc = hc<AppType>(API_BASE, { fetch: rpcFetch }).api;
 
 export type Rpc = typeof rpc;
+
+// Helper that throws on non-2xx and returns parsed JSON.
+// Mirrors what the old `apiFetch` wrapper did so callers stay terse.
+export async function unwrap<
+  T extends {
+    ok: boolean;
+    status: number;
+    json: () => Promise<unknown>;
+    url: string;
+  },
+>(resPromise: Promise<T>): Promise<Awaited<ReturnType<T["json"]>>> {
+  const res = await resPromise;
+  if (!res.ok) {
+    throw new Error(`API ${new URL(res.url).pathname} failed: ${res.status}`);
+  }
+  return (await res.json()) as Awaited<ReturnType<T["json"]>>;
+}

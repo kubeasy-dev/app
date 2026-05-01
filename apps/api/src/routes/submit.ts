@@ -1,11 +1,16 @@
-import { zValidator } from "@hono/zod-validator";
 import { queryKeys } from "@kubeasy/api-schemas/query-keys";
-import { SubmitBodySchema } from "@kubeasy/api-schemas/submissions";
+import {
+  ChallengeSubmitFailureOutputSchema,
+  ChallengeSubmitSuccessOutputSchema,
+  SubmitBodySchema,
+} from "@kubeasy/api-schemas/submissions";
 import { createQueue, QUEUE_NAMES } from "@kubeasy/jobs";
 import { and, eq, ne, sql } from "drizzle-orm";
 import { type Context, Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
+import { describeRoute, resolver, validator } from "hono-openapi";
 import { nanoid } from "nanoid";
+import { z } from "zod";
 import { db } from "../db/index";
 import {
   userProgress,
@@ -14,6 +19,7 @@ import {
 } from "../db/schema/index";
 import { trackChallengeSubmitted } from "../lib/analytics-server";
 import { cacheDelPattern } from "../lib/cache";
+import { sessionOrBearerSecurity } from "../lib/openapi-shared";
 import { redis } from "../lib/redis";
 import { getChallenge } from "../lib/registry";
 import { slidingWindowRateLimit } from "../middleware/rate-limit";
@@ -24,7 +30,7 @@ const challengeSubmissionQueue = createQueue(
   redis.options,
 );
 
-const submit = new Hono<AppEnv>();
+const slugParam = z.object({ slug: z.string() });
 
 const submitRateLimit = slidingWindowRateLimit(redis, {
   windowMs: 10_000,
@@ -32,26 +38,49 @@ const submitRateLimit = slidingWindowRateLimit(redis, {
   keyFn: (c: Context<AppEnv>) => `submit:${c.get("user")?.id}`,
 });
 
-// POST /challenges/:slug/submit -- trust CLI results, store submission, dispatch BullMQ job
-submit.post(
+export const submit = new Hono<AppEnv>().post(
   "/:slug/submit",
+  describeRoute({
+    tags: ["CLI", "Submissions"],
+    summary: "Submit challenge validation results",
+    security: sessionOrBearerSecurity,
+    responses: {
+      200: {
+        description: "All objectives passed",
+        content: {
+          "application/json": {
+            schema: resolver(ChallengeSubmitSuccessOutputSchema),
+          },
+        },
+      },
+      409: { description: "Challenge already completed" },
+      422: {
+        description: "Some objectives failed or missing/unknown objectives",
+        content: {
+          "application/json": {
+            schema: resolver(ChallengeSubmitFailureOutputSchema),
+          },
+        },
+      },
+      404: { description: "Challenge not found" },
+    },
+  }),
   requireAuth,
   submitRateLimit,
   bodyLimit({ maxSize: 1024 * 1024 }), // 1 MB
-  zValidator("json", SubmitBodySchema),
+  validator("param", slugParam),
+  validator("json", SubmitBodySchema),
   async (c) => {
     const user = c.get("user");
     const userId = user.id;
-    const challengeSlug = c.req.param("slug");
+    const { slug: challengeSlug } = c.req.valid("param");
     const { results, auditEvents } = c.req.valid("json");
 
-    // 1. Resolve challenge from registry (gets difficulty + objectives for enrichment)
     const detail = await getChallenge(challengeSlug);
     if (!detail) {
       return c.json({ error: "Challenge not found" }, 404);
     }
 
-    // 2. Check if already completed
     const [existingProgress] = await db
       .select({
         id: userProgress.id,
@@ -71,7 +100,6 @@ submit.post(
       return c.json({ error: "Challenge already completed" }, 409);
     }
 
-    // 3. Enrich results with registry objective metadata
     const objectiveMap = new Map(
       (detail.objectives ?? []).map((o) => [o.key, o]),
     );
@@ -87,12 +115,9 @@ submit.post(
       };
     });
 
-    // 4. Determine validation result (CLI is trusted)
     const validated = results.every((r) => r.passed);
 
-    // 5. Transaction: store submission + progress update atomically
     const txResult = await db.transaction(async (tx) => {
-      // 5a. Compute next attempt number
       const [{ nextAttempt }] = await tx
         .select({
           nextAttempt: sql<number>`COALESCE(MAX(${userSubmission.attemptNumber}), 0) + 1`,
@@ -105,7 +130,6 @@ submit.post(
           ),
         );
 
-      // 5b. Insert submission (unique index on (user_id, challenge_slug, attempt_number) guards races)
       try {
         await tx.insert(userSubmission).values({
           id: nanoid(),
@@ -132,7 +156,6 @@ submit.post(
         return { conflict: false, progressUpdated: false, failed: true };
       }
 
-      // 5c. Atomic progress update (race guard)
       let progressUpdated: boolean;
       if (existingProgress) {
         const updated = await tx
@@ -165,7 +188,6 @@ submit.post(
         progressUpdated = inserted.length > 0;
       }
 
-      // 5d. Check for existing XP transaction (replay guard)
       const [existingXp] = await tx
         .select({ id: userXpTransaction.id })
         .from(userXpTransaction)
@@ -193,7 +215,6 @@ submit.post(
       );
     }
 
-    // 6. Track submission (fire-and-forget)
     const failedObjectives = objectives.filter((obj) => !obj.passed);
     trackChallengeSubmitted(
       userId,
@@ -211,7 +232,6 @@ submit.post(
       });
     });
 
-    // 7. SSE cache-invalidation (fire-and-forget)
     const sseChannel = `invalidate-cache:${userId}`;
     redis
       .publish(
@@ -234,7 +254,7 @@ submit.post(
     if (txResult.failed) {
       return c.json(
         {
-          success: false,
+          success: false as const,
           objectives,
           failedObjectives: failedObjectives.map((obj) => ({
             key: obj.key,
@@ -247,11 +267,9 @@ submit.post(
     }
 
     if (!txResult.progressUpdated) {
-      return c.json({ success: true, objectives });
+      return c.json({ success: true as const, objectives });
     }
 
-    // 8. Dispatch CHALLENGE_SUBMISSION BullMQ job (fire-and-forget)
-    // ONLY if XP hasn't been awarded yet for this challenge
     if (!txResult.hasXpAwarded) {
       challengeSubmissionQueue
         .add("challenge-completed", {
@@ -266,8 +284,6 @@ submit.post(
         });
     }
 
-    return c.json({ success: true, objectives });
+    return c.json({ success: true as const, objectives });
   },
 );
-
-export { submit };

@@ -19,15 +19,56 @@ import {
 } from "../db/schema/index";
 import { trackChallengeStarted } from "../lib/analytics-server";
 import { cacheDel, cacheDelPattern, cached, cacheKey, TTL } from "../lib/cache";
+import { sessionOrBearerSecurity } from "../lib/openapi-shared";
 import { getChallenge, listChallenges } from "../lib/registry";
 import { type AppEnv, requireAuth } from "../middleware/session";
 
 const slugParam = z.object({ slug: z.string() });
 
-const cliSecurity: { [k: string]: string[] }[] = [
-  { SessionAuth: [] },
-  { BearerAuth: [] },
-];
+const getStatusOpenApi = {
+  tags: ["CLI", "Progress"] as string[],
+  summary: "Get challenge progress",
+  security: sessionOrBearerSecurity,
+  responses: {
+    200: {
+      description: "Challenge progress",
+      content: {
+        "application/json": { schema: resolver(GetStatusOutputSchema) },
+      },
+    },
+  },
+};
+
+async function fetchChallengeStatus(userId: string, slug: string) {
+  return cached(
+    cacheKey(`u:${userId}:progress:status`, { slug }),
+    TTL.USER,
+    async () => {
+      const [progressRecord] = await db
+        .select({
+          status: userProgress.status,
+          startedAt: userProgress.startedAt,
+          completedAt: userProgress.completedAt,
+        })
+        .from(userProgress)
+        .where(
+          and(
+            eq(userProgress.userId, userId),
+            eq(userProgress.challengeSlug, slug),
+          ),
+        )
+        .limit(1);
+
+      return progressRecord
+        ? {
+            status: progressRecord.status,
+            startedAt: progressRecord.startedAt,
+            completedAt: progressRecord.completedAt,
+          }
+        : { status: "not_started" as const };
+    },
+  );
+}
 
 export const progress = new Hono<AppEnv>()
   // GET /progress/completion -- get completion percentage (global or by theme)
@@ -151,59 +192,28 @@ export const progress = new Hono<AppEnv>()
       return c.json(data);
     },
   )
-  // GET /progress/:slug -- get challenge status for authenticated user
+  // GET /progress/:slug -- challenge status
   .get(
     "/:slug",
-    describeRoute({
-      tags: ["CLI", "Progress"],
-      summary: "Get challenge progress",
-      security: cliSecurity,
-      responses: {
-        200: {
-          description: "Challenge progress",
-          content: {
-            "application/json": { schema: resolver(GetStatusOutputSchema) },
-          },
-        },
-      },
-    }),
+    describeRoute(getStatusOpenApi),
     requireAuth,
     validator("param", slugParam),
     async (c) => {
       const user = c.get("user");
-      const userId = user.id;
       const { slug } = c.req.valid("param");
-
-      const data = await cached(
-        cacheKey(`u:${userId}:progress:status`, { slug }),
-        TTL.USER,
-        async () => {
-          const [progressRecord] = await db
-            .select({
-              status: userProgress.status,
-              startedAt: userProgress.startedAt,
-              completedAt: userProgress.completedAt,
-            })
-            .from(userProgress)
-            .where(
-              and(
-                eq(userProgress.userId, userId),
-                eq(userProgress.challengeSlug, slug),
-              ),
-            )
-            .limit(1);
-
-          return progressRecord
-            ? {
-                status: progressRecord.status,
-                startedAt: progressRecord.startedAt,
-                completedAt: progressRecord.completedAt,
-              }
-            : { status: "not_started" as const };
-        },
-      );
-
-      return c.json(data);
+      return c.json(await fetchChallengeStatus(user.id, slug));
+    },
+  )
+  // GET /progress/:slug/status -- legacy alias for the CLI
+  .get(
+    "/:slug/status",
+    describeRoute(getStatusOpenApi),
+    requireAuth,
+    validator("param", slugParam),
+    async (c) => {
+      const user = c.get("user");
+      const { slug } = c.req.valid("param");
+      return c.json(await fetchChallengeStatus(user.id, slug));
     },
   )
   // POST /progress/:slug/start -- create or update user progress to in_progress
@@ -212,7 +222,7 @@ export const progress = new Hono<AppEnv>()
     describeRoute({
       tags: ["CLI", "Progress"],
       summary: "Start a challenge",
-      security: cliSecurity,
+      security: sessionOrBearerSecurity,
       responses: {
         200: {
           description: "Challenge started",
@@ -312,7 +322,7 @@ export const progress = new Hono<AppEnv>()
     describeRoute({
       tags: ["CLI", "Progress"],
       summary: "Reset challenge progress",
-      security: cliSecurity,
+      security: sessionOrBearerSecurity,
       responses: {
         200: {
           description: "Progress reset",

@@ -10,18 +10,15 @@ import { submit } from "../submit";
  *
  * Old CLI paths → current handler
  *   GET  /challenge/:slug          → challenges GET /:slug (detail)
- *   GET  /challenge/:slug/status   → progress GET /:slug/status (alias added in progress.ts)
+ *   GET  /challenge/:slug/status   → progress GET /:slug/status (alias)
  *   POST /challenge/:slug/start    → progress POST /:slug/start
- *   POST /challenge/:slug/reset    → progress POST /:slug/reset (alias added in progress.ts)
+ *   POST /challenge/:slug/reset    → progress POST /:slug/reset
  *   POST /challenge/:slug/submit   → submit POST /:slug/submit
  *
- * Mount order matters: challenges is first so its GET /:slug (detail) wins
+ * Mount order matters: challenges first so its GET /:slug (detail) wins
  * over progress's GET /:slug (status) for the bare slug path.
  */
-const legacyCli = new Hono<AppEnv>();
-
-legacyCli.route("/", challenges); // GET /:slug → detail (registered first, wins)
-legacyCli.route("/", progress); // GET /:slug/status, POST /:slug/start, POST+DELETE /:slug/reset
-legacyCli.route("/", submit); // POST /:slug/submit
-
-export { legacyCli };
+export const legacyCli = new Hono()
+  .route("/", challenges)
+  .route("/", progress)
+  .route("/", submit);

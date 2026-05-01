@@ -1,11 +1,11 @@
+import { Button } from "@kubeasy/ui/button";
+import { Input } from "@kubeasy/ui/input";
+import { Label } from "@kubeasy/ui/label";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Save, User } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@kubeasy/ui/button";
-import { Input } from "@kubeasy/ui/input";
-import { Label } from "@kubeasy/ui/label";
-import { api } from "@/lib/api-client";
+import { rpc, unwrap } from "@/lib/rpc";
 
 interface ProfileSettingsProps {
   initialFirstName: string;
@@ -22,7 +22,14 @@ export function ProfileSettings({
 
   const updateNameMutation = useMutation({
     mutationFn: () =>
-      api.user.updateName(firstName.trim(), lastName.trim() || undefined),
+      unwrap(
+        rpc.user.name.$patch({
+          json: {
+            firstName: firstName.trim(),
+            lastName: lastName.trim() || undefined,
+          },
+        }),
+      ),
     onSuccess: () => {
       toast.success("Profile updated successfully!");
       queryClient.invalidateQueries({ queryKey: ["user"] });

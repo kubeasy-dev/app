@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { api } from "@/lib/api-client";
 import { siteConfig } from "@/lib/constants";
 import { getBlogPosts } from "@/lib/notion";
+import { rpc, unwrap } from "@/lib/rpc";
 
 function escapeXml(str: string): string {
   return str
@@ -45,7 +45,7 @@ export const Route = createFileRoute("/sitemap.xml")({
 
         const [posts, challengeResult] = await Promise.allSettled([
           getBlogPosts(),
-          api.challenges.list(),
+          unwrap(rpc.challenges.$get({ query: {} })),
         ]);
 
         const blogUrls =

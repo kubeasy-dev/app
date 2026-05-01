@@ -160,12 +160,6 @@ importers:
       '@hono/standard-validator':
         specifier: ^0.2.2
         version: 0.2.2(@standard-schema/spec@1.1.0)(hono@4.12.15)
-      '@hono/zod-openapi':
-        specifier: 1.3.0
-        version: 1.3.0(hono@4.12.15)(zod@4.3.6)
-      '@hono/zod-validator':
-        specifier: 0.7.6
-        version: 0.7.6(hono@4.12.15)(zod@4.3.6)
       '@kubeasy/api-schemas':
         specifier: workspace:*
         version: link:../../packages/api-schemas
@@ -272,6 +266,9 @@ importers:
       drizzle-kit:
         specifier: 0.31.10
         version: 0.31.10
+      openapi-types:
+        specifier: ^12.1.3
+        version: 12.1.3
       tsup:
         specifier: 8.5.1
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.10)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
@@ -724,11 +721,6 @@ packages:
     peerDependenciesMeta:
       bullmq:
         optional: true
-
-  '@asteasolutions/zod-to-openapi@8.5.0':
-    resolution: {integrity: sha512-SABbKiObg5dLRiTFnqiW1WWwGcg1BJfmHtT2asIBnBHg6Smy/Ms2KHc650+JI4Hw7lSkdiNebEGXpwoxfben8Q==}
-    peerDependencies:
-      zod: ^4.0.0
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -1666,19 +1658,6 @@ packages:
     peerDependencies:
       '@standard-schema/spec': ^1.0.0
       hono: '>=3.9.0'
-
-  '@hono/zod-openapi@1.3.0':
-    resolution: {integrity: sha512-loDVevfMaaNa0slskhpMcqjSdidVXba2QJwNVmnS5Dp6L8AqSgtjJxWGJfRZtosyzYOb5gx4ZzXNCe+QhwY7xw==}
-    engines: {node: '>=16.0.0'}
-    peerDependencies:
-      hono: '>=4.3.6'
-      zod: ^4.0.0
-
-  '@hono/zod-validator@0.7.6':
-    resolution: {integrity: sha512-Io1B6d011Gj1KknV4rXYz4le5+5EubcWEU/speUjuw9XMMIaP3n78yXLhjd2A3PXaXaUwEAluOiAyLqhBEJgsw==}
-    peerDependencies:
-      hono: '>=3.9.0'
-      zod: ^3.25.0 || ^4.0.0
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -7118,9 +7097,6 @@ packages:
   openapi-types@12.1.3:
     resolution: {integrity: sha512-N4YtSYJqghVu4iek2ZUvcN/0aqH1kRDuNqzcycDxhOUpg7GdvLa2F3DgS6yBNhInhv2r/6I0Flkn7CqL8+nIcw==}
 
-  openapi3-ts@4.5.0:
-    resolution: {integrity: sha512-jaL+HgTq2Gj5jRcfdutgRGLosCy/hT8sQf6VOy+P+g36cZOjI1iukdPnijC+4CmeRzg/jEllJUboEic2FhxhtQ==}
-
   ora@8.2.0:
     resolution: {integrity: sha512-weP+BZ8MVNnlCm8c0Qdc1WSWq4Qn7I+9CJGm7Qali6g44e/PUzbjNqJX5NJ9ljlNMosfJvg1fKEGILklK9cwnw==}
     engines: {node: '>=18'}
@@ -8735,11 +8711,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@asteasolutions/zod-to-openapi@8.5.0(zod@4.3.6)':
-    dependencies:
-      openapi3-ts: 4.5.0
-      zod: 4.3.6
-
   '@babel/code-frame@7.27.1':
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
@@ -9532,19 +9503,6 @@ snapshots:
     dependencies:
       '@standard-schema/spec': 1.1.0
       hono: 4.12.15
-
-  '@hono/zod-openapi@1.3.0(hono@4.12.15)(zod@4.3.6)':
-    dependencies:
-      '@asteasolutions/zod-to-openapi': 8.5.0(zod@4.3.6)
-      '@hono/zod-validator': 0.7.6(hono@4.12.15)(zod@4.3.6)
-      hono: 4.12.15
-      openapi3-ts: 4.5.0
-      zod: 4.3.6
-
-  '@hono/zod-validator@0.7.6(hono@4.12.15)(zod@4.3.6)':
-    dependencies:
-      hono: 4.12.15
-      zod: 4.3.6
 
   '@img/colour@1.1.0':
     optional: true
@@ -15598,10 +15556,6 @@ snapshots:
       wsl-utils: 0.3.1
 
   openapi-types@12.1.3: {}
-
-  openapi3-ts@4.5.0:
-    dependencies:
-      yaml: 2.8.2
 
   ora@8.2.0:
     dependencies:
