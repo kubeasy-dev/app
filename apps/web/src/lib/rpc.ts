@@ -36,8 +36,24 @@ export const rpc = hc<AppType>(API_BASE, { fetch: rpcFetch }).api;
 
 export type Rpc = typeof rpc;
 
+// Error thrown by `unwrap` on non-2xx responses. Carries the parsed body
+// (when available) so callers can surface structured details like
+// `failedObjectives` from a 422 submit response.
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly body: unknown,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 // Helper that throws on non-2xx and returns parsed JSON.
-// Mirrors what the old `apiFetch` wrapper did so callers stay terse.
+// On error, reads the response body once and folds any `{ error: string }`
+// field into the message so toasts show the server's reason instead of a
+// generic "failed: 400".
 export async function unwrap<
   T extends {
     ok: boolean;
@@ -48,7 +64,19 @@ export async function unwrap<
 >(resPromise: Promise<T>): Promise<Awaited<ReturnType<T["json"]>>> {
   const res = await resPromise;
   if (!res.ok) {
-    throw new Error(`API ${pathOf(res.url)} failed: ${res.status}`);
+    const body = await res.json().catch(() => undefined);
+    const detail =
+      body &&
+      typeof body === "object" &&
+      "error" in body &&
+      typeof (body as { error: unknown }).error === "string"
+        ? `: ${(body as { error: string }).error}`
+        : "";
+    throw new ApiError(
+      `API ${pathOf(res.url)} failed: ${res.status}${detail}`,
+      res.status,
+      body,
+    );
   }
   return (await res.json()) as Awaited<ReturnType<T["json"]>>;
 }
