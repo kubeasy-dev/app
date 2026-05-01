@@ -582,8 +582,8 @@ importers:
   packages/jobs:
     dependencies:
       bullmq:
-        specifier: 5.76.2
-        version: 5.76.2
+        specifier: 5.76.4
+        version: 5.76.4
     devDependencies:
       '@kubeasy/typescript-config':
         specifier: workspace:*
@@ -4678,6 +4678,10 @@ packages:
 
   bullmq@5.76.2:
     resolution: {integrity: sha512-kkNU6TPAjqV3Ep0kIaYhT79Z2IMoA7vadqjmr/zvmPicg0K/cOAecqZTihD726LbI043yPU0MBv/nMQmd5rNIg==}
+    engines: {node: '>=12.22.0'}
+
+  bullmq@5.76.4:
+    resolution: {integrity: sha512-hVAplia7zfN3BxSCgAoRInJnbemfLwJdQLqJy/txEX8UMSTAeg0saPFNGWIlzES/Ct5xQ20TUaik/XwS99DOMA==}
     engines: {node: '>=12.22.0'}
 
   bundle-name@4.1.0:
@@ -12498,6 +12502,17 @@ snapshots:
   buffer-from@1.1.2: {}
 
   bullmq@5.76.2:
+    dependencies:
+      cron-parser: 4.9.0
+      ioredis: 5.10.1
+      msgpackr: 1.11.5
+      node-abort-controller: 3.1.1
+      semver: 7.7.4
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - supports-color
+
+  bullmq@5.76.4:
     dependencies:
       cron-parser: 4.9.0
       ioredis: 5.10.1
