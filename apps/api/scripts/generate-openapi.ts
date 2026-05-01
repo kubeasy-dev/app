@@ -8,7 +8,8 @@ async function main() {
   const apiDoc = await generateApiDocument(app);
   const __dirname = dirname(fileURLToPath(import.meta.url));
   const cliOutputPath = resolve(__dirname, "..", "openapi.json");
-  writeFileSync(cliOutputPath, JSON.stringify(apiDoc, null, 2));
+  // Trailing newline so POSIX tools (and most editors) are happy.
+  writeFileSync(cliOutputPath, `${JSON.stringify(apiDoc, null, 2)}\n`);
   console.log(`OpenAPI spec written to ${cliOutputPath}`);
 }
 
