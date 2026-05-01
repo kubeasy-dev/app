@@ -48,7 +48,19 @@ export async function unwrap<
 >(resPromise: Promise<T>): Promise<Awaited<ReturnType<T["json"]>>> {
   const res = await resPromise;
   if (!res.ok) {
-    throw new Error(`API ${new URL(res.url).pathname} failed: ${res.status}`);
+    throw new Error(`API ${pathOf(res.url)} failed: ${res.status}`);
   }
   return (await res.json()) as Awaited<ReturnType<T["json"]>>;
+}
+
+// `res.url` is "" or relative when API_BASE is "" (browser, same-origin).
+// `new URL("")` throws — fall back to the raw string in that case so the
+// real error isn't masked by a URL parse failure.
+function pathOf(url: string): string {
+  if (!url) return "(unknown)";
+  try {
+    return new URL(url, "http://x").pathname;
+  } catch {
+    return url;
+  }
 }

@@ -77,6 +77,7 @@ export const progress = new Hono<AppEnv>()
     describeRoute({
       tags: ["Progress"],
       summary: "Get user completion percentage",
+      security: sessionOrBearerSecurity,
       responses: {
         200: {
           description: "Completion percentage",

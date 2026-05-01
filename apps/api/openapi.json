@@ -771,6 +771,14 @@
           "Progress"
         ],
         "summary": "Get user completion percentage",
+        "security": [
+          {
+            "SessionAuth": []
+          },
+          {
+            "BearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Completion percentage",
