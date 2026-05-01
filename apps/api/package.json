@@ -42,6 +42,7 @@
     "@opentelemetry/sdk-metrics": "2.7.1",
     "@opentelemetry/sdk-node": "0.216.0",
     "@opentelemetry/semantic-conventions": "1.40.0",
+    "@scalar/hono-api-reference": "^0.10.13",
     "better-all": "0.0.7",
     "better-auth": "1.6.9",
     "bullmq": "5.76.4",

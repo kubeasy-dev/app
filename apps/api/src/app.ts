@@ -1,14 +1,14 @@
 import { httpInstrumentationMiddleware } from "@hono/otel";
+import { Scalar } from "@scalar/hono-api-reference";
 import { parseError } from "evlog";
 import { identifyUser } from "evlog/better-auth";
 import { evlog } from "evlog/hono";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { openAPIRouteHandler } from "hono-openapi";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { auth } from "./lib/auth";
 import { isAllowedOrigin } from "./lib/cors";
-import { openApiConfig } from "./lib/openapi";
+import { generateApiDocument } from "./lib/openapi";
 import { RegistryError } from "./lib/registry";
 import type { AppEnv } from "./middleware/session";
 import { sessionMiddleware } from "./middleware/session";
@@ -57,10 +57,21 @@ app.on(["GET", "POST"], "/api/auth/*", (c) => {
 // every sub-route below /api/*.
 const apiRoutes = app.route("/api", routes);
 
-// Live OpenAPI spec — served from the running app so external consumers
-// (CLI codegen, postman, /docs) always see exactly what's deployed.
-// CORS already covers /api/*, so the endpoint is browser-fetchable too.
-app.get("/api/openapi.json", openAPIRouteHandler(app, openApiConfig));
+// Live OpenAPI spec, computed once on first request and cached for the
+// process lifetime. The promise itself is memoized so concurrent first
+// requests share the same generation pass.
+let cachedSpec: Promise<unknown> | null = null;
+app.get("/api/openapi.json", async (c) => {
+  cachedSpec ??= generateApiDocument(app);
+  return c.json((await cachedSpec) as object);
+});
+
+// Scalar API reference UI — browsers see a docs site at /api/docs that
+// reads from the live spec above.
+app.get(
+  "/api/docs",
+  Scalar({ url: "/api/openapi.json", pageTitle: "Kubeasy API" }),
+);
 
 app.onError((err, c) => {
   const log = c.get("log");

@@ -42,8 +42,8 @@ export const openApiConfig: Partial<GenerateSpecOptions> = {
     tags: [{ name: "CLI", description: "Routes consumed by the Kubeasy CLI" }],
   },
   excludeMethods: ["OPTIONS", "HEAD"],
-  // Don't document the documentation endpoint itself.
-  exclude: ["/api/openapi.json"],
+  // Don't document the documentation endpoints themselves.
+  exclude: ["/api/openapi.json", "/api/docs"],
 };
 
 export async function generateApiDocument(app: Hono<any, any, any>) {
