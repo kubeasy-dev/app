@@ -78,14 +78,21 @@ export function completionOptions(params?: {
   splitByTheme?: boolean;
   themeSlug?: string;
 }) {
+  // Normalize: `splitByTheme: false` is wire-equivalent to omitting it (the
+  // server defaults to false), so collapse both forms to the same query key
+  // and avoid double-caching the same response.
+  const normalized: { splitByTheme?: true; themeSlug?: string } = {};
+  if (params?.splitByTheme === true) normalized.splitByTheme = true;
+  if (params?.themeSlug) normalized.themeSlug = params.themeSlug;
+
   return queryOptions({
-    queryKey: ["progress", "completion", params ?? {}],
+    queryKey: ["progress", "completion", normalized],
     queryFn: () =>
       unwrap(
         rpc.progress.completion.$get({
           query: {
-            splitByTheme: params?.splitByTheme ? "true" : undefined,
-            themeSlug: params?.themeSlug,
+            splitByTheme: normalized.splitByTheme ? "true" : undefined,
+            themeSlug: normalized.themeSlug,
           },
         }),
       ),
