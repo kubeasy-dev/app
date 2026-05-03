@@ -85,10 +85,10 @@ export const auth = betterAuth({
             });
           } catch (error) {
             // Never throw — auth must complete regardless of job dispatch failure
-            log.error({
-              message: "user-signup job dispatch failed",
-              error: String(error),
-            });
+            log.error(
+              "auth",
+              `user-signup job dispatch failed: ${String(error)}`,
+            );
           }
         },
       },
