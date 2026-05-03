@@ -112,7 +112,7 @@ Defined in `turbo.json`:
 - `typecheck` — type-checks packages before apps (topological)
 - `dev` — runs all apps concurrently (persistent, no cache)
 - `start` — runs built apps (depends on `build`, persistent, no cache)
-- `openapi:generate` — generates `openapi.json` and `openapi-sync.json`
+- `openapi:generate` — generates `apps/api/openapi.json` from the live Hono routes (also served at runtime via `GET /api/openapi.json`, with a Scalar UI at `GET /api/docs`)
 
 ## Shared Packages
 

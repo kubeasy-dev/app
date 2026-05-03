@@ -1,7 +1,3 @@
-import type { XpTransaction } from "@kubeasy/api-schemas/xp";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { Clock, History, Trophy, X } from "lucide-react";
 import { Button } from "@kubeasy/ui/button";
 import {
   Dialog,
@@ -10,13 +6,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@kubeasy/ui/dialog";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import type { InferResponseType } from "hono/client";
+import { Clock, History, Trophy, X } from "lucide-react";
 import { xpTransactionsOptions } from "@/lib/query-options";
+import type { rpc } from "@/lib/rpc";
 import { cn } from "@/lib/utils";
+
+// Wire-shape — same as XpTransaction but with `createdAt: string` since
+// JSON serialization converts Date to ISO string over the network.
+type XpActivity = InferResponseType<typeof rpc.xp.history.$get>[number];
 
 const PREVIEW_COUNT = 4;
 
-function groupByMonth(transactions: XpTransaction[]) {
-  const map = new Map<string, { label: string; items: XpTransaction[] }>();
+function groupByMonth(transactions: XpActivity[]) {
+  const map = new Map<string, { label: string; items: XpActivity[] }>();
   for (const tx of transactions) {
     const date = new Date(tx.createdAt);
     const key = `${date.getFullYear()}-${date.getMonth()}`;
@@ -38,7 +43,7 @@ function ActivityItem({
   activity,
   compact = false,
 }: {
-  activity: XpTransaction;
+  activity: XpActivity;
   compact?: boolean;
 }) {
   const hasChallenge =

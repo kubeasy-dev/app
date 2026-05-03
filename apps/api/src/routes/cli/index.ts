@@ -1,31 +1,36 @@
-import { zValidator } from "@hono/zod-validator";
 import { CliMetadataSchema } from "@kubeasy/api-schemas/cli";
 import { queryKeys } from "@kubeasy/api-schemas/query-keys";
 import { and, eq } from "drizzle-orm";
 import type { RequestLogger } from "evlog";
 import { Hono } from "hono";
+import { describeRoute, resolver, validator } from "hono-openapi";
 import type { z } from "zod";
+import { z as zod } from "zod";
 import { db } from "../../db/index";
 import { userOnboarding } from "../../db/schema/onboarding";
 import { trackCliLogin, trackCliSetup } from "../../lib/analytics-server";
+import { bearerSecurity } from "../../lib/openapi-shared";
 import { redis } from "../../lib/redis";
 import type { AppEnv } from "../../middleware/session";
 import { requireAuth } from "../../middleware/session";
 import { submit } from "../submit";
-import { legacyCli } from "./legacy";
 
-const cli = new Hono<AppEnv>();
+const CliUserOutputSchema = zod.object({
+  firstName: zod.string(),
+  lastName: zod.string().nullable(),
+});
 
-// API key auth required for all CLI routes (session resolved globally by sessionMiddleware)
-cli.use("/*", requireAuth);
+const CliUserPostOutputSchema = CliUserOutputSchema.extend({
+  firstLogin: zod.boolean(),
+});
 
-// Current paths (plural)
-cli.route("/challenges", submit); // POST /api/cli/challenges/:slug/submit
+const TrackLoginOutputSchema = zod.object({ firstLogin: zod.boolean() });
 
-// Legacy paths (singular) — aliases for old CLI compatibility
-cli.route("/challenge", legacyCli);
+const TrackSetupOutputSchema = zod.object({
+  success: zod.boolean(),
+  firstTime: zod.boolean(),
+});
 
-// Helper to parse user name
 function parseUserName(fullName: string | null) {
   const name = fullName || "";
   const nameParts = name.trim().split(" ");
@@ -35,7 +40,6 @@ function parseUserName(fullName: string | null) {
   };
 }
 
-// Helper to handle CLI login onboarding logic
 async function handleCliOnboarding(
   log: RequestLogger,
   userId: string,
@@ -44,7 +48,6 @@ async function handleCliOnboarding(
 ) {
   const { cliVersion, os, arch } = metadata;
 
-  // Atomically determine firstLogin and set cliAuthenticated = true
   const updateResult = await db
     .update(userOnboarding)
     .set({ cliAuthenticated: true, updatedAt: new Date() })
@@ -69,10 +72,8 @@ async function handleCliOnboarding(
     firstLogin = insertResult.length > 0;
   }
 
-  // Track in PostHog
   await trackCliLogin(userId, { cliVersion, os, arch });
 
-  // Publish SSE invalidation for onboarding query
   const channel = `invalidate-cache:${userId}`;
   const payload = JSON.stringify({ queryKey: queryKeys.onboarding() });
   redis.publish(channel, payload).catch((err) => {
@@ -82,86 +83,139 @@ async function handleCliOnboarding(
   return firstLogin;
 }
 
-// GET /cli/user -- deprecated, returns first/last name
-cli.get("/user", async (c) => {
-  const user = c.get("user");
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
-  const { firstName, lastName } = parseUserName(user.name);
-  return c.json({ firstName, lastName }, 200);
-});
+export const cli = new Hono<AppEnv>()
+  .use("/*", requireAuth)
+  .route("/challenges", submit)
+  .get(
+    "/user",
+    describeRoute({
+      tags: ["CLI"],
+      summary: "Get user (deprecated)",
+      security: bearerSecurity,
+      responses: {
+        200: {
+          description: "User",
+          content: {
+            "application/json": { schema: resolver(CliUserOutputSchema) },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      const user = c.get("user");
+      const { firstName, lastName } = parseUserName(user.name);
+      return c.json({ firstName, lastName }, 200);
+    },
+  )
+  .post(
+    "/user",
+    describeRoute({
+      tags: ["CLI"],
+      summary: "Returns user info and tracks CLI login",
+      security: bearerSecurity,
+      responses: {
+        200: {
+          description: "User",
+          content: {
+            "application/json": { schema: resolver(CliUserPostOutputSchema) },
+          },
+        },
+      },
+    }),
+    validator("json", CliMetadataSchema),
+    async (c) => {
+      const user = c.get("user");
+      const metadata = c.req.valid("json");
 
-// POST /cli/user -- returns user info + tracks CLI login for onboarding
-cli.post("/user", zValidator("json", CliMetadataSchema), async (c) => {
-  const user = c.get("user");
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
-  const metadata = c.req.valid("json");
+      const firstLogin = await handleCliOnboarding(
+        c.get("log"),
+        user.id,
+        metadata,
+        "cli/user",
+      );
 
-  const firstLogin = await handleCliOnboarding(
-    c.get("log"),
-    user.id,
-    metadata,
-    "cli/user",
+      const { firstName, lastName } = parseUserName(user.name);
+      return c.json({ firstName, lastName, firstLogin });
+    },
+  )
+  .post(
+    "/track/login",
+    describeRoute({
+      tags: ["CLI"],
+      summary: "Track CLI login and metadata",
+      security: bearerSecurity,
+      responses: {
+        200: {
+          description: "Login tracked",
+          content: {
+            "application/json": { schema: resolver(TrackLoginOutputSchema) },
+          },
+        },
+      },
+    }),
+    validator("json", CliMetadataSchema),
+    async (c) => {
+      const user = c.get("user");
+      const metadata = c.req.valid("json");
+
+      const firstLogin = await handleCliOnboarding(
+        c.get("log"),
+        user.id,
+        metadata,
+        "cli/track/login",
+      );
+
+      return c.json({ firstLogin });
+    },
+  )
+  .post(
+    "/track/setup",
+    describeRoute({
+      tags: ["CLI"],
+      summary: "Track CLI cluster initialization",
+      security: bearerSecurity,
+      responses: {
+        200: {
+          description: "Setup tracked",
+          content: {
+            "application/json": { schema: resolver(TrackSetupOutputSchema) },
+          },
+        },
+      },
+    }),
+    validator("json", CliMetadataSchema),
+    async (c) => {
+      const user = c.get("user");
+      const userId = user.id;
+      const { cliVersion, os, arch } = c.req.valid("json");
+
+      const [existing] = await db
+        .select({ clusterInitialized: userOnboarding.clusterInitialized })
+        .from(userOnboarding)
+        .where(eq(userOnboarding.userId, userId));
+
+      const firstTime = !existing?.clusterInitialized;
+
+      await db
+        .insert(userOnboarding)
+        .values({ userId, clusterInitialized: true })
+        .onConflictDoUpdate({
+          target: userOnboarding.userId,
+          set: { clusterInitialized: true, updatedAt: new Date() },
+        });
+
+      await trackCliSetup(userId, { cliVersion, os, arch });
+
+      const channel = `invalidate-cache:${userId}`;
+      const payload = JSON.stringify({ queryKey: queryKeys.onboarding() });
+      redis.publish(channel, payload).catch((err) => {
+        c.get("log").error("SSE publish failed", {
+          userId,
+          channel,
+          error: String(err),
+        });
+      });
+
+      return c.json({ success: true, firstTime });
+    },
   );
-
-  const { firstName, lastName } = parseUserName(user.name);
-  return c.json({ firstName, lastName, firstLogin });
-});
-
-// POST /cli/track/login -- tracks CLI login for onboarding
-cli.post("/track/login", zValidator("json", CliMetadataSchema), async (c) => {
-  const user = c.get("user");
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
-  const metadata = c.req.valid("json");
-
-  const firstLogin = await handleCliOnboarding(
-    c.get("log"),
-    user.id,
-    metadata,
-    "cli/track/login",
-  );
-
-  return c.json({ firstLogin });
-});
-
-// POST /cli/track/setup -- tracks cluster initialization for onboarding
-cli.post("/track/setup", zValidator("json", CliMetadataSchema), async (c) => {
-  const user = c.get("user");
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
-  const userId = user.id;
-  const { cliVersion, os, arch } = c.req.valid("json");
-
-  // Check if first time
-  const [existing] = await db
-    .select({ clusterInitialized: userOnboarding.clusterInitialized })
-    .from(userOnboarding)
-    .where(eq(userOnboarding.userId, userId));
-
-  const firstTime = !existing?.clusterInitialized;
-
-  // Upsert clusterInitialized = true
-  await db
-    .insert(userOnboarding)
-    .values({ userId, clusterInitialized: true })
-    .onConflictDoUpdate({
-      target: userOnboarding.userId,
-      set: { clusterInitialized: true, updatedAt: new Date() },
-    });
-
-  // Track in PostHog
-  await trackCliSetup(userId, { cliVersion, os, arch });
-
-  // Publish SSE invalidation for onboarding query
-  const channel = `invalidate-cache:${userId}`;
-  const payload = JSON.stringify({ queryKey: queryKeys.onboarding() });
-  redis.publish(channel, payload).catch((err) => {
-    c.get("log").error("SSE publish failed", {
-      userId,
-      channel,
-      error: String(err),
-    });
-  });
-
-  return c.json({ success: true, firstTime });
-});
-
-export { cli };

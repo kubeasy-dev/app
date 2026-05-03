@@ -1,4 +1,5 @@
 import { httpInstrumentationMiddleware } from "@hono/otel";
+import { Scalar } from "@scalar/hono-api-reference";
 import { parseError } from "evlog";
 import { identifyUser } from "evlog/better-auth";
 import { evlog } from "evlog/hono";
@@ -7,6 +8,7 @@ import { cors } from "hono/cors";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { auth } from "./lib/auth";
 import { isAllowedOrigin } from "./lib/cors";
+import { generateApiDocument } from "./lib/openapi";
 import { RegistryError } from "./lib/registry";
 import type { AppEnv } from "./middleware/session";
 import { sessionMiddleware } from "./middleware/session";
@@ -51,8 +53,25 @@ app.on(["GET", "POST"], "/api/auth/*", (c) => {
   return auth.handler(c.req.raw);
 });
 
-// Mount API routes
-app.route("/api", routes);
+// Mount API routes — capture the chained return so the RPC client can infer
+// every sub-route below /api/*.
+const apiRoutes = app.route("/api", routes);
+
+// Live OpenAPI spec, computed once on first request and cached for the
+// process lifetime. The promise itself is memoized so concurrent first
+// requests share the same generation pass.
+let cachedSpec: Promise<unknown> | null = null;
+app.get("/api/openapi.json", async (c) => {
+  cachedSpec ??= generateApiDocument(app);
+  return c.json((await cachedSpec) as object);
+});
+
+// Scalar API reference UI — browsers see a docs site at /api/docs that
+// reads from the live spec above.
+app.get(
+  "/api/docs",
+  Scalar({ url: "/api/openapi.json", pageTitle: "Kubeasy API" }),
+);
 
 app.onError((err, c) => {
   const log = c.get("log");
@@ -77,4 +96,4 @@ app.onError((err, c) => {
 });
 
 export { app };
-export type AppType = typeof app;
+export type AppType = typeof apiRoutes;

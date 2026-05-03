@@ -31,7 +31,7 @@
       "dependsOn": ["^lint"]
     },
     "openapi:generate": {
-      "outputs": ["openapi.json", "openapi-sync.json"]
+      "outputs": ["openapi.json"]
     }
   }
 }

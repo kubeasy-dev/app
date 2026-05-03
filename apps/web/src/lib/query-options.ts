@@ -1,7 +1,7 @@
 import type { ChallengeListInput } from "@kubeasy/api-schemas/challenges";
 import { queryOptions } from "@tanstack/react-query";
-import { api } from "./api-client";
 import { fetchBlogPostDetailFn, fetchBlogPostsFn } from "./blog.functions";
+import { rpc, unwrap } from "./rpc";
 
 // --- Challenges ---
 
@@ -15,7 +15,19 @@ export function challengeListOptions(params?: ChallengeListInput) {
     : {};
   return queryOptions({
     queryKey: ["challenges", "list", normalized],
-    queryFn: () => api.challenges.list(params),
+    queryFn: () =>
+      unwrap(
+        rpc.challenges.$get({
+          query: {
+            difficulty: params?.difficulty,
+            type: params?.type,
+            theme: params?.theme,
+            search: params?.search,
+            showCompleted:
+              params?.showCompleted === false ? "false" : undefined,
+          },
+        }),
+      ),
     staleTime: 5 * 60 * 1000,
   });
 }
@@ -23,7 +35,7 @@ export function challengeListOptions(params?: ChallengeListInput) {
 export function challengeDetailOptions(slug: string) {
   return queryOptions({
     queryKey: ["challenges", "detail", slug],
-    queryFn: () => api.challenges.getBySlug(slug),
+    queryFn: () => unwrap(rpc.challenges[":slug"].$get({ param: { slug } })),
     staleTime: 60 * 60 * 1000, // 1h — matches ISR revalidation window
   });
 }
@@ -31,7 +43,8 @@ export function challengeDetailOptions(slug: string) {
 export function challengeObjectivesOptions(slug: string) {
   return queryOptions({
     queryKey: ["challenges", "objectives", slug],
-    queryFn: () => api.challenges.getObjectives(slug),
+    queryFn: () =>
+      unwrap(rpc.challenges[":slug"].objectives.$get({ param: { slug } })),
     staleTime: 60 * 60 * 1000,
   });
 }
@@ -41,7 +54,7 @@ export function challengeObjectivesOptions(slug: string) {
 export function registryMetaOptions() {
   return queryOptions({
     queryKey: ["registry", "meta"],
-    queryFn: () => api.challenges.getMeta(),
+    queryFn: () => unwrap(rpc.challenges.meta.$get()),
     staleTime: 60 * 60 * 1000, // 1h — themes/types change rarely
   });
 }
@@ -52,10 +65,10 @@ export function userStatsOptions() {
   return queryOptions({
     queryKey: ["user", "stats"],
     queryFn: () =>
-      Promise.all([api.user.xp(), api.user.streak()]).then(([xp, streak]) => ({
-        xp,
-        streak,
-      })),
+      Promise.all([
+        unwrap(rpc.user.xp.$get()),
+        unwrap(rpc.user.streak.$get()),
+      ]).then(([xp, streak]) => ({ xp, streak })),
   });
 }
 
@@ -65,16 +78,31 @@ export function completionOptions(params?: {
   splitByTheme?: boolean;
   themeSlug?: string;
 }) {
+  // Normalize: `splitByTheme: false` is wire-equivalent to omitting it (the
+  // server defaults to false), so collapse both forms to the same query key
+  // and avoid double-caching the same response.
+  const normalized: { splitByTheme?: true; themeSlug?: string } = {};
+  if (params?.splitByTheme === true) normalized.splitByTheme = true;
+  if (params?.themeSlug) normalized.themeSlug = params.themeSlug;
+
   return queryOptions({
-    queryKey: ["progress", "completion", params ?? {}],
-    queryFn: () => api.progress.completion(params),
+    queryKey: ["progress", "completion", normalized],
+    queryFn: () =>
+      unwrap(
+        rpc.progress.completion.$get({
+          query: {
+            splitByTheme: normalized.splitByTheme ? "true" : undefined,
+            themeSlug: normalized.themeSlug,
+          },
+        }),
+      ),
   });
 }
 
 export function challengeStatusOptions(slug: string) {
   return queryOptions({
     queryKey: ["progress", "status", slug],
-    queryFn: () => api.progress.status(slug),
+    queryFn: () => unwrap(rpc.progress[":slug"].$get({ param: { slug } })),
   });
 }
 
@@ -83,14 +111,15 @@ export function challengeStatusOptions(slug: string) {
 export function submissionsOptions(slug: string) {
   return queryOptions({
     queryKey: ["submissions", slug],
-    queryFn: () => api.submissions.getBySlug(slug),
+    queryFn: () => unwrap(rpc.submissions[":slug"].$get({ param: { slug } })),
   });
 }
 
 export function latestValidationOptions(slug: string) {
   return queryOptions({
     queryKey: ["submissions", "latest", slug],
-    queryFn: () => api.submissions.latestValidation(slug),
+    queryFn: () =>
+      unwrap(rpc.submissions[":slug"].latest.$get({ param: { slug } })),
   });
 }
 
@@ -99,14 +128,14 @@ export function latestValidationOptions(slug: string) {
 export function userXpOptions() {
   return queryOptions({
     queryKey: ["user", "xp"],
-    queryFn: () => api.user.xp(),
+    queryFn: () => unwrap(rpc.user.xp.$get()),
   });
 }
 
 export function userStreakOptions() {
   return queryOptions({
     queryKey: ["user", "streak"],
-    queryFn: () => api.user.streak(),
+    queryFn: () => unwrap(rpc.user.streak.$get()),
   });
 }
 
@@ -115,7 +144,7 @@ export function userStreakOptions() {
 export function xpTransactionsOptions() {
   return queryOptions({
     queryKey: ["xp", "transactions"],
-    queryFn: () => api.xp.transactions(),
+    queryFn: () => unwrap(rpc.xp.history.$get()),
   });
 }
 
@@ -142,6 +171,6 @@ export function blogPostDetailOptions(slug: string) {
 export function adminChallengesOptions() {
   return queryOptions({
     queryKey: ["admin", "challenges"],
-    queryFn: () => api.admin.challenges(),
+    queryFn: () => unwrap(rpc.admin.challenges.$get()),
   });
 }

@@ -1,7 +1,3 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@kubeasy/ui/button";
 import {
   Dialog,
@@ -11,8 +7,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@kubeasy/ui/dialog";
-import { api } from "@/lib/api-client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
+import { rpc, unwrap } from "@/lib/rpc";
 
 export function ProfileDangerZone() {
   const queryClient = useQueryClient();
@@ -20,7 +20,7 @@ export function ProfileDangerZone() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const resetProgressMutation = useMutation({
-    mutationFn: () => api.user.resetProgress(),
+    mutationFn: () => unwrap(rpc.user.progress.$delete()),
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({ queryKey: ["user"] });
       toast.success("Progress reset successfully", {

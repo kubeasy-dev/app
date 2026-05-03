@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { api } from "./api-client";
+import { rpc, unwrap } from "./rpc";
 
 export type EmailTopic = {
   id: string;
@@ -11,12 +11,17 @@ export type EmailTopic = {
 
 export const getEmailTopicsFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<EmailTopic[]> => {
-    return api.user.emailTopics();
+    return unwrap(rpc.user["email-topics"].$get());
   },
 );
 
 export const updateEmailSubscriptionFn = createServerFn({ method: "POST" })
   .inputValidator((data: { topicId: string; subscribed: boolean }) => data)
   .handler(async ({ data }): Promise<{ success: boolean }> => {
-    return api.user.updateEmailTopic(data.topicId, data.subscribed);
+    const res = await rpc.user["email-topics"][":topicId"].$patch({
+      param: { topicId: data.topicId },
+      json: { subscribed: data.subscribed },
+    });
+    if (!res.ok) throw new Error(`update email topic failed: ${res.status}`);
+    return res.json() as Promise<{ success: boolean }>;
   });

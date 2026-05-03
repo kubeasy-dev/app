@@ -1,8 +1,10 @@
-import { api } from "@/lib/api-client";
 import { difficultyLabels, siteConfig } from "@/lib/constants";
+import { rpc, unwrap } from "@/lib/rpc";
 
 export async function renderChallengeIndexMarkdown(): Promise<string> {
-  const { challenges, count } = await api.challenges.list();
+  const { challenges, count } = await unwrap(
+    rpc.challenges.$get({ query: {} }),
+  );
 
   const listItems = challenges.map((c) => {
     const diff = difficultyLabels[c.difficulty] ?? c.difficulty;
@@ -27,8 +29,8 @@ export async function renderChallengeMarkdown(
   slug: string,
 ): Promise<string | null> {
   const [detailResult, objectivesResult] = await Promise.all([
-    api.challenges.getBySlug(slug),
-    api.challenges.getObjectives(slug),
+    unwrap(rpc.challenges[":slug"].$get({ param: { slug } })),
+    unwrap(rpc.challenges[":slug"].objectives.$get({ param: { slug } })),
   ]);
 
   const challenge = detailResult.challenge;

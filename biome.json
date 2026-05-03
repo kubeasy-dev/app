@@ -17,7 +17,8 @@
       "!.vinxi",
       "!**/*.css",
       "!**/routeTree.gen.ts",
-      "!**/drizzle/meta"
+      "!**/drizzle/meta",
+      "!apps/api/openapi.json"
     ]
   },
   "formatter": {

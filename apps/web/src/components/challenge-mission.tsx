@@ -1,4 +1,3 @@
-import type { LatestValidationStatusOutput } from "@kubeasy/api-schemas/progress";
 import { Button } from "@kubeasy/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@kubeasy/ui/card";
 import {
@@ -10,6 +9,7 @@ import {
   DialogTrigger,
 } from "@kubeasy/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
+import type { InferResponseType } from "hono/client";
 import {
   CheckCircle2,
   Circle,
@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useInvalidateCacheSSE } from "@/hooks/use-invalidate-cache-sse";
-import type { SubmissionsOutput } from "@/lib/api-client";
 import { authClient } from "@/lib/auth-client";
 import {
   challengeObjectivesOptions,
@@ -28,7 +27,19 @@ import {
   latestValidationOptions,
   submissionsOptions,
 } from "@/lib/query-options";
+import type { rpc } from "@/lib/rpc";
 import { cn } from "@/lib/utils";
+
+// Wire-shapes inferred from the live RPC routes (string dates etc.)
+// We filter on `200` to drop the 404 error variants from the union.
+type LatestValidationStatusOutput = InferResponseType<
+  (typeof rpc.submissions)[":slug"]["latest"]["$get"],
+  200
+>;
+type SubmissionsOutput = InferResponseType<
+  (typeof rpc.submissions)[":slug"]["$get"],
+  200
+>;
 
 interface ChallengeMissionProps {
   slug: string;
