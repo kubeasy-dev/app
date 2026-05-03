@@ -1,7 +1,6 @@
 import type { EvlogVariables } from "evlog/hono";
 import { createMiddleware } from "hono/factory";
 import { auth } from "../lib/auth";
-import { lookupUserByApiKey } from "../lib/lookup-user";
 
 export type SessionUser = typeof auth.$Infer.Session.user;
 export type SessionData = typeof auth.$Infer.Session.session;
@@ -14,33 +13,9 @@ export type AppEnv = {
 };
 
 export const sessionMiddleware = createMiddleware<AppEnv>(async (c, next) => {
-  // 1. Try session cookie (web)
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
-  if (session) {
-    c.set("user", session.user);
-    c.set("session", session.session);
-    await next();
-    return;
-  }
-
-  // 2. Fallback: try Bearer API key (CLI)
-  const authHeader = c.req.header("Authorization");
-  const key = authHeader?.startsWith("Bearer ")
-    ? authHeader.slice(7)
-    : undefined;
-
-  if (key) {
-    const foundUser = await lookupUserByApiKey(key);
-    if (foundUser) {
-      c.set("user", foundUser);
-      c.set("session", null);
-      await next();
-      return;
-    }
-  }
-
-  c.set("user", null);
-  c.set("session", null);
+  c.set("user", session?.user ?? null);
+  c.set("session", session?.session ?? null);
   await next();
 });
 

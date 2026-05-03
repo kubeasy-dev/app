@@ -1,6 +1,6 @@
 import { httpInstrumentationMiddleware } from "@hono/otel";
 import { parseError } from "evlog";
-import { createAuthMiddleware } from "evlog/better-auth";
+import { identifyUser } from "evlog/better-auth";
 import { evlog } from "evlog/hono";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -13,7 +13,6 @@ import { sessionMiddleware } from "./middleware/session";
 import { routes } from "./routes/index";
 
 const app = new Hono<AppEnv>();
-const identifyUser = createAuthMiddleware(auth);
 
 // Official @hono/otel middleware for framework-native instrumentation
 app.use("*", httpInstrumentationMiddleware());
@@ -31,13 +30,21 @@ app.use(
 
 app.use("*", evlog());
 
-app.use("*", async (c, next) => {
-  await identifyUser(c.get("log"), c.req.raw.headers, c.req.path);
-  await next();
-});
-
 // Session middleware on all /api routes (sets c.var.user, c.var.session)
 app.use("/api/*", sessionMiddleware);
+
+// Identify user for evlog using already-resolved session (avoids a second getSession call)
+app.use("/api/*", async (c, next) => {
+  const session = c.get("session");
+  const user = c.get("user");
+  if (session && user) {
+    identifyUser(c.get("log"), {
+      user: user as Record<string, unknown>,
+      session: session as Record<string, unknown>,
+    });
+  }
+  await next();
+});
 
 // Mount Better Auth handler
 app.on(["GET", "POST"], "/api/auth/*", (c) => {

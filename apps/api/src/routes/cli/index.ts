@@ -9,15 +9,15 @@ import { db } from "../../db/index";
 import { userOnboarding } from "../../db/schema/onboarding";
 import { trackCliLogin, trackCliSetup } from "../../lib/analytics-server";
 import { redis } from "../../lib/redis";
-import { apiKeyMiddleware } from "../../middleware/api-key";
 import type { AppEnv } from "../../middleware/session";
+import { requireAuth } from "../../middleware/session";
 import { submit } from "../submit";
 import { legacyCli } from "./legacy";
 
 const cli = new Hono<AppEnv>();
 
-// API key auth required for all CLI routes (replaces session cookie auth)
-cli.use("/*", apiKeyMiddleware);
+// API key auth required for all CLI routes (session resolved globally by sessionMiddleware)
+cli.use("/*", requireAuth);
 
 // Current paths (plural)
 cli.route("/challenges", submit); // POST /api/cli/challenges/:slug/submit

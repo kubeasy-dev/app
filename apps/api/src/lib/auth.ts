@@ -40,6 +40,12 @@ export const auth = betterAuth({
       rateLimit: {
         enabled: false,
       },
+      enableSessionForAPIKeys: true,
+      customAPIKeyGetter: (ctx) => {
+        const authHeader = ctx.request?.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) return null;
+        return authHeader.slice(7);
+      },
     }),
   ],
   user: {
