@@ -9,6 +9,10 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+
+  nginx:
+    endpoint: ${env:NGINX_STATUS_URL}
+    collection_interval: 60s
         cors:
           allowed_origins:
             - "http://localhost:3000"
@@ -84,4 +88,8 @@ service:
     logs:
       receivers: [otlp]
       processors: [memory_limiter, resourcedetection, resource/env_override, transform/correlation, batch]
+      exporters: [otlphttp]
+    metrics:
+      receivers: [nginx]
+      processors: [memory_limiter, resourcedetection, resource/env_override, batch]
       exporters: [otlphttp]

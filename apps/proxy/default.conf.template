@@ -15,6 +15,12 @@ server {
         add_header Content-Type text/plain;
     }
 
+    # nginx metrics — private network only, scraped by otel-collector
+    location = /nginx_status {
+        otel_trace off;
+        stub_status;
+    }
+
     # OTLP Proxy — browser telemetry forwarded via main domain to avoid CORS
     location /instrumentation/ {
         otel_trace off;
