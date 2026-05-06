@@ -2,6 +2,7 @@ import { httpInstrumentationMiddleware } from "@hono/otel";
 import { Scalar } from "@scalar/hono-api-reference";
 import { parseError } from "evlog";
 import { identifyUser } from "evlog/better-auth";
+import { createTraceContextEnricher } from "evlog/enrichers";
 import { evlog } from "evlog/hono";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -30,7 +31,7 @@ app.use(
   }),
 );
 
-app.use("*", evlog());
+app.use("*", evlog({ enrich: createTraceContextEnricher() }));
 
 // Session middleware on all /api routes (sets c.var.user, c.var.session)
 app.use("/api/*", sessionMiddleware);
