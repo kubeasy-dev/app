@@ -1,5 +1,7 @@
 otel_service_name nginx;
-otel_exporter_otlp_endpoint grpc://${OTEL_COLLECTOR_GRPC_UPSTREAM};
+otel_exporter {
+    endpoint ${OTEL_COLLECTOR_GRPC_UPSTREAM};
+}
 otel_trace on;
 otel_trace_context propagate;
 
