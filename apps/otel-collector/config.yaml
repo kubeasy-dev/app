@@ -9,10 +9,6 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
-
-  nginx:
-    endpoint: ${env:NGINX_STATUS_URL}
-    collection_interval: 60s
         cors:
           allowed_origins:
             - "http://localhost:3000"
@@ -22,9 +18,30 @@ receivers:
           allowed_headers:
             - "*"
 
+  nginx:
+    endpoint: ${env:NGINX_STATUS_URL}
+    collection_interval: 60s
+
+  postgresql:
+    endpoint: ${env:OTEL_POSTGRES_ENDPOINT}
+    username: ${env:OTEL_POSTGRES_USERNAME}
+    password: ${env:OTEL_POSTGRES_PASSWORD}
+    databases:
+      - ${env:OTEL_POSTGRES_DB}
+    collection_interval: 60s
+    tls:
+      insecure: true
+
+  redis:
+    endpoint: ${env:OTEL_REDIS_ENDPOINT}
+    password: ${env:OTEL_REDIS_PASSWORD}
+    collection_interval: 60s
+    tls:
+      insecure: true
+
 processors:
   batch:
-  
+
   memory_limiter:
     check_interval: 1s
     limit_mib: 512
@@ -90,6 +107,6 @@ service:
       processors: [memory_limiter, resourcedetection, resource/env_override, transform/correlation, batch]
       exporters: [otlphttp]
     metrics:
-      receivers: [nginx]
+      receivers: [nginx, postgresql, redis]
       processors: [memory_limiter, resourcedetection, resource/env_override, batch]
       exporters: [otlphttp]
