@@ -42,7 +42,7 @@
     "@opentelemetry/sdk-metrics": "catalog:",
     "@opentelemetry/sdk-node": "catalog:",
     "@opentelemetry/semantic-conventions": "1.40.0",
-    "@scalar/hono-api-reference": "0.10.13",
+    "@scalar/hono-api-reference": "0.10.14",
     "better-all": "0.0.7",
     "better-auth": "catalog:",
     "bullmq": "catalog:",
@@ -53,7 +53,7 @@
     "ioredis": "5.10.1",
     "nanoid": "5.1.11",
     "pg": "catalog:",
-    "posthog-node": "5.33.0",
+    "posthog-node": "5.33.2",
     "resend": "6.12.2",
     "zod": "catalog:"
   },
